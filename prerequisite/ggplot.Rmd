@@ -1,0 +1,77 @@
+# ggplot2 prerequisites
+
+> + Learn to finish the below tasks by understanding the [basics](#basics) and then using the first 3 links from the [resources section](#resources).  
+> + Learn more advanced features (optional) by using the last link from [resources](#resources).
+
+## Installing dependencies
+```{r, warning=FALSE}
+    # install.packages("ggplot2")
+    library(ggplot2)
+```
+
+## Data
+
+We'll use the *diamonds* dataframe (`?ggplot2::diamonds`). Its first 6 rows look like the this:
+
+```{r, echo=FALSE}
+    head(diamonds)
+```
+## Basic concepts of *Grammer of Graphics* {#basics}
+
+  + "gg" in ggplot means: Grammer of Graphics  
+  + Grammer of Graphics is about mapping data points to aesthetic attributes (colour, shape, size) of geometric objects (points, lines, bars)  
+  + Thus, ggplot works with dataframes and not individual vectors and maps data from the dataframe to parts of the plot (aesthetics)  
+  + You can keep enhancing the plot by adding more layers  
+  + basic syntax: `ggplot(data = NULL, mapping = aes()) + geom_xyz()`  
+      * where you provide the dataframe to the `data` argument  
+      * and tell the `mapping` argument how to map columns of your dataframe to certain parts of your plot  
+      * Note that the `mapping` argument's value should be wrapped in the `aes()` (aesthetics) function. This tells the ggplot function which parts of the plot should be the mapped to the dataframe. Plot aesthetics defined outside of `aes()` will be constants. (Take a look at the examples and come back here again after to make sure you understood.)  
+  + type `?ggplot` to your console to learn more about the arguments  
+
+
+## Basic plot
+
+```{r}
+    ggplot(diamonds, aes(x=carat, y=price, color=cut)) +
+        geom_point()
+```
+
+## Layers (you can do the same thing in different ways)
+
+```{r, eval=FALSE}
+    ggplot(diamonds, aes(x=carat, y=price, color=cut)) +
+        geom_point() +
+        geom_smooth()
+```
+
+_and_
+
+```{r, eval=FALSE}
+    ggplot(diamonds) +
+        geom_point(aes(x=carat, y=price, color=cut)) +
+        geom_smooth(aes(x=carat, y=price, color=cut))
+```
+
+are the same.
+
+```{r, echo=FALSE}
+    ggplot(diamonds) +
+        geom_point(aes(x=carat, y=price, color=cut)) +
+        geom_smooth(aes(x=carat, y=price, color=cut))
+```
+
+## Titles and labels
+
+## More advanced features
+
+## Basic style guide
+
+## Resources {#resources}
+
+  + [Selva Prabhakaran - The Complete ggplot2 Tutorial](http://r-statistics.co/Complete-Ggplot2-Tutorial-Part1-With-R-Code.html)
+  + [Quick ref.](http://r-statistics.co/ggplot2-cheatsheet.html)
+  + [Cheat sheet](http://r-statistics.co/ggplot2-cheatsheet.html)
+
+  + [Hadley Wickham - ggplot2 - Elegant graphics for data analysis](http://moderngraphics11.pbworks.com/f/ggplot2-Book09hWickham.pdf)
+
+

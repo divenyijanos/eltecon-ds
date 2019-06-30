@@ -1,0 +1,149 @@
+---
+title: "Eltecon Data Science Cource"
+subtitle: "Prerequisites - Introduction"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assigning objects
+In R you can get the ouput of a math operation by simply typing it in the console and hitting enter:
+```{r assign ex-1}
+2 * 3
+```
+You will also need to assign values to objects using the `<-` operator:
+```{r assign ex-2}
+x <- 2
+x * 3
+```
+In general, objects can be given any name, however there are some exceptions: they cannot start with a number (`1x` is not valid) and some names cannot be used as they are reserved for fundamental functions (type `?Reserved` to list these).
+
+# Data types
+### Vectors
+One of the most basic data type in R is the vector. A vector is a series of values, which can be either numbers or characters. You can assign a series of values to a vector using the `c()` function, which stands for "concatenate (combine/connect one after another) values into a vector". For example you can create a vector of heights and assign it to a new object `heights`:
+```{r vectors ex-1}
+heights <- c(155, 173, 175, 180)
+heights
+```
+You can also assign characters to a vector (quotes around characters can be either single or double):
+```{r vectors ex-2}
+starks <- c("Arya", "Jon", "Sansa", "Bran")
+starks
+```
+Note that all the elements of a vector are the same type:
+```{r vectors ex-3}
+class(heights)
+```
+
+```{r vectors ex-4}
+class(starks)
+```
+
+You can also add elements to a vector using the `c()` function:
+```{r vectors ex-5}
+starks <- c(starks, "Robb")
+heights <- c(heights, 177)
+starks
+heights
+```
+
+An atomic vector is a linear vector of a single type, e.g. all characters. The 6 main atomic vector types are:
+
+- character (like `heights`)
+- numeric (like `starks`)
+- logical (boolean type, TRUE or FALSE)
+- integer (integer numbers, eg., 3L, where the L indicates that it is an integer)
+- complex (complex numbers with real and imaginary parts, eg., 3 + 2i)
+- raw (bbitstreams)
+
+Vectors are one of the data types that R uses. Other important ones are lists (list), matrices (matrix), data frames (data.frame), factors (factor) and arrays (array). In this class, we will not talk about matrices and arrays.
+
+### Factors
+A factor is a variable that can take one of a finite number of distinct values or levels, in other words factors are used to represent categorical data. You can create a factor by applying the `factor` function to a vector of any class:
+```{r factors ex-1}
+is_alive <- c(rep(TRUE, 4), FALSE)
+factor(is_alive)
+```
+Note that the order of the levels is by default arbitrary, but you can change that by the `levels` argument:
+```{r factors ex-2}
+factor(is_alive, levels = c(TRUE, FALSE))
+```
+Moreover, you can also change the label of the factor by the `labels` argument:
+```{r factors ex-3}
+is_alive <- factor(is_alive, levels = c(TRUE, FALSE), labels = c("alive", "dead"))
+is_alive
+```
+
+### Lists
+While a vector has to contain elements that are all the same type, lists can contain anything (vectors of different types, matrices, data frames, other lists). You can use `[[ ]]` to extract an element of a list by number or name  or `$` to extract by name (only). Eg.,
+```{r lists ex-1}
+L <- list(A = starks, B = heights, C = is_alive)
+```
+Then `L[[1]]`, `L[["A"]]`, and `L$A` will each return the first element of the list. To extract a sublist, use the ordinary single square brackets: `[]`:
+```{r lists ex-2}
+L[c("A", "C")]
+```
+
+### Data frames
+A `data.frame` is the representation of data in the format of a table where the columns are vectors that all have the same length. As we discussed above, as vectors contain the same type of data it is true for the columns of a data frame as well. Data frames can be created by hand but more importantly by importing data from an external file using a function.
+
+You can create a data frame using the `data.frame` function and passing `vectors` as its arguments:
+```{r data-frame ex-1}
+DT <- data.frame(A = c(1, 2, 3), B = c("a", "b", "c"))
+DT
+```
+
+```{r data-frame ex-2}
+GT <- data.frame(person = starks, height = heights, status = is_alive)
+GT
+```
+There are many useful functions that you can use to inspect your `data.frame`, some of the most used are:
+
+- Size:
+    + `dim(GT)` - returns a vector with the number of rows in the first element and the number of columns as the second element (the dimensions of the object)
+    + `nrow(GT)` - returns the number of rows
+    + `ncol(GT)` - returns the number of columns
+- Content:
+    + `head(GT)` - shows the first 6 rows
+    + `tail(GT)` - shows the last 6 rows
+- Names:
+    + `names(GT)` - returns the column names (synonym of colnames() for data.frame objects)
+    + `rownames(GT)` - returns the row names
+- Summary:
+    + `str(GT)` - structure of the object and information about the class, length, and content of each column
+    + `summary(GT)` - summary statistics for each column
+
+Source: 
+
+- https://kingaa.github.io/R_Tutorial/#vectors
+- https://uoftcoders.github.io/rcourse/lec02-basic-r.html
+
+# Packages
+When you download R from the Comprehensive R Archive Network (CRAN), you get the base R system, which comes with the basic functionalities, however, there is a large collection of packages developed and published by the R community that extend this. You can either install packages from the menu (Tools -> Install packages...) or by passing the name of the package to the `install.packages()` function, eg.:
+
+```{r packages-ex1, eval = FALSE}
+install.packages("ggplot2")
+```
+This installs the ggplot2 package and its dependencies (if there is any). You can install more than one package at a time:
+```{r packages-ex2, eval = FALSE}
+install.packages(c("purrr", "magrittr"))
+```
+
+Installing a package does not make it immediately available to you in R, you must load the package with the `library()` function. Note that you do not need to put the package name in quotes!
+```{r packages-ex3, eval = FALSE}
+library(ggplot2)
+```
+Source: http://jtleek.com/modules/01_DataScientistToolbox/02_09_installingRPackages/#9
+
+# Help
+Before asking others for help, it's generally a good idea to try to help yourself. You can do that by using the `help()` function and the `?` help operator that provide access to the documentation pages for R functions, data sets, and other objects. Eg. to access documentation for the `paste()` function, enter the command `help(paste)` or `help("paste")`, or `?paste` or `?"paste"` (i.e., the quotes are optional).
+
+If you want to access help for a function in a package that's not currently loaded, specify in addition the name of the package: eg. to obtain documentation for the `map()` function in the `purrr` package, `help(map, package="purrr")`.
+
+Many packages include vignettes, which are descriptive documents meant to illustrate and explain facilities in the package. You can browse vignettes by accessing the help page for a package, or via the `browseVignettes()` function eg. `browseVignettes(package="purrr")`.
+
+If you find that you can't answer a question or solve a problem yourself, you can ask others for help, eg. google your problem by typing 'R' and the package name it is related to, or go directly to Stack Overflow which is a well organized and formatted site for help and discussions about programming. If you still do not find any useful answer, you can even raise a question yourself on Stack Overflow.
+
+Source: https://www.r-project.org/help.html
