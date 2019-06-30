@@ -1,0 +1,344 @@
+---
+title: "Course Prerequisites - Functions and loops"
+author: "Tamas Koncz"
+date: '2019-07-01'
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(data.table)
+```
+
+# Functions and loops
+
+## Functions
+
+Functions are essential in the programming toolkit. They allow you to generalize code for common tasks, rather than repeating the same pieces of code over and over again.
+
+A simple example of an R functions is below:
+```{r}
+printHelloWorld <- function() {
+    print("Hello World!")
+}
+
+printHelloWorld()
+```
+
+In fact, probably you are already using many functions in your code, but maybe just ones written by someone else.
+`mean()` is for example a function that takes a numeric vector, and returns the average value of that vector:
+```{r}
+mean(c(1:5))
+```
+
+Notice that in the first example we've written a function that always does the same thing: prints "Hello World!" in the console. But more often than not, you will have a function that takes some input, and based on that input it will calculate the output. This is the reason why you want to have a function: provide it with inputs, execute some calculations on the given input, and return the results of that calculation.
+
+A function can have more than one input as well. `mean()` is many times called with setting its third argument, `na.rm = TRUE` (instead of its default value, `FALSE`):
+```{r}
+mean(c(1, 2, NA, 4, 5))
+mean(c(1, 2, NA, 4, 5), na.rm = TRUE)
+```
+
+Notice we said that `na.rm` is the third argument. This is because how R handles function arguments:
+
+* One option is to list arguments in their original order. So, for `mean()`, we didn't have to specify the first argument like this: `mean(x = c(1, 2, NA, 4, 5))`. This is fine, as long as it is understandable which arguments are we providing.
+
+* Another option is to name the arguments when calling the function, like we did with `na.rm` for `mean()`. In this case, you can provide the arguments in any order you want, e.g. like `mean(na.rm = TRUE, x = c(1, 2, NA, 4, 5))`. However, this is still not recommended, as it could make your code harder to read.
+
+* You only have to specify arguments for which you don't want to use the default value. `mean` takes `trim` as its second argument, but given we are fine with the default value `trim = 0`, there is no need to write it out.
+
+
+It is time to write a simple function of our own, in which we actually use another function!
+
+#### Example: given a numeric, returns the ones which are above average
+```{r}
+set.seed(1234)
+heights <- rnorm(20, 175, 15)
+
+getAboveAvgHeights <- function(x) {
+    mean_x <- mean(x, na.rm = TRUE)
+    x[x > mean_x]
+}
+
+getAboveAvgHeights(heights)
+```
+
+
+### Getting help: ?function()
+
+In the above example, you might not know what `rnorm()` or `set.seed` does. There is no need to worry - most R functions you will want to use come with excellent documentation, which is easily accessible just by typing ? preceding the functions name in the console:
+```{r}
+?set.seed
+?rnorm
+```
+
+For `rnorm`, you will learn that it generates values based on the normal distribution.
+`set.seed` will set a specific seed before generating random numbers - this is a recommended practice to make your analysis results [reproducible](https://ropensci.github.io/reproducibility-guide/sections/introduction/).
+
+### When to write a function?
+As a rule of thumb, you should consider writing a function when you have repeated the same code more than two times.
+
+But why would you do that? There are a few main reasons why it worths the effort:
+    1. Using well-named functions make your code cleaner and easier to understand
+    2. It reduces the possibility of a manual error compared to copy-pasting code blocks
+    3. If you need to change how you code behaves, you will only need to do it once, in the functions definition
+
+### Optional: scoping
+
+This part is a bit advanced, but it should be mentioned as understanding it is unavoidable if we want to write [clean code](https://github.com/czeildi/erum-2018-clean-r-code/blob/infra/clean_r_code_cheatsheet_2018-05-08.pdf).
+
+An important requisit to make any code high-quality is to make it self-contained. Self-contained essentially means that the results of calculation does not depend on external factors. For functions, this essentially means that a functions should do the same thing every time it is called on the same inputs.
+
+You might ask "why would it happen any differently?", so let's consider the below function:
+```{r}
+notAGoodFunction <- function(a) {
+    print(paste("a + b equals = ", a + b))
+}
+```
+
+Now, you have probably noticed that what is returned by this functions is not just depended on its input, `a`, but also `b`.
+So, if you use it in your code, definining `b = 10`:
+```{r}
+b <- 10
+notAGoodFunction(a = 5)
+```
+
+You will get different results than your classmate, who has defined `b = 25`:
+```{r}
+b <- 25
+notAGoodFunction(a = 5)
+```
+
+This is not desirable. Having external dependencies in your functions will your code harder to understand once it gets longer, and hence make it more error-prone.
+
+#### Example: re-write the below code so that it is of higher quality
+```{r}
+# bad code - calculating which place provides the most pizza per price
+p <- 1500
+s <- 24
+
+value_for_money1 <- p / (pi * s ^ 2)
+
+p <- 2200
+s <- 32
+
+value_for_money2 <- p / (pi * s ^ 2)
+
+p <- 1900
+s <- 28
+
+value_for_money3 <- p / (pi * s) ^ 2
+
+print(paste0(
+    "Amount paid per unit of pizza: ",
+    paste(value_for_money1, value_for_money2, value_for_money3, sep = "; ")
+))
+```
+
+What is bad about the above code? Well, two things stand out:
+
+* Variables names are not descriptive of their contents, so without knowing the context I would not understand what the above code does. Also, variables are re-used, which makes it confusing if code is re-executed not in the order.
+
+* We've repeated the same calculation three times. If we would want to change the logic of our value for money calculation, we would need to keep it in our mind that it needs to happen in three places. By the way - did you notice that the third calculation was written incorrectly, as `p / (pi * s) ^ 2` instead of `p / (pi * s ^ 2)`?
+
+
+We could address these problems like below:
+```{r}
+# better code
+calculatePricePerPizzaUnit <- function(pizza_price, pizza_size_in_cm) {
+    pizza_price / (pi * pizza_size_in_cm ^ 2)
+}
+
+pizza_prices <- c(1500, 2200, 1900)
+pizza_sizes  <- c(24,   32,   28)
+
+value_for_money <- calculatePricePerPizzaUnit(
+    pizza_price = pizza_prices,
+    pizza_size_in_cm = pizza_sizes
+)
+
+print(paste0(
+    "Amount paid per unit of pizza: ",
+    paste(value_for_money, collapse = "; ")
+))
+```
+
+Note that in this code we did not define 3 separate variables for pizza prices and then 3 separate variables for pizza sizes, instead we put them into two vectors. If you don't yet fully understand how R operates over vectors, you need not to worry - it will be address in the next section about iterations.
+
+### Exercises
+
+Before we move on, it is good to check your understanding so far. Let's see if you can solve the two problems below (expected results are provided, but code for the solution is not)!
+
+1. Write a function that given a data.table, will return the number of NA values for each column
+
+Example:
+```{r}
+dt <- data.table(
+    a = c(1, NA, NA, 5, 2),
+    b = c(NA, NA, 4, 5, 6),
+    c = c(letters[1:5]),
+    d = rep(NA_character_, 5)
+)
+
+# TODO: write function summarizeNAs()
+
+# Expected result:
+# summarizeNAs(dt)
+#>    a b c d
+#> 1: 2 2 0 5
+```
+
+2. Write a function, that if given two numeric vectors (`x` and `y`):
+    - sums up the two vectors separately, and then multiples the results together if the `sum_then_multiply` argument is `TRUE`
+    - multiples the two vectors element by element, and then sums up the results together if the `sum_then_multiply` argument is `FALSE`
+    - `sum_then_multiply` should be `TRUE` by default
+Optionally:
+    - think about how to handle if one of the vectors is not numeric - in this case, an easily understandable error should be thrown at the user
+    - return an error if the two numeric values are not the same length (tip: experiment what happends in different cases when you multiply two vectors together of different lenghts, e.g. 1 vs 2, 2 vs 2, 2 vs 3... it might not always be what you would expect)
+
+Example:
+```{r}
+foo <- c(1, 2, 3)
+bar <- c(4, 5, 6)
+
+# TODO: write function performStrangeCalculation()
+```
+
+```{r}
+# performStrangeCalculation(foo, bar)
+#> [1] 90
+```
+
+```{r}
+# performStrangeCalculation(foo, baz, sum_then_multiply = FALSE)
+#> [1] 32
+```
+
+```{r}
+# for the optional part
+baz <- c("a", "b", "c")
+
+# performStrangeCalculation(foo, baz)
+#> "Error in performStrangeCalculation(foo, baz) :
+#>    Both x and y should be numeric vectors"
+```
+
+## Iterations over multiple elements
+
+Okay, so first of all we understand that the main title referred to just "loops". However, this is because we felt something like "Functions and different ways to iterate calculations over multiple elements" would have been a bit to long.
+
+In this section we'll take several ways of these iterations, and loops is only one of them. Let's jump in.
+
+### Loops
+
+We'll cover two type of loops - "for" and "while". They can be handy in different situations, but both are essential building blocks of most programming languages.
+
+#### For loop
+
+```{r}
+for (i in c(1, -2, 3, -4)) {
+  print(i * 2)
+}
+```
+
+For loops iterate over a vector, element by element, and perform specific operations each time. Typically the vector consists of numbers from 1 to N, but as you can see in the above example, that is not necessary.
+
+It doesn't even have to be a numeric vector actually:
+```{r}
+for (letter in letters[1:3]) {
+    print(letter)
+}
+```
+
+For loops have an bad reputation in R for their performance - but this is unfounded in reality. You only need to learn a few tricks (for exampe [this one](https://www.r-bloggers.com/faster-for-loops-in-r/)) to optimize their performance.
+
+#### While loop
+
+While loops execute a set of operations until a a condition is met. A simple example is:
+```{r}
+i <- 1
+while(i < 4) {
+    print(i)
+    i <- i + 1
+}
+```
+
+While loops can potentially result in infinite loops if not written properly. Use with care!
+
+Even though loops are truly powerful, you likely won't use them that often in R. Let's find out why.
+
+### Vectorized operations in R
+
+So many functions in R are vectorized that you might not have noticed realized it before, because it just feels natural.
+
+Let's take an example where we want to select all elements of a vector which are larger than 3:
+```{r}
+x <- c(1:5)
+print(x[x > 3])
+```
+
+Without vectorization this would have looked something like this:
+```{r}
+for(i in c(1:5)){
+    if (i > 3) {
+       print(i)
+    }
+}
+```
+
+That feels just long and complicated to do every time we want to do something so simple.
+Why could we use the simple solution? Because `>` and `[` can work with vectors! So `x > 3` returns a logical vector:
+```{r}
+elements_larger_than_three <- x > 3
+print(elements_larger_than_three)
+```
+
+Which in turn can be used to subset `x`:
+```{r}
+x[elements_larger_than_three]
+```
+
+Vectorization happens element-wise. So values in `x` are subset with the corresponding value in `elements_larger_than_three` one-by-one.
+
+This logic becomes even more apparent with vector multiplication and addition:
+```{r}
+print(c(1, 2, 3) * c(1, 2, 3))
+print(c(1, 2, 3) + c(1, 2, 3))
+```
+
+### lapply, sapply - TODO
+
+### Exercises
+1. Write a script that simulates dice rolls.
+    - Each round we will roll the dice four times
+    - We "win" if we have rolled at least one number two or more times in the round
+    - We can stop after three rounds won
+    - Don't forget to set the seed so your results are replicable!
+    - (Tip: check out the help of the `sample.int` function if you are unsure how to simulate dice rolls)
+
+A nice solution's output would look like this:
+```{r}
+# TODO: your script goes here
+
+# Results example:
+#> [1] "Rolls in round: 2, 5, 3, 6"
+#> [1] "Rolls in round: 6, 1, 4, 6"
+#> [1] "Rolls in round: 4, 3, 6, 3"
+#> [1] "Rolls in round: 5, 4, 1, 6"
+#> [1] "Rolls in round: 2, 1, 2, 6"
+```
+
+2. TODO
+
+## Recommended readings - TODO
+
+This document is heavily built on some of the great work of Hadley Wickham, which are recommended readings for a deeper understanding of R functions and iteration in R:
+
+* [R for Data Science - Functions](https://r4ds.had.co.nz/functions.html)
+* [Advanced R - Functions](http://adv-r.had.co.nz/Functions.html)
+* [R for Data Science - Iteration](https://r4ds.had.co.nz/iteration.html)
+
+Other recommendations:
+
+* [R Programming for Data Science](https://bookdown.org/rdpeng/rprogdatascience/vectorized-operations.html)
