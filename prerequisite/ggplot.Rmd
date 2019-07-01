@@ -11,21 +11,21 @@
 
 ## Data
 
-We'll use the *diamonds* dataframe (`?ggplot2::diamonds`). Its first 6 rows look like the this:
+We'll use the *diamonds* data frame (`?ggplot2::diamonds`). Its first 6 rows look like the this:
 
 ```{r, echo=FALSE}
     head(diamonds)
 ```
-## Basic concepts of *Grammer of Graphics* {#basics}
+## Basic concepts of *Grammar of Graphics* {#basics}
 
-  + "gg" in ggplot means: Grammer of Graphics  
-  + Grammer of Graphics is about mapping data points to aesthetic attributes (colour, shape, size) of geometric objects (points, lines, bars)  
-  + Thus, ggplot works with dataframes and not individual vectors and maps data from the dataframe to parts of the plot (aesthetics)  
+  + "gg" in ggplot means: Grammar of Graphics  
+  + Grammar of Graphics is about mapping data points to aesthetic attributes (colour, shape, size) of geometric objects (points, lines, bars)  
+  + Thus, ggplot works with data frames and not individual vectors and maps data from the data frame to parts of the plot (aesthetics)  
   + You can keep enhancing the plot by adding more layers  
   + basic syntax: `ggplot(data = NULL, mapping = aes()) + geom_xyz()`  
-      * where you provide the dataframe to the `data` argument  
-      * and tell the `mapping` argument how to map columns of your dataframe to certain parts of your plot  
-      * Note that the `mapping` argument's value should be wrapped in the `aes()` (aesthetics) function. This tells the ggplot function which parts of the plot should be the mapped to the dataframe. Plot aesthetics defined outside of `aes()` will be constants. (Take a look at the examples and come back here again after to make sure you understood.)  
+      * where you provide the data frame to the `data` argument  
+      * and tell the `mapping` argument how to map columns of your data frame to certain parts of your plot  
+      * Note that the `mapping` argument's value should be wrapped in the `aes()` (aesthetics) function. This tells the ggplot function which parts of the plot should be the mapped to the data frame. Plot aesthetics defined outside of `aes()` will be constants. (Take a look at the examples and come back here again after to make sure you understood.)  
   + type `?ggplot` to your console to learn more about the arguments  
 
 
