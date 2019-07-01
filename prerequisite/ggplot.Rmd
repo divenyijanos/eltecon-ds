@@ -1,70 +1,159 @@
 # ggplot2 prerequisites
 
-> + Learn to finish the below tasks by understanding the [basics](#basics) and then using the first 3 links from the [resources section](#resources).  
+> + You should be able to replicate the plots in this document on your own. The important parts are the concepts and not the actual plot types for example.
+> + Learn the below concepts by understanding the [basics](#basics) (and corresponding illustrations in the [basic plot section](#basic_plot)) and then using the first 3 links from the [resources section](#resources).  
 > + Learn more advanced features (optional) by using the last link from [resources](#resources).
 
 ## Installing dependencies
 ```{r, warning=FALSE}
-    # install.packages("ggplot2")
+    install.packages("ggplot2")
+    install.packages("scales")
     library(ggplot2)
+    library(scales)
 ```
 
 ## Data
 
-We'll use the *diamonds* data frame (`?ggplot2::diamonds`). Its first 6 rows look like the this:
+We'll use the *diamonds* data frame (`?ggplot2::diamonds`). Its first 6 rows look like this:
 
 ```{r, echo=FALSE}
     head(diamonds)
 ```
+
+One observation (row) in the dataset is about one diamond and its parameters. Unlike in data analysis usually, it isn't important to understand the data in more detail for our purposes.
+
 ## Basic concepts of *Grammar of Graphics* {#basics}
 
-  + "gg" in ggplot means: Grammar of Graphics  
+  + "gg" in *ggplot* means: *Grammar of Graphics*  
   + Grammar of Graphics is about mapping data points to aesthetic attributes (colour, shape, size) of geometric objects (points, lines, bars)  
   + Thus, ggplot works with data frames and not individual vectors and maps data from the data frame to parts of the plot (aesthetics)  
   + You can keep enhancing the plot by adding more layers  
   + basic syntax: `ggplot(data = NULL, mapping = aes()) + geom_xyz()`  
       * where you provide the data frame to the `data` argument  
       * and tell the `mapping` argument how to map columns of your data frame to certain parts of your plot  
-      * Note that the `mapping` argument's value should be wrapped in the `aes()` (aesthetics) function. This tells the ggplot function which parts of the plot should be the mapped to the data frame. Plot aesthetics defined outside of `aes()` will be constants. (Take a look at the examples and come back here again after to make sure you understood.)  
+      * Note that the `mapping` argument's value should be wrapped in the `aes` (aesthetics) function. This tells the ggplot function which parts of the plot should be the mapped to the data frame. Plot aesthetics defined outside of `aes` will be constants.
   + type `?ggplot` to your console to learn more about the arguments  
+  + Take a look at the examples and come back here again after to make sure you understood.  
 
 
-## Basic plot
+## Basic plot: input data and mapping aesthetics {#basic_plot}
 
 ```{r}
-    ggplot(diamonds, aes(x=carat, y=price, color=cut)) +
+    ggplot(diamonds, aes(x = carat, y = price, colour = cut)) +
         geom_point()
 ```
 
+In the above plot we tell the `ggplot` function to use the `diamonds` *data frame*. In the second argument (`mapping`) we tell ggplot which columns of our `data` should map to which *aesthetic* of the plot: the *x axis* should show how many *carat* our given diamond is, while the *y axis* should show its price. The *colour* of the dots should correspond with the *cut* of the diamond (whatever that means). See, that each and every argument in the `aes` function corresponds with a column in the data frame.  
+We can also customize aesthetics independent of our data and its columns. All you need to do is to set the aesthetics outside of the `aes` function. In the following plot we disconnect the `colour` setting from the data and set it to a constant (red). Note, that we also moved this aesthetics setting from the `ggplot` function to the `geom_point` layer which is the part where we tell the plot what kind of chart we'd like to see. (You can also set all the aesthetics, including the ones in `aes` in the layers, see below.)
+
+```{r}
+    ggplot(diamonds, aes(x = carat, y = price)) +
+        geom_point(colour = "red", alpha = .1)
+```
+
+Other aesthetics to watch out for (apart from x, y axes):   
+
+  + `colour`  
+  + `fill`  
+  + `size`  
+  + `shape`  
+  + `alpha`  
+  + `linetype`  
+
 ## Layers (you can do the same thing in different ways)
 
+You can add more layers using the `+` operator:
+
 ```{r, eval=FALSE}
-    ggplot(diamonds, aes(x=carat, y=price, color=cut)) +
+    ggplot(diamonds, aes(x = carat, y = price, colour = cut)) +
         geom_point() +
         geom_smooth()
 ```
 
-_and_
+__and__
 
 ```{r, eval=FALSE}
     ggplot(diamonds) +
-        geom_point(aes(x=carat, y=price, color=cut)) +
-        geom_smooth(aes(x=carat, y=price, color=cut))
+        geom_point(aes(x = carat, y = price, colour = cut)) +
+        geom_smooth(aes(x = carat, y = price, colour = cut))
 ```
 
-are the same.
+are the same. If you provide aesthetics to the top layer, then layers which follow will inherit them.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
     ggplot(diamonds) +
-        geom_point(aes(x=carat, y=price, color=cut)) +
-        geom_smooth(aes(x=carat, y=price, color=cut))
+        geom_point(aes(x = carat, y = price, colour = cut)) +
+        geom_smooth(aes(x = carat, y = price, colour = cut))
 ```
 
-## Titles and labels
+## Titles, labels and axes (still layers though)
 
-## More advanced features
+```{r, message=FALSE, warning=FALSE}
+    ggplot(diamonds) +
+        geom_point(aes(x = carat, y = price, colour = cut), show.legend = FALSE) +
+        geom_smooth(aes(x = carat, y = price, colour = cut)) +
+        labs(
+            title = "Diamonds in the world",
+            subtitle = "Showing ~54K diamonds",
+            y = "Price ($)"
+        ) +
+        scale_y_continuous(labels = dollar_format(prefix = "$")) +  # see the y axis labels
+        xlim(c(NA, 4))  # see that the x axis is only shown until 4 carats
+```
+
+## A little extra: bar plot (the y axis, position and labels)
+
+```{r}
+    ggplot(diamonds, aes(x = cut)) +
+        geom_bar() +  # type ?geom_bar into the R console to understand why the y axis isn't provided. Also, understand the difference between geom_bar and geom_col
+        geom_label(stat = 'count', aes(label = ..count..))
+
+```
+
+```{r}
+    ggplot(diamonds, aes(x = cut)) +
+        geom_bar(aes(fill = color)) +
+        geom_label(stat = 'count', aes(label = ..count..))
+```
+
+Try the above with putting the fill aesthetics to the top layer.
+
+The following looks ugly as hell but should serve its educative purposes nonetheless:
+
+```{r}
+    ggplot(diamonds, aes(x = cut, fill = color)) +
+        geom_bar(position = "dodge") +
+        geom_text(
+            stat = 'count',
+            aes(label = ..count..),
+            position = position_dodge(width = 1),
+            angle = 90,
+            hjust = -1
+        )
+```
+
+## Other plots to watch out for
+
+  + `geom_point`
+  + `geom_line`
+  + `geom_bar`
+  + `geom_col`
+  + `geom_histogram` (or `geom_density`)
+  + `geom_boxplot` (or `geom_violin`)
+  + `geom_tile`
 
 ## Basic style guide
+  
+  + A style guide tells you how to format and organize your code
+  + There is no single style guide that is just better than the rest
+  + The purpose of the style guide is to write __consistent__ code that is easy to write and more importantly easy to read
+  + A few points on how we organize our plotting codes:
+      * use the `+` operator at the end of the lines
+      * indent the second layer under the first row
+      * use 4 spaces for indentations
+      * leave spaces around parenthesis (e.g. when providing arguments like `colour = red`) and other operators
+      * if you are in doubt, try to figure it out from the example code above
+  + You can but don't have to follow *our* style guide but you'll benefit from following *a* style guide
 
 ## Resources {#resources}
 
