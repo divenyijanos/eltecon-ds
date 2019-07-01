@@ -1,5 +1,6 @@
 ---
-title: "Course Prerequisites - Functions and loops"
+title: "Eltecon Data Science Cource"
+subtitle: "Course Prerequisites - Functions and loops"
 author: "Tamas Koncz"
 date: '2019-07-01'
 output:
@@ -170,31 +171,26 @@ Note that in this code we did not define 3 separate variables for pizza prices a
 
 Before we move on, it is good to check your understanding so far. Let's see if you can solve the two problems below (expected results are provided, but code for the solution is not)!
 
-1. Write a function that given a data.table, will return the number of NA values for each column
+1. Write a function, that if given a `character vector` (string), returns the string, and then the number of characters. If more then one element is provided in the vector, return the results in a one row per element format.
 
 Example:
 ```{r}
-dt <- data.table(
-    a = c(1, NA, NA, 5, 2),
-    b = c(NA, NA, 4, 5, 6),
-    c = c(letters[1:5]),
-    d = rep(NA_character_, 5)
+foo <- c(
+    "I love data.table",
+    "That sounded nerdy"
 )
 
-# TODO: write function summarizeNAs()
-
-# Expected result:
-# summarizeNAs(dt)
-#>    a b c d
-#> 1: 2 2 0 5
+# countNumberOfCharacters(foo)
+#> 'I love data.table' --> length: 17
+#> 'That sounded nerdy' --> length: 18
 ```
 
-2. Write a function, that if given two numeric vectors (`x` and `y`):
+2. Write a function, that if given two `numeric vectors` (`x` and `y`):
     - sums up the two vectors separately, and then multiples the results together if the `sum_then_multiply` argument is `TRUE`
     - multiples the two vectors element by element, and then sums up the results together if the `sum_then_multiply` argument is `FALSE`
     - `sum_then_multiply` should be `TRUE` by default
 Optionally:
-    - think about how to handle if one of the vectors is not numeric - in this case, an easily understandable error should be thrown at the user
+    - think about how to handle if one of the vectors is not `numeric` - in this case, an easily understandable error should be thrown at the user
     - return an error if the two numeric values are not the same length (tip: experiment what happends in different cases when you multiply two vectors together of different lenghts, e.g. 1 vs 2, 2 vs 2, 2 vs 3... it might not always be what you would expect)
 
 Example:
@@ -242,7 +238,7 @@ for (i in c(1, -2, 3, -4)) {
 }
 ```
 
-For loops iterate over a vector, element by element, and perform specific operations each time. Typically the vector consists of numbers from 1 to N, but as you can see in the above example, that is not necessary.
+For loops iterate over a `vector`, element by element, and perform specific operations each time. Typically the `vector` consists of numbers from 1 to N, but as you can see in the above example, that is not necessary.
 
 It doesn't even have to be a numeric vector actually:
 ```{r}
@@ -272,7 +268,7 @@ Even though loops are truly powerful, you likely won't use them that often in R.
 
 So many functions in R are vectorized that you might not have noticed realized it before, because it just feels natural.
 
-Let's take an example where we want to select all elements of a vector which are larger than 3:
+Let's take an example where we want to select all elements of a `vector` which are larger than 3:
 ```{r}
 x <- c(1:5)
 print(x[x > 3])
@@ -307,10 +303,69 @@ print(c(1, 2, 3) * c(1, 2, 3))
 print(c(1, 2, 3) + c(1, 2, 3))
 ```
 
-### lapply, sapply - TODO
+### lapply, sapply
+
+Even though many operations are vectorized in R, you will run into situations when you need to iterate over elements of a list, but you can't simply do it just by calling a function over the the list.
+
+One example is calculating summarizes of columns from a `data.table`, for example calculating the average value by column. You can do this one-by-one (like in the below snippet), but there might just be a better solution.
+```{r, fig.height=4}
+foo <- data.table(
+    a = c(1:10),
+    b = c(11:20),
+    c = 5
+)
+
+foo[, .(a = mean(a), b = mean(b), c = mean(c))]
+```
+
+The problem with this solution is that it is not flexible if the original `data.table` changes. For example if we define a new column, `foo[, d := c(15:24)]`, we have to type out the `mean()` function for this column as well.
+
+This is where the apply family comes in handy. Specifically, we can use `sapply` in this case:
+```{r}
+foo[, d := c(15:24)]
+
+sapply(foo, mean)
+```
+
+What we used here is the fact that a `data.table` is actually a list of its columns - so when calling the above, we iterate over `foo` column-by-column, and calculate the mean for each.
+
+So what's the difference between `lapply()` and `sapply()`? They actually only differ in their output.  `lapply()` will return a `list`, while `sapply` simplifies that list, and turns it into a `vector`. We should decide on which one is appropriate to use based on this distinction.
+
+As mentioned, the `sapply(foo, mean)` call will return a (named) `vector`:
+```{r}
+str(sapply(foo, mean))
+```
+
+Many times however it is preferred to keep working with `data.table`-s, rather than having a different object after some calculations. Let's see how we can do that:
+```{r}
+foo[, lapply(.SD, mean)]
+```
+
+You might not have seen `data.table::.SD()` before. It is a super useful function to be used in the second argument of a `data.table`. Is means *S*ubset *D*ata, and can be used to refer to columns in a `data.table`. In this case, it is a short notation to refer to all columns.
+
+So, when we are calling `lapply(.SD, mean)`, we are applying the `mean()` function to each column in a `data.table` (remember, a `data.table` is a list of its columns). As we call `lapply()` within the `data.table`, we'll keep the `data.table` format as well.
 
 ### Exercises
-1. Write a script that simulates dice rolls.
+1. Write a function that given a `data.table`, will return the number of `NA` values for each column
+
+Example:
+```{r}
+dt <- data.table(
+    a = c(1, NA, NA, 5, 2),
+    b = c(NA, NA, 4, 5, 6),
+    c = c(letters[1:5]),
+    d = rep(NA_character_, 5)
+)
+
+# TODO: write function summarizeNAs()
+
+# Expected result:
+# summarizeNAs(dt)
+#>    a b c d
+#> 1: 2 2 0 5
+```
+
+2. Write a script that simulates dice rolls.
     - Each round we will roll the dice four times
     - We "win" if we have rolled at least one number two or more times in the round
     - We can stop after three rounds won
@@ -329,9 +384,7 @@ A nice solution's output would look like this:
 #> [1] "Rolls in round: 2, 1, 2, 6"
 ```
 
-2. TODO
-
-## Recommended readings - TODO
+## Recommended readings
 
 This document is heavily built on some of the great work of Hadley Wickham, which are recommended readings for a deeper understanding of R functions and iteration in R:
 
