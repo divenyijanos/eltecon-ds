@@ -1,0 +1,132 @@
+---
+title: "Git basics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '..')
+library(magrittr)
+library(ggplot2)
+```
+
+## What is Git?
+
+Git is a version control system. Version control helps you to track the changes you have made in your project, so you can go back to an earlier stage if needed and it is a good, easily trackable way to collaborate with others.
+
+A project or repository is basically a folder where you have all your codes, files, subfolders, etc on your local computer. You can upload this repository to a remote server (GitHub, GitLab, etc), so you won't depend only on your computer. 
+
+Also, this way others can collaborate to your project or you can download a project made by someone else and collaborate to it.
+
+What Git does is it tracks the files in your project. You can create a snapshot of it any time and upload it to a remote server.
+
+## How to use git?
+
+First you need to download Git. You can find help on the RStudio's [website](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN) on how to install Git on your computer.
+
+This project is on [GitHub](https://github.com/), so you will need to register there to be able to download the project and make modifications in it.
+
+### **Using Git with RStudio**
+
+#### Download an existing project
+
+You can download an existing project from a remote server, eg.: GitHub. You can do this via RStudio:
+
+* Go to `File > New Project > Version Control > Git`
+* Copy the remote repository's URL. You can find this on the repository's Github site (in this case [here](https://github.com/divenyijanos/eltecon-ds)), near the upper right corner. Press `Clone or download` and then copy the address you see there (make sure you copy the http address, not ssh).
+* Give a name of you project's directory. It is a good practice to give the same name as it is named on GitHub already.
+
+#### Adding files to git and checking your status
+
+You can check your current status, which shows the changes you have made since the last save (or commit in Git terms - we will get to this soon).
+
+*Go to the Git panel in RStudio*
+![image](figures_used_in_git_Rmd/git_status_in_RStudio.png)
+
+<br>
+
+Every new file to the project or the changes you have made in a file is in the 'unstaged' area, which means it is not tracked by Git yet. You can `add` a file (or the changes in it) by ticking the box next to the file. This way the file will move to the staging area:
+![adding_files](figures_used_in_git_Rmd/git_add_in_RStudio.png)
+
+<br>
+
+#### Saving your current status aka. commiting
+
+Once you have started to make changes, you can save it at any point. This way you can go back to this point any time later.
+You can commit (= save) any file which is in the staging area.
+
+* Press on the `Commit` button, a new window will pop up. Here you will see the changes you have made since your last commit: red shows the rows you have removed and green shows new rows (if you change eg. a few letters in a row, Git will show you that you have deleted that row and creted a new one.) If you have added a brand new file, you will see it in all green.
+* You should write a commit message for every commit. A commit message is a short message (max. 50-60 characters) which describes the changes you have made. If you feel like you need to write a longer description, you can write a short summary in the first line, than leave a blank line and write a longer description.
+![commiting_files](figures_used_in_git_Rmd/git_commit_in_RStudio.png)
+
+<br>
+
+#### Push your project to the remote repo (GitHub in this case)
+
+After commiting your files you can press the `Push` button on the upper right corner.
+
+#### Pulling stuff from GitHub
+
+Since others are also able to push in the repo, next time before you do anything, you should press the `Pull` button.  
+
+### **Using Git with command line**
+
+You can do the same things in command line. There is no difference if you do it in RStudio or in command line, is just personal preference wh.
+You need to have a Command Line Interface (such as Terminal for Mac or Command Prompt for Windows)
+
+#### Download an existing project
+`git clone remote-repository-url`
+
+#### Checking your status
+`git status`
+
+#### Checking the changes you have made
+`git diff` (this shows all changes in all files)
+
+`git diff selected_file` (this shows changes you have made in a selected file)
+
+#### Adding files to git
+You can select a few files to add
+`git add write_down all_selected files_here`
+
+Or you can select all files
+`git add .`
+
+#### Saving your current status aka. commiting
+`git commit -m "write your commit message here"`
+
+#### Push your project to the remote repo (GitHub in this case)
+`git push`
+
+#### Pulling stuff from GitHub
+`git pull`
+
+
+## Some useful stuff
+<u>The `.gitignore` file:</u> You can write anything into the .gitignore file, which you don't want to track and don't want to push it in the remote repository. We do this usually to files which contains some kind of secret (eg. password) or to huge files/images. Note that this is a hidden file, which can be seen in RStudio's file manager, but on most file managers you need enable showing hidden files to be able to see `.gitignore`.
+
+<u>Checking your history with `git log`:</u> In RStudio you can get the logs by pressing on `History`. This command shows the commit history of the project. You can see the commit messages which can give you an idea, what happened in the project. You can also use the SHA key (8 characters, mixture of numbers and letters), to go back to a certain state in your project.
+
+<u>Go back to an earlier state with `git checkout SHA-key`:</u> This is not possible in RStudio, only with command line. By providing the SHA-key you can go back to any saved state in your project. You can go back to your current state by typing `git checkout master`
+
+
+## Task
+
+1. Download [this](https://github.com/divenyijanos/eltecon-ds) project to your computer.
+2. Create a folder, where the folder name should be your name (firstname_lastname).
+3. Create a file in your folder. It can be any kind of file, even an empty txt.
+4. Add your new file (and folder).
+5. Commit the staged file and write a short commit message.
+6. Push it!
+
+## Resources
+* https://www.freecodecamp.org/news/how-not-to-be-afraid-of-git-anymore-fe1da7415286/
+* https://gitexplorer.com/
+* https://git-scm.com/book/en/v1/
+
+Some more advanced stuff (not necessary to know now, but can be very useful in the future)
+
+* https://github.blog/2015-06-08-how-to-undo-almost-anything-with-git/
+* https://ohshitgit.com/
+* http://christoph.ruegg.name/blog/git-howto-revert-a-commit-already-pushed-to-a-remote-reposit.html
+* http://tednaleid.github.io/understanding-git/
