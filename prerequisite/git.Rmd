@@ -14,7 +14,7 @@ library(ggplot2)
 
 Git is a version control system. Version control helps you to track the changes you have made in your project, so you can go back to an earlier stage if needed and it is a good, easily trackable way to collaborate with others.
 
-A project or repository is basically a folder where you have all your codes, files, subfolders, etc on your local computer. You can upload this repository to a remote server (GitHub, GitLab, etc), so you won't depend only on your computer. 
+A project or repository is basically a folder where you have all your codes, files, subfolders, etc on your local computer. You can upload this repository to a remote server (GitHub, GitLab, etc), so you won't depend only on your computer.
 
 Also, this way others can collaborate to your project or you can download a project made by someone else and collaborate to it.
 
@@ -41,12 +41,12 @@ You can download an existing project from a remote server, eg.: GitHub. You can 
 You can check your current status, which shows the changes you have made since the last save (or commit in Git terms - we will get to this soon).
 
 *Go to the Git panel in RStudio*
-![image](figures_used_in_git_Rmd/git_status_in_RStudio.png)
+![image](figures/git_status_in_RStudio.png)
 
 <br>
 
 Every new file to the project or the changes you have made in a file is in the 'unstaged' area, which means it is not tracked by Git yet. You can `add` a file (or the changes in it) by ticking the box next to the file. This way the file will move to the staging area:
-![adding_files](figures_used_in_git_Rmd/git_add_in_RStudio.png)
+![adding_files](figures/git_add_in_RStudio.png)
 
 <br>
 
@@ -57,7 +57,7 @@ You can commit (= save) any file which is in the staging area.
 
 * Press on the `Commit` button, a new window will pop up. Here you will see the changes you have made since your last commit: red shows the rows you have removed and green shows new rows (if you change eg. a few letters in a row, Git will show you that you have deleted that row and creted a new one.) If you have added a brand new file, you will see it in all green.
 * You should write a commit message for every commit. A commit message is a short message (max. 50-60 characters) which describes the changes you have made. If you feel like you need to write a longer description, you can write a short summary in the first line, than leave a blank line and write a longer description.
-![commiting_files](figures_used_in_git_Rmd/git_commit_in_RStudio.png)
+![commiting_files](figures/git_commit_in_RStudio.png)
 
 <br>
 
@@ -67,7 +67,7 @@ After commiting your files you can press the `Push` button on the upper right co
 
 #### Pulling stuff from GitHub
 
-Since others are also able to push in the repo, next time before you do anything, you should press the `Pull` button.  
+Since others are also able to push in the repo, next time before you do anything, you should press the `Pull` button.
 
 ### **Using Git with command line**
 
