@@ -16,17 +16,17 @@ There are multiple ways to deal with `data.frames` in R. You can use base R synt
 
 RStudio guys prefer `dplyr` (as part of the so called `tidyverse`), which mainly explains why `dplyr` is more popular among R users. You can use whichever method you favor, we will understand it. But in our examples, we will stick to `data.table` and hope that we can demonstrate you why we love the package so much.
 
+To ensure that we are on the same page, make sure you use the latest (as of 2019-07-02) CRAN version (`1.12.2`) of data.table.
 
 ## Sample data
 
 Throughout this illustration, you will use a sample data (with randomized ids) of the sales of an e-commerce customer, consisting of ~2.5 million rows.
 
-```{r}
+```{r, warning=FALSE}
 library(data.table)
 options(datatable.print.class = TRUE)
 ```
 
-To ensure that we are on the same page, make sure you use the latest (as of 2019-07-02) CRAN version (`1.12.2`) of data.table.
 
 ```{r}
 data_file <- '../data/sales_sample.csv'
@@ -41,19 +41,25 @@ sales  # classes are printed because of the option set
 
 Just to illustrate how much faster `data.table` is, let's look at the following comparison:
 
-```{r cache=TRUE, eval=TRUE}
+```{r cache=TRUE, eval=TRUE, message=FALSE}
 read_benchmark <- microbenchmark::microbenchmark(
     read.csv(data_file),
     readr::read_csv(data_file),
     fread(data_file),
     times = 10L
 )
+read_benchmark$expr <- factor(read_benchmark$expr, labels = c('read.csv', 'read_csv', 'fread'))
+library(ggplot2)
+ggplot(read_benchmark, aes(expr, time/10^6, color = expr)) +
+    geom_boxplot() +
+    scale_y_log10() +
+    scale_color_discrete(guide = guide_legend(title = "Method")) +
+    labs(x = '', y = 'time (ms) - log scale')
 ```
 
 
 ## Syntax
 
-```
 ```{r, echo=FALSE, eval=TRUE, out.width='100%'}
 knitr::include_graphics('figures/dt3.png')
 ```
@@ -86,7 +92,7 @@ sales[, sum(sales_amount), by = list(in_2017 = purchase_date > '2016-12-31')]
 
 ## TASK: Calculate the mean sales by customer lifecycle status
 
-```{r}
+```{r, echo=FALSE}
 sales[, mean(sales_amount), by = customer_lifecycle_status]
 ```
 
@@ -115,17 +121,17 @@ sales[, uniqueN(contact_id), by = customer_lifecycle_status]
 ```
 
 ## TASK: Create a table that contains each buyer with the number of orders they made
-```{r}
+```{r, echo=FALSE}
 sales[, .N, by = contact_id]
 ```
 
 ## TASK: Create a table that contains each buyer of 2017 with the number of orders they made
-```{r}
+```{r, echo=FALSE}
 sales[purchase_date >= '2017-01-01', .N, by = contact_id]
 ```
 
 ## TASK: Create a summary table by customer_lifecycle_status: number of purchases, sum of sales, number of buyers
-```{r}
+```{r, echo=FALSE}
 sales[,
     .(
         sum_sales = sum(sales_amount),
@@ -149,7 +155,6 @@ sales[, lm(sales_amount ~ customer_lifecycle_status)]
 ## Combine with plots (using pipe from `magrittr` package)
 ```{r}
 library(magrittr)
-library(ggplot2)
 sales[, .(mean_sales = mean(sales_amount)), by = customer_lifecycle_status] %>%
     ggplot(aes(customer_lifecycle_status, mean_sales)) + geom_col()
 ```
@@ -177,19 +182,19 @@ sales
 ```
 
 ## Detour: handling dates
-```{r}
+```{r, eval=FALSE}
 sales[, purchase_date := as.Date(purchase_date)]  # DON'T DO! very very slow
 ```
 
 Parse the character date with `fasttime:fastPOSIXct()` first:
 
-```{r, eval=TRUE}
+```{r}
 sales[, purchase_date := as.Date(fasttime::fastPOSIXct(purchase_date))]
 ```
 
 
 ## TASK: Create a new 'year' and 'month' variable
-```{r, eval=TRUE}
+```{r}
 sales[, year := year(purchase_date)]
 sales[, month := month(purchase_date)]
 ```
@@ -208,7 +213,7 @@ sales[purchase_date > '2016-12-31', daily_sum_in_2017 := sum(sales_amount), by =
 ```
 
 ## TASK: Add the lifecycle-specific average sales amount to each purchase
-```{r, eval=TRUE}
+```{r, echo=FALSE}
 sales[, lifecycle_average_sales := mean(sales_amount), by = customer_lifecycle_status]
 ```
 
@@ -264,7 +269,7 @@ sales[order(-sales_amount), .SD[1], by = year]
 
 Replace zero and negative values to NA
 
-```{r, eval=TRUE}
+```{r}
 for (j in c('sales_amount', 'quantity')) {
     set(sales, which(sales[[j]] < 0), j, NA)
 }
