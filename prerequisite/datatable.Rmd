@@ -1,0 +1,355 @@
+---
+title: "Eltecon Data Science Cource"
+subtitle: "Course Prerequisites - data.table"
+author: "Janos Divenyi"
+date: '2019-07-01'
+output:
+  html_document:
+    df_print: paged
+---
+
+# Introduction
+
+Data in R are best handled by a class called `data.frame`. This is actually a special `list`: containing only equal-sized elements, that correspond to the columns of your data set. As opposed to Stata, you can load many data sets (`data.frames`) into your workspace.
+
+There are multiple ways to deal with `data.frames` in R. You can use base R syntax (that essentially uses the fact that a `data.frame` is just a special `list`), or choose one of the many packages that aim to make data manipulation easier. Our favorite package for this purpose is `data.table`, that was developed by Matt Dowle in 2006. It is elegant, and very effective with large data sets. For an intro by the authors look at [this vignette](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html).
+
+RStudio guys prefer `dplyr` (as part of the so called `tidyverse`), which mainly explains why `dplyr` is more popular among R users. You can use whichever method you favor, we will understand it. But in our examples, we will stick to `data.table` and hope that we can demonstrate you why we love the package so much.
+
+
+## Sample data
+
+Throughout this illustration, you will use a sample data (with randomized ids) of the sales of an e-commerce customer, consisting of ~2.5 million rows.
+
+```{r}
+library(data.table)
+options(datatable.print.class = TRUE)
+```
+
+To ensure that we are on the same page, make sure you use the latest (as of 2019-07-02) CRAN version (`1.12.2`) of data.table.
+
+```{r}
+data_file <- '../data/sales_sample.csv'
+sales <- fread(data_file)
+class(sales)
+```
+Note that `sales` is a special `data.frame`, it is also a `data.table`.
+
+```{r}
+sales  # classes are printed because of the option set
+```
+
+Just to illustrate how much faster `data.table` is, let's look at the following comparison:
+
+```{r cache=TRUE, eval=TRUE}
+read_benchmark <- microbenchmark::microbenchmark(
+    read.csv(data_file),
+    readr::read_csv(data_file),
+    fread(data_file),
+    times = 10L
+)
+```
+
+
+## Syntax
+
+```
+```{r, echo=FALSE, eval=TRUE, out.width='100%'}
+knitr::include_graphics('figures/dt3.png')
+```
+
+
+## Subset rows using i...
+
+```{r}
+sales[1:10]
+sales[customer_lifecycle_status == 'Lead']
+```
+
+The environment is the `data.table` itself. In base R, you have to explicitly give the environment: `sales[sales$lifecycle_status == 'Lead']`.
+
+
+## ...then calculate j...
+```{r}
+sales[, sum(sales_amount)]
+sales[, list(min(purchase_date), max(purchase_date))]
+```
+
+## ...grouped by by
+```{r}
+sales[, sum(sales_amount), by = purchase_date]
+sales[, sum(sales_amount), by = list(customer_lifecycle_status, purchase_date)]
+sales[, sum(sales_amount), by = (purchase_date > '2016-12-31')]
+sales[, sum(sales_amount), by = list(in_2017 = purchase_date > '2016-12-31')]
+```
+
+
+## TASK: Calculate the mean sales by customer lifecycle status
+
+```{r}
+sales[, mean(sales_amount), by = customer_lifecycle_status]
+```
+
+## Select columns
+```{r}
+sales[, sales_amount]  # returns vector
+sales[, list(sales_amount)]  # returns data.table
+sales[, .(sales_amount)]  # shortcut for list()
+sales[, c('sales_amount')]  # data.frame-way but returns data.table
+sales[, c('contact_id', 'sales_amount')]  # same as with data.frame
+```
+
+## Select aggregates
+
+```{r}
+sales[, .(sum(sales_amount), sd(sales_amount))]
+sales[, .(sum_sales_amount = sum(sales_amount), sd_sales_amount = sd(sales_amount))]
+sales[, .(mean_sales = mean(sales_amount)), by = customer_lifecycle_status]
+```
+
+## efficient `data.table` functions
+
+```{r}
+sales[, .N, by = customer_lifecycle_status]
+sales[, uniqueN(contact_id), by = customer_lifecycle_status]
+```
+
+## TASK: Create a table that contains each buyer with the number of orders they made
+```{r}
+sales[, .N, by = contact_id]
+```
+
+## TASK: Create a table that contains each buyer of 2017 with the number of orders they made
+```{r}
+sales[purchase_date >= '2017-01-01', .N, by = contact_id]
+```
+
+## TASK: Create a summary table by customer_lifecycle_status: number of purchases, sum of sales, number of buyers
+```{r}
+sales[,
+    .(
+        sum_sales = sum(sales_amount),
+        num_purchases = .N,
+        num_buyers = uniqueN(contact_id)
+    ),
+    by = customer_lifecycle_status
+]
+```
+
+## You can really do whatever calculation in j
+
+```{r}
+sales[, table(customer_lifecycle_status)]
+sales[, hist(sales_amount)]
+sales[, lm(sales_amount ~ customer_lifecycle_status)]
+```
+
+# The power of data.table
+
+## Combine with plots (using pipe from `magrittr` package)
+```{r}
+library(magrittr)
+library(ggplot2)
+sales[, .(mean_sales = mean(sales_amount)), by = customer_lifecycle_status] %>%
+    ggplot(aes(customer_lifecycle_status, mean_sales)) + geom_col()
+```
+
+## Chain operations
+```{r}
+sales[, .(daily_sales = sum(sales_amount)), by = purchase_date][daily_sales > 400000]
+sales[, .(daily_sales = sum(sales_amount)), by = purchase_date] %>%
+    .[daily_sales > 400000]
+```
+
+## TASK: Select days when someone spent more than 10k
+```{r}
+sales[, .(max_sales = max(sales_amount)), by = purchase_date] %>%
+    .[max_sales > 10000]
+```
+
+
+## Modify in-place
+```{r}
+sales[, a := 'a']
+sales
+sales[, a := NULL]
+sales
+```
+
+## Detour: handling dates
+```{r}
+sales[, purchase_date := as.Date(purchase_date)]  # DON'T DO! very very slow
+```
+
+Parse the character date with `fasttime:fastPOSIXct()` first:
+
+```{r, eval=TRUE}
+sales[, purchase_date := as.Date(fasttime::fastPOSIXct(purchase_date))]
+```
+
+
+## TASK: Create a new 'year' and 'month' variable
+```{r, eval=TRUE}
+sales[, year := year(purchase_date)]
+sales[, month := month(purchase_date)]
+```
+
+## TASK: Count the number of orders by customer lifecycle status and year
+
+```{r}
+sales[, .N, by = .(customer_lifecycle_status, year)]
+sales[, table(customer_lifecycle_status, year)]
+```
+
+## Add grouped variable
+```{r}
+sales[, daily_sum := sum(sales_amount), by = purchase_date]
+sales[purchase_date > '2016-12-31', daily_sum_in_2017 := sum(sales_amount), by = purchase_date]
+```
+
+## TASK: Add the lifecycle-specific average sales amount to each purchase
+```{r, eval=TRUE}
+sales[, lifecycle_average_sales := mean(sales_amount), by = customer_lifecycle_status]
+```
+
+## Add multiple variables at once
+```{r}
+sales[, c('year', 'month') := .(year(purchase_date), month(purchase_date))]
+sales[, `:=`(year = year(purchase_date), month = month(purchase_date))]
+```
+
+## Remove more variables at once
+```{r}
+sales[, c('daily_sum', 'daily_sum_in_2017') := NULL]
+```
+
+
+## Do the same calculation for each columns
+```{r}
+sales[, lapply(.SD, uniqueN)]
+```
+
+## Do the same calculation for relevant columns
+```{r}
+sales[, lapply(.SD, median), .SDcols = c('quantity', 'sales_amount')]
+```
+
+## More complicated calculation
+```{r}
+sales[,
+    lapply(.SD, function(x) quantile(x, p = 0.75)),
+    by = customer_lifecycle_status,
+    .SDcols = c('quantity', 'sales_amount')
+]
+```
+
+## TASK: Find the maximum quantity and spending for each year
+```{r}
+sales[, lapply(.SD, max), by = year, .SDcols = c('sales_amount', 'quantity')]
+```
+
+## Find the orders with the maximum spending for each year
+```{r}
+sales[
+    sales_amount == max(sales_amount),
+    .(contact_id, sales_amount),
+    by = year  # by only applies to calculation in j!
+]
+sales[order(-sales_amount), lapply(.SD, head, n = 1), by = year]
+sales[order(-sales_amount), .SD[1], by = year]
+```
+
+
+## repeated update: use `set(DT, i , j, value)`
+
+Replace zero and negative values to NA
+
+```{r, eval=TRUE}
+for (j in c('sales_amount', 'quantity')) {
+    set(sales, which(sales[[j]] < 0), j, NA)
+}
+```
+
+## Select within function: `get()`
+
+```{r}
+returnMax <- function(dt, column) {
+    dt[, max(get(column))]
+}
+returnMax(sales, 'purchase_date')
+returnMax(sales, 'quantity')
+```
+
+## Purchase frequency
+
+```{r}
+sales[
+    order(contact_id, purchase_date),
+    days_since_last_purchase := purchase_date - shift(purchase_date),
+    by = contact_id
+]
+sales %>%
+    ggplot(aes(is.na(days_since_last_purchase))) +
+    geom_bar() +
+    labs(x = 'First purchase')
+sales[!is.na(days_since_last_purchase)] %>%
+    ggplot(aes(days_since_last_purchase)) +
+    geom_histogram() +
+    labs(x = 'Days since last purchase')
+```
+
+
+
+## Reshape: max value by year, customer_lifecycle_status
+
+```{r}
+sales[, max(sales_amount), by = .(customer_lifecycle_status, year)] %>%
+    dcast(customer_lifecycle_status ~ year)
+```
+
+## Reshape: `melt` (opposite of `dcast`)
+
+```{r}
+sales[, max(sales_amount), by = .(customer_lifecycle_status, year)] %>%
+    dcast(customer_lifecycle_status ~ year) %>%
+    melt(id.vars = 'customer_lifecycle_status')
+```
+
+## TASK: plot daily sales and quantity in facets
+
+```{r}
+sales[, lapply(.SD, sum), by = purchase_date, .SDcols = c('sales_amount', 'quantity')] %>%
+    melt(id.vars = 'purchase_date') %>%
+    ggplot(aes(purchase_date, value)) +
+        geom_line() +
+        facet_wrap(~ variable, ncol = 1, scales = 'free_y')
+```
+
+
+## Key
+```{r}
+sales[, .(yearly_sales = sum(sales_amount)), by = year]
+sales[, .(yearly_sales = sum(sales_amount)), keyby = year]
+```
+
+Sorts on the key by reference
+
+
+## Key's usage
+```{r}
+setkey(sales, customer_lifecycle_status)
+sales
+sales['Lead']
+```
+
+## Key's usage in merge
+
+```{r}
+status_sales <- sales[,
+    .(sum_sales_by_status = sum(sales_amount)),
+    keyby = customer_lifecycle_status
+]
+status_sales[sales]
+
+merge(sales, status_sales, by = 'customer_lifecycle_status')  # works as well
+```
