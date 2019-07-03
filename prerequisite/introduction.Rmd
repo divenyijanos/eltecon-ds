@@ -1,7 +1,11 @@
 ---
-title: "Eltecon Data Science Cource"
-subtitle: "Prerequisites - Introduction"
-output: html_document
+title: "Eltecon Data Science Course"
+subtitle: "Course Prerequisites - Introduction"
+author: "Gabor Kocsis"
+date: '2019-07-01'
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -20,16 +24,19 @@ x * 3
 ```
 In general, objects can be given any name, however there are some exceptions: they cannot start with a number (`1x` is not valid) and some names cannot be used as they are reserved for fundamental functions (type `?Reserved` to list these).
 
+### Exercise
+Store the sum of 24 and 42 in an object named `foo`, then divide `foo` by 3. What did you get as a result?
+
 # Data types
 ### Vectors
 One of the most basic data type in R is the vector. A vector is a series of values, which can be either numbers or characters. You can assign a series of values to a vector using the `c()` function, which stands for "concatenate (combine/connect one after another) values into a vector". For example you can create a vector of heights and assign it to a new object `heights`:
 ```{r vectors ex-1}
-heights <- c(155, 173, 175, 180)
+heights <- c(155, 175, 180, 145)
 heights
 ```
 You can also assign characters to a vector (quotes around characters can be either single or double):
 ```{r vectors ex-2}
-starks <- c("Arya", "Jon", "Sansa", "Bran")
+starks <- c("Arya", "Sansa", "Bran", "Rick")
 starks
 ```
 Note that all the elements of a vector are the same type:
@@ -58,12 +65,24 @@ An atomic vector is a linear vector of a single type, e.g. all characters. The 6
 - complex (complex numbers with real and imaginary parts, eg., 3 + 2i)
 - raw (bbitstreams)
 
-Vectors are one of the data types that R uses. Other important ones are lists (list), matrices (matrix), data frames (data.frame), factors (factor) and arrays (array). In this class, we will not talk about matrices and arrays.
+Vectors are one of she data types that R uses. Other important ones are lists (list), matrices (matrix), data frames (data.frame), factors (factor) and arrays (array). In this class, we will not talk about matrices and arrays.
+
+### Exercise
+Using the above defined `starks` vector, create a new character vector called `northeners` but extend it with "Cat" and "Ned".
+
+Try out what happens when you mix different data types in a vector by using `class()` on the following vectors:
+```{r vectors ex-6}
+nums_and_char <- c(1, 2, 3, 'a')
+nums_and_logical <- c(1, 2, 3, TRUE)
+chars_and_logical <- c('a', 'b', 'c', TRUE)
+nums_and_char_again <- c(1, 2, 3, '4')
+```
+Instead of returning an error message, R tries to convert (coerce) the content of the vector. A logical can be turned into 1 or 0, and a number can be turned into a character type. Converting objects from one class into another is called coercion. There is a hierarchy, meaning that some types get preferentially coerced into other types. This is logical -> numeric -> character <- logical.
 
 ### Factors
 A factor is a variable that can take one of a finite number of distinct values or levels, in other words factors are used to represent categorical data. You can create a factor by applying the `factor` function to a vector of any class:
 ```{r factors ex-1}
-is_alive <- c(rep(TRUE, 4), FALSE)
+is_alive <- c(TRUE, TRUE, TRUE, FALSE, FALSE)
 factor(is_alive)
 ```
 Note that the order of the levels is by default arbitrary, but you can change that by the `levels` argument:
@@ -76,6 +95,9 @@ is_alive <- factor(is_alive, levels = c(TRUE, FALSE), labels = c("alive", "dead"
 is_alive
 ```
 
+### Exercise
+Instead of typing in three times TRUE and two times FALSE, you can use the `rep(x, times)` function to replicate the value `x` the number of times set in the `times` parameter. Try to re-create `is_alive` uising `rep()`.
+
 ### Lists
 While a vector has to contain elements that are all the same type, lists can contain anything (vectors of different types, matrices, data frames, other lists). You can use `[[ ]]` to extract an element of a list by number or name  or `$` to extract by name (only). Eg.,
 ```{r lists ex-1}
@@ -85,35 +107,63 @@ Then `L[[1]]`, `L[["A"]]`, and `L$A` will each return the first element of the l
 ```{r lists ex-2}
 L[c("A", "C")]
 ```
+### Exercise
+In the list `L` - defined above - the second element contains the height of the Starks. Can you return it? Can you return just the height of Bran? Note that his height is the third element in the B sublist.
 
 ### Data frames
 A `data.frame` is the representation of data in the format of a table where the columns are vectors that all have the same length. As we discussed above, as vectors contain the same type of data it is true for the columns of a data frame as well. Data frames can be created by hand but more importantly by importing data from an external file using a function.
 
 You can create a data frame using the `data.frame` function and passing `vectors` as its arguments:
-```{r data-frame ex-1}
-DT <- data.frame(A = c(1, 2, 3), B = c("a", "b", "c"))
-DT
-```
 
-```{r data-frame ex-2}
+```{r data-frame ex-1}
 GT <- data.frame(person = starks, height = heights, status = is_alive)
 GT
 ```
+
+Check out what type of data is contained in GT by using the `str()` function:
+```{r data-frame ex-2}
+str(GT)
+```
+Note that the first colmun is a factor altough the vector we used in creating the data frame was a character vector. This is beacuse by default character vectors are converted to factors in the `data.frame` function, but this can be changed by setting the `stringsAsFactors` option to `FALSE`.
+
+```{r data-frame ex-3}
+GT <- data.frame(person = starks, height = heights, status = is_alive, stringsAsFactors = FALSE)
+str(GT)
+```
+
+Similarly to list, you can subset data frames too:
+```{r data-frame ex-4}
+GT[3, ] # third row
+GT[, 2] # second column
+GT[3, 2] # third element in the second column
+GT[1:2, 2] # first two elements in the second column
+GT[c(1, 2)] # first two columns
+GT["status"] # the status column
+GT[, -1] # all comuns except the first
+```
+
 There are many useful functions that you can use to inspect your `data.frame`, some of the most used are:
 
 - Size:
-    + `dim(GT)` - returns a vector with the number of rows in the first element and the number of columns as the second element (the dimensions of the object)
-    + `nrow(GT)` - returns the number of rows
-    + `ncol(GT)` - returns the number of columns
+    + `dim()` - returns a vector with the number of rows in the first element and the number of columns as the second element (the dimensions of the object)
+    + `nrow()` - returns the number of rows
+    + `ncol()` - returns the number of columns
 - Content:
-    + `head(GT)` - shows the first 6 rows
-    + `tail(GT)` - shows the last 6 rows
+    + `head()` - shows the first 6 rows
+    + `tail()` - shows the last 6 rows
 - Names:
-    + `names(GT)` - returns the column names (synonym of colnames() for data.frame objects)
-    + `rownames(GT)` - returns the row names
+    + `names()` - returns the column names (synonym of colnames() for data.frame objects)
+    + `rownames()` - returns the row names
 - Summary:
-    + `str(GT)` - structure of the object and information about the class, length, and content of each column
-    + `summary(GT)` - summary statistics for each column
+    + `str()` - structure of the object and information about the class, length, and content of each column
+    + `summary()` - summary statistics for each column
+
+### Exercise
+Return the first and the third columns togehter and the second column separately by subsetting the `GT` data.frame. 
+
+Use the `nrow()` function to get the number of rows in `GT`, then use this number to subset the data frame only to that row. 
+
+Use the `summary()` function to calculate the mean and median height in the GT data frame. 
 
 Source: 
 
@@ -135,6 +185,11 @@ Installing a package does not make it immediately available to you in R, you mus
 ```{r packages-ex3, eval = FALSE}
 library(ggplot2)
 ```
+
+### Exercise
+Install the `data.table` package and then load it into R by using `library()`.
+
+
 Source: http://jtleek.com/modules/01_DataScientistToolbox/02_09_installingRPackages/#9
 
 # Help
@@ -145,5 +200,8 @@ If you want to access help for a function in a package that's not currently load
 Many packages include vignettes, which are descriptive documents meant to illustrate and explain facilities in the package. You can browse vignettes by accessing the help page for a package, or via the `browseVignettes()` function eg. `browseVignettes(package="purrr")`.
 
 If you find that you can't answer a question or solve a problem yourself, you can ask others for help, eg. google your problem by typing 'R' and the package name it is related to, or go directly to Stack Overflow which is a well organized and formatted site for help and discussions about programming. If you still do not find any useful answer, you can even raise a question yourself on Stack Overflow.
+
+### Exercise
+Once the `data.table` package is loaded in, check out the help of the Fast and friendly file finagler aka `fread` function.
 
 Source: https://www.r-project.org/help.html
