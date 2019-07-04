@@ -18,7 +18,7 @@ library(data.table)
 
 Functions are essential in the programming toolkit. They allow you to generalize code for common tasks, rather than repeating the same pieces of code over and over again.
 
-A simple example of an R functions is below:
+A simple example of an R function is below:
 ```{r}
 printHelloWorld <- function() {
     print("Hello World!")
@@ -28,14 +28,14 @@ printHelloWorld()
 ```
 
 In fact, probably you are already using many functions in your code, but maybe just ones written by someone else.
-`mean()` is for example a function that takes a numeric vector, and returns the average value of that vector:
+For example, `mean()` is a function that takes a numeric vector, and returns the average value of that vector:
 ```{r}
 mean(c(1:5))
 ```
 
-Notice that in the first example we've written a function that always does the same thing: prints "Hello World!" in the console. But more often than not, you will have a function that takes some input, and based on that input it will calculate the output. This is the reason why you want to have a function: provide it with inputs, execute some calculations on the given input, and return the results of that calculation.
+Notice that in the first example we've written a function that always does the same thing: prints "Hello World!" in the console. But most of the time, you will use functions that take some input, and depending on that input they calculate the output. This is the reason why you want to have a function: provide it with inputs, execute some calculations on the given input, and return the results of that calculation.
 
-A function can have more than one input as well. `mean()` is many times called with setting its third argument, `na.rm = TRUE` (instead of its default value, `FALSE`):
+A function can have more than one input as well. `mean()` is many times called with setting its third argument to `na.rm = TRUE` (instead of `FALSE`, which is the default value):
 ```{r}
 mean(c(1, 2, NA, 4, 5))
 mean(c(1, 2, NA, 4, 5), na.rm = TRUE)
@@ -43,11 +43,11 @@ mean(c(1, 2, NA, 4, 5), na.rm = TRUE)
 
 Notice we said that `na.rm` is the third argument. This is because how R handles function arguments:
 
-* One option is to list arguments in their original order. So, for `mean()`, we didn't have to specify the first argument like this: `mean(x = c(1, 2, NA, 4, 5))`. This is fine, as long as it is understandable which arguments are we providing.
+* One option is to list arguments in their original order. So, for `mean()`, we didn't have to specify the first argument like this: `mean(x = c(1, 2, NA, 4, 5))`. This is fine, as long as it is understandable which arguments we are providing.
 
 * Another option is to name the arguments when calling the function, like we did with `na.rm` for `mean()`. In this case, you can provide the arguments in any order you want, e.g. like `mean(na.rm = TRUE, x = c(1, 2, NA, 4, 5))`. However, this is still not recommended, as it could make your code harder to read.
 
-* You only have to specify arguments for which you don't want to use the default value. `mean` takes `trim` as its second argument, but given we are fine with the default value `trim = 0`, there is no need to write it out.
+* You only have to specify arguments for which you don't want to use the default value. `mean` takes `trim` as its second argument, but given that we are fine with the default value `trim = 0`, there is no need to write it out.
 
 
 It is time to write a simple function of our own, in which we actually use another function!
@@ -68,22 +68,22 @@ getAboveAvgHeights(heights)
 
 ### Getting help: ?function()
 
-In the above example, you might not know what `rnorm()` or `set.seed` does. There is no need to worry - most R functions you will want to use come with excellent documentation, which is easily accessible just by typing ? preceding the functions name in the console:
+In the above example, you might not know what `rnorm()` or `set.seed` does. There is no need to worry - most R functions come with excellent documentation, which is easily accessible just by typing `?` preceding the functions name in the console:
 ```{r}
 ?set.seed
 ?rnorm
 ```
 
-For `rnorm`, you will learn that it generates values based on the normal distribution.
-`set.seed` will set a specific seed before generating random numbers - this is a recommended practice to make your analysis results [reproducible](https://ropensci.github.io/reproducibility-guide/sections/introduction/).
+`set.seed` will set a specific seed before generating random numbers - this is a recommended practice to make your analysis results [reproducible](https://ropensci.github.io/reproducibility-guide/sections/introduction/), and for `rnorm`, you will learn that it generates values based on the normal distribution.
 
 ### When to write a function?
 As a rule of thumb, you should consider writing a function when you have repeated the same code more than two times.
 
 But why would you do that? There are a few main reasons why it worths the effort:
-    1. Using well-named functions make your code cleaner and easier to understand
-    2. It reduces the possibility of a manual error compared to copy-pasting code blocks
-    3. If you need to change how you code behaves, you will only need to do it once, in the functions definition
+
+1. Using well-named functions makes your code cleaner and easier to understand
+2. It reduces the possibility of a manual error compared to copy-pasting code blocks
+3. If you need to change how your code behaves, you will only need to do it once, in the functions definition
 
 ### Optional: scoping
 
@@ -111,7 +111,7 @@ b <- 25
 notAGoodFunction(a = 5)
 ```
 
-This is not desirable. Having external dependencies in your functions will your code harder to understand once it gets longer, and hence make it more error-prone.
+This is not desirable. Having external dependencies in your functions will make your code harder to understand once it gets longer, and hence will make it more error-prone.
 
 #### Example: re-write the below code so that it is of higher quality
 ```{r}
@@ -139,9 +139,9 @@ print(paste0(
 
 What is bad about the above code? Well, two things stand out:
 
-* Variables names are not descriptive of their contents, so without knowing the context I would not understand what the above code does. Also, variables are re-used, which makes it confusing if code is re-executed not in the order.
+* Variables names are not descriptive of their contents, so without knowing the context I would not understand what the above code does. Also, variables are re-used, which makes it confusing if the code is re-executed but not in the correct order.
 
-* We've repeated the same calculation three times. If we would want to change the logic of our value for money calculation, we would need to keep it in our mind that it needs to happen in three places. By the way - did you notice that the third calculation was written incorrectly, as `p / (pi * s) ^ 2` instead of `p / (pi * s ^ 2)`?
+* We've repeated the same calculation three times. If we want to change the logic of our value for money calculation, we need to keep it in our mind that it needs to happen in three places. By the way, did you notice that the third calculation was written incorrectly, as `p / (pi * s) ^ 2` instead of `p / (pi * s ^ 2)`?
 
 
 We could address these problems like below:
@@ -171,7 +171,7 @@ Note that in this code we did not define 3 separate variables for pizza prices a
 
 Before we move on, it is good to check your understanding so far. Let's see if you can solve the two problems below (expected results are provided, but code for the solution is not)!
 
-1. Write a function, that if given a `character vector` (string), returns the string, and then the number of characters. If more then one element is provided in the vector, return the results in a one row per element format.
+1. Write a function, that if given a `character vector` (string), returns the string, and then the number of characters in it. If more then one element is provided in the vector, return the results in a one row per element format.
 
 Example:
 ```{r}
@@ -186,12 +186,13 @@ foo <- c(
 ```
 
 2. Write a function, that if given two `numeric vectors` (`x` and `y`):
-    - sums up the two vectors separately, and then multiples the results together if the `sum_then_multiply` argument is `TRUE`
-    - multiples the two vectors element by element, and then sums up the results together if the `sum_then_multiply` argument is `FALSE`
+    - sums up the two vectors separately, and then multiplies the results together if the `sum_then_multiply` argument is `TRUE`
+    - multiplies the two vectors element by element, and then sums up the results together if the `sum_then_multiply` argument is `FALSE`
     - `sum_then_multiply` should be `TRUE` by default
-Optionally:
+
+3. Optionally:
     - think about how to handle if one of the vectors is not `numeric` - in this case, an easily understandable error should be thrown at the user
-    - return an error if the two numeric values are not the same length (tip: experiment what happends in different cases when you multiply two vectors together of different lenghts, e.g. 1 vs 2, 2 vs 2, 2 vs 3... it might not always be what you would expect)
+    - return an error if the two numeric values are not the same length (hint: experiment what happens in different cases when you multiply two vectors together of different lenghts, e.g. 1 vs 2, 2 vs 2, 2 vs 3... it might not always be what you would expect)
 
 Example:
 ```{r}
@@ -222,13 +223,13 @@ baz <- c("a", "b", "c")
 
 ## Iterations over multiple elements
 
-Okay, so first of all we understand that the main title referred to just "loops". However, this is because we felt something like "Functions and different ways to iterate calculations over multiple elements" would have been a bit to long.
+Okay, so first of all we understand that the main title referred to just "loops". However, this is because we felt something like "Functions and different ways to iterate calculations over multiple elements" would have been a bit too long.
 
-In this section we'll take several ways of these iterations, and loops is only one of them. Let's jump in.
+In this section we'll take several ways of these iterations, and loops is only one of them. Let's jump in!
 
 ### Loops
 
-We'll cover two type of loops - "for" and "while". They can be handy in different situations, but both are essential building blocks of most programming languages.
+We'll cover two types of loops - "for" and "while". They can be handy in different situations, but both are essential building blocks of most programming languages.
 
 #### For loop
 
@@ -238,7 +239,7 @@ for (i in c(1, -2, 3, -4)) {
 }
 ```
 
-For loops iterate over a `vector`, element by element, and perform specific operations each time. Typically the `vector` consists of numbers from 1 to N, but as you can see in the above example, that is not necessary.
+For loops iterate over a `vector` element by element and perform the same operation each time. Typically the `vector` consists of numbers from 1 to N, but as you can see in the above example, that is not necessary.
 
 It doesn't even have to be a numeric vector actually:
 ```{r}
@@ -247,7 +248,7 @@ for (letter in letters[1:3]) {
 }
 ```
 
-For loops have an bad reputation in R for their performance - but this is unfounded in reality. You only need to learn a few tricks (for exampe [this one](https://www.r-bloggers.com/faster-for-loops-in-r/)) to optimize their performance.
+For loops have a bad reputation in R because of their performance - but this is unfounded in reality. You only need to learn a few tricks (for exampe [this one](https://www.r-bloggers.com/faster-for-loops-in-r/)) to optimize their performance.
 
 #### While loop
 
@@ -262,11 +263,11 @@ while(i < 4) {
 
 While loops can potentially result in infinite loops if not written properly. Use with care!
 
-Even though loops are truly powerful, you likely won't use them that often in R. Let's find out why.
+Even though loops are truly powerful, you likely won't use them that often in R. Let's find out why!
 
 ### Vectorized operations in R
 
-So many functions in R are vectorized that you might not have noticed realized it before, because it just feels natural.
+So many functions in R are vectorized that you might not noticed it before.
 
 Let's take an example where we want to select all elements of a `vector` which are larger than 3:
 ```{r}
@@ -305,9 +306,9 @@ print(c(1, 2, 3) + c(1, 2, 3))
 
 ### lapply, sapply
 
-Even though many operations are vectorized in R, you will run into situations when you need to iterate over elements of a list, but you can't simply do it just by calling a function over the the list.
+Even though many operations are vectorized in R, you will run into situations when you need to iterate over elements of a list, but you can't simply do it by calling a function over the list.
 
-One example is calculating summarizes of columns from a `data.table`, for example calculating the average value by column. You can do this one-by-one (like in the below snippet), but there might just be a better solution.
+One example is calculating summaries of columns from a `data.table`, for example calculating the average value by column. You can do this one-by-one (like in the below snippet), but there might just be a better solution.
 ```{r, fig.height=4}
 foo <- data.table(
     a = c(1:10),
@@ -341,7 +342,7 @@ Many times however it is preferred to keep working with `data.table`-s, rather t
 foo[, lapply(.SD, mean)]
 ```
 
-You might not have seen `data.table::.SD()` before. It is a super useful function to be used in the second argument of a `data.table`. Is means *S*ubset *D*ata, and can be used to refer to columns in a `data.table`. In this case, it is a short notation to refer to all columns.
+You might not have seen `data.table::.SD()` before. It is a super useful function to be used in the second argument of a `data.table`. It means *S*ubset *D*ata, and can be used to refer to columns in a `data.table`. In this case, it is a short notation to refer to all columns.
 
 So, when we are calling `lapply(.SD, mean)`, we are applying the `mean()` function to each column in a `data.table` (remember, a `data.table` is a list of its columns). As we call `lapply()` within the `data.table`, we'll keep the `data.table` format as well.
 
@@ -370,7 +371,7 @@ dt <- data.table(
     - We "win" if we have rolled at least one number two or more times in the round
     - We can stop after three rounds won
     - Don't forget to set the seed so your results are replicable!
-    - (Tip: check out the help of the `sample.int` function if you are unsure how to simulate dice rolls)
+    - (Hint: check out the help of the `sample.int` function if you are unsure how to simulate dice rolls)
 
 A nice solution's output would look like this:
 ```{r}
