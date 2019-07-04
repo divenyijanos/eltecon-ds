@@ -1,5 +1,5 @@
 ---
-title: "Eltecon Data Science Cource"
+title: "Eltecon Data Science Course"
 subtitle: "Course Prerequisites - data.table"
 author: "Janos Divenyi"
 date: '2019-07-01'
