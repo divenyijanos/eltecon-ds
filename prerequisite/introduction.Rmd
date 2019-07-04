@@ -29,7 +29,7 @@ Store the sum of 24 and 42 in an object named `foo`, then divide `foo` by 3. Wha
 
 # Data types
 ### Vectors
-One of the most basic data type in R is the vector. A vector is a series of values, which can be either numbers or characters. You can assign a series of values to a vector using the `c()` function, which stands for "concatenate (combine/connect one after another) values into a vector". For example you can create a vector of heights and assign it to a new object `heights`:
+One of the most basic data type in R is the vector. A vector is a series of values with the same basic type. You can assign a series of values to a vector using the `c()` function, which stands for "concatenate (combine/connect one after another) values into a vector". For example you can create a vector of heights and assign it to a new object `heights`:
 ```{r vectors ex-1}
 heights <- c(155, 175, 180, 145)
 heights
@@ -65,7 +65,7 @@ An atomic vector is a linear vector of a single type, e.g. all characters. The 6
 - complex (complex numbers with real and imaginary parts, eg., 3 + 2i)
 - raw (bbitstreams)
 
-Vectors are one of she data types that R uses. Other important ones are lists (list), matrices (matrix), data frames (data.frame), factors (factor) and arrays (array). In this class, we will not talk about matrices and arrays.
+Vectors are one of the data types that R uses. Other important ones are lists (list), matrices (matrix), data frames (data.frame), factors (factor) and arrays (array). In this class, we will not talk about matrices and arrays.
 
 ### Exercise
 Using the above defined `starks` vector, create a new character vector called `northeners` but extend it with "Cat" and "Ned".
@@ -103,10 +103,26 @@ While a vector has to contain elements that are all the same type, lists can con
 ```{r lists ex-1}
 L <- list(A = starks, B = heights, C = is_alive)
 ```
-Then `L[[1]]`, `L[["A"]]`, and `L$A` will each return the first element of the list. To extract a sublist, use the ordinary single square brackets: `[]`:
+
+Let's check what we have in list `L`!
 ```{r lists ex-2}
+str(L)
+```
+
+
+Then `L[[1]]`, `L[["A"]]`, and `L$A` will each return the first element of the list. To extract a sublist, use the ordinary single square brackets: `[]`:
+```{r lists ex-3}
 L[c("A", "C")]
 ```
+Lists in R are very useful, but sometimes confusing objects. If you extract A using a single square bracket `[]`, you get the character list A:
+```{r lists ex-4}
+str(L["A"])
+```
+Whereas if you extract A using double square brackets `[[]]`, you get the character vector stored in A:
+```{r lists ex-5}
+str(L[["A"]])
+```
+
 ### Exercise
 In the list `L` - defined above - the second element contains the height of the Starks. Can you return it? Can you return just the height of Bran? Note that his height is the third element in the B sublist.
 
@@ -171,7 +187,7 @@ Source:
 - https://uoftcoders.github.io/rcourse/lec02-basic-r.html
 
 # Packages
-When you download R from the Comprehensive R Archive Network (CRAN), you get the base R system, which comes with the basic functionalities, however, there is a large collection of packages developed and published by the R community that extend this. You can either install packages from the menu (Tools -> Install packages...) or by passing the name of the package to the `install.packages()` function, eg.:
+When you download R from the Comprehensive R Archive Network (CRAN), you get the base R system, which comes with the basic functionalities, however, there is a large collection of packages developed and published by the R community that extend this. A package provides numerous different functions with the aim of making your life in R much easier. You can either install packages from the menu (Tools -> Install packages...) or by passing the name of the package to the `install.packages()` function, eg.:
 
 ```{r packages-ex1, eval = FALSE}
 install.packages("ggplot2")
