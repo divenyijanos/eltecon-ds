@@ -123,6 +123,7 @@ Or you can select all files
 * https://www.freecodecamp.org/news/how-not-to-be-afraid-of-git-anymore-fe1da7415286/
 * https://gitexplorer.com/
 * https://git-scm.com/book/en/v1/
+* https://happygitwithr.com
 
 Some more advanced stuff (not necessary to know now, but can be very useful in the future)
 

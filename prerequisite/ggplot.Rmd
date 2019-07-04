@@ -1,13 +1,24 @@
-# ggplot2 prerequisites
+---
+title: "Eltecon Data Science Cource"
+subtitle: "Course Prerequisites - ggplot2"
+author: "Peter Lukacs"
+date: '2019-07-01'
+output:
+  html_document:
+    df_print: paged
+---
 
-> + You should be able to replicate the plots in this document on your own. The important parts are the concepts and not the actual plot types for example.
+> + You should be able to replicate the plots in this document on your own. The important parts are the concepts and not the actual plot types or implementation. At the end of this document you'll find example plots without code that you should try to replicate to test your knowledge.
 > + Learn the below concepts by understanding the [basics](#basics) (and corresponding illustrations in the [basic plot section](#basic_plot)) and then using the first 3 links from the [resources section](#resources).  
 > + Learn more advanced features (optional) by using the last link from [resources](#resources).
 
 ## Installing dependencies
+
+Make sure to uncomment the `install.packages` lines in case these packages are not installed on your computer.
+
 ```{r, warning=FALSE}
-    install.packages("ggplot2")
-    install.packages("scales")
+    # install.packages("ggplot2")
+    # install.packages("scales")
     library(ggplot2)
     library(scales)
 ```
@@ -20,7 +31,7 @@ We'll use the *diamonds* data frame (`?ggplot2::diamonds`). Its first 6 rows loo
     head(diamonds)
 ```
 
-One observation (row) in the dataset is about one diamond and its parameters. Unlike in data analysis usually, it isn't important to understand the data in more detail for our purposes.
+One observation (row) in the dataset is about one diamond and its parameters. Unlike in data analysis usually, it isn't important to understand the data in more detail for our purposes. We'll refer to these column names throughout the whole tutorial, so when you see something like `ggplot(diamonds, aes(x = x)) ...` you should know that while the first `x` refers to the "x" argument of the `aes` function, the second `x` references the "x" column from the data.
 
 ## Basic concepts of *Grammar of Graphics* {#basics}
 
@@ -88,9 +99,11 @@ are the same. If you provide aesthetics to the top layer, then layers which foll
 
 ## Titles, labels and axes (still layers though)
 
+From now on, I won't explain much of the code. Please use the [resources section](#resources) to learn about the features.
+
 ```{r, message=FALSE, warning=FALSE}
     ggplot(diamonds) +
-        geom_point(aes(x = carat, y = price, colour = cut), show.legend = FALSE) +
+        geom_point(aes(x = carat, y = price, colour = cut), show.legend = FALSE) +  # can you spot what changed due to this code change compared to the previous plot?
         geom_smooth(aes(x = carat, y = price, colour = cut)) +
         labs(
             title = "Diamonds in the world",
@@ -105,20 +118,14 @@ are the same. If you provide aesthetics to the top layer, then layers which foll
 
 ```{r}
     ggplot(diamonds, aes(x = cut)) +
-        geom_bar() +  # type ?geom_bar into the R console to understand why the y axis isn't provided. Also, understand the difference between geom_bar and geom_col
+        geom_bar() +  # type ?geom_bar into the R console to understand why the plot works without the y axis being provided. Also, understand the difference between geom_bar and geom_col!
         geom_label(stat = 'count', aes(label = ..count..))
 
 ```
 
-```{r}
-    ggplot(diamonds, aes(x = cut)) +
-        geom_bar(aes(fill = color)) +
-        geom_label(stat = 'count', aes(label = ..count..))
-```
+Try the above with putting the fill aesthetics to the top layer. This shouldn't look good. Understand what's happening!
 
-Try the above with putting the fill aesthetics to the top layer.
-
-The following looks ugly as hell but should serve its educative purposes nonetheless:
+The following looks ugly as hell but should serve its educative purposes nonetheless. (Note, that this is above the prerequisites' level so don't worry if this is a bit too much.)
 
 ```{r}
     ggplot(diamonds, aes(x = cut, fill = color)) +
@@ -131,6 +138,16 @@ The following looks ugly as hell but should serve its educative purposes nonethe
             hjust = -1
         )
 ```
+
+### Below you can see a new layer: *facets*.
+
+```{r}
+ggplot(diamonds) +
+    geom_point(aes(x = table, y = depth, color = cut), show.legend = FALSE) +
+    facet_wrap(~cut, nrow = 1)  # see also ?facet_grid() for more complex faceting
+```
+
+Note, that coloring here is actually redundant, meaning that colors don't add any information to the plot (that's why we can loose the legend for color as well). However it looks better to the eye in my opinion.
 
 ## Other plots to watch out for
 
@@ -154,6 +171,36 @@ The following looks ugly as hell but should serve its educative purposes nonethe
       * leave spaces around parenthesis (e.g. when providing arguments like `colour = red`) and other operators
       * if you are in doubt, try to figure it out from the example code above
   + You can but don't have to follow *our* style guide but you'll benefit from following *a* style guide
+
+## Example tasks
+
+Try to replicate these plots on your own to make sure you satisfy the prerequisites.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+    ggplot(diamonds, aes(x = cut)) +
+        geom_bar(aes(fill = color)) +
+        geom_label(stat = 'count', aes(label = ..count..))
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+    ggplot(diamonds, aes(x = x)) +
+        geom_histogram() +
+        xlim(c(3, NA)) +
+        ggtitle("Distribution of the 'x' variable")
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+    ggplot(diamonds, aes(x = cut, y = depth)) +
+        geom_boxplot() +
+        ggtitle("Distribution of the 'depth' variable")
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(diamonds) +
+    geom_point(aes(x = carat, y = price, color = cut), show.legend = FALSE) +
+    scale_y_continuous(labels = dollar_format(prefix = "$")) + 
+    facet_wrap(~cut, nrow = 1)
+```
 
 ## Resources {#resources}
 
