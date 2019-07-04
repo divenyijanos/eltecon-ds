@@ -181,7 +181,7 @@ Use the `nrow()` function to get the number of rows in `GT`, then use this numbe
 
 Use the `summary()` function to calculate the mean and median height in the GT data frame. 
 
-Source: 
+Source:
 
 - https://kingaa.github.io/R_Tutorial/#vectors
 - https://uoftcoders.github.io/rcourse/lec02-basic-r.html
