@@ -24,7 +24,7 @@ x * 3
 ```
 In general, objects can be given any name, however there are some exceptions: they cannot start with a number (`1x` is not valid) and some names cannot be used as they are reserved for fundamental functions (type `?Reserved` to list these).
 
-### Exercise
+### Example task
 Store the sum of 24 and 42 in an object named `foo`, then divide `foo` by 3. What did you get as a result?
 
 # Data types
@@ -67,7 +67,7 @@ An atomic vector is a linear vector of a single type, e.g. all characters. The 6
 
 Vectors are one of the data types that R uses. Other important ones are lists (list), matrices (matrix), data frames (data.frame), factors (factor) and arrays (array). In this class, we will not talk about matrices and arrays.
 
-### Exercise
+### Example task
 Using the above defined `starks` vector, create a new character vector called `northeners` but extend it with "Cat" and "Ned".
 
 Try out what happens when you mix different data types in a vector by using `class()` on the following vectors:
@@ -95,7 +95,7 @@ is_alive <- factor(is_alive, levels = c(TRUE, FALSE), labels = c("alive", "dead"
 is_alive
 ```
 
-### Exercise
+### Example task
 Instead of typing in three times TRUE and two times FALSE, you can use the `rep(x, times)` function to replicate the value `x` the number of times set in the `times` parameter. Try to re-create `is_alive` uising `rep()`.
 
 ### Lists
@@ -123,7 +123,7 @@ Whereas if you extract A using double square brackets `[[]]`, you get the charac
 str(L[["A"]])
 ```
 
-### Exercise
+### Example task
 In the list `L` - defined above - the second element contains the height of the Starks. Can you return it? Can you return just the height of Bran? Note that his height is the third element in the B sublist.
 
 ### Data frames
@@ -174,14 +174,14 @@ There are many useful functions that you can use to inspect your `data.frame`, s
     + `str()` - structure of the object and information about the class, length, and content of each column
     + `summary()` - summary statistics for each column
 
-### Exercise
+### Example task
 Return the first and the third columns togehter and the second column separately by subsetting the `GT` data.frame. 
 
 Use the `nrow()` function to get the number of rows in `GT`, then use this number to subset the data frame only to that row. 
 
 Use the `summary()` function to calculate the mean and median height in the GT data frame. 
 
-Source:
+Source: 
 
 - https://kingaa.github.io/R_Tutorial/#vectors
 - https://uoftcoders.github.io/rcourse/lec02-basic-r.html
@@ -202,7 +202,7 @@ Installing a package does not make it immediately available to you in R, you mus
 library(ggplot2)
 ```
 
-### Exercise
+### Example task
 Install the `data.table` package and then load it into R by using `library()`.
 
 
@@ -217,7 +217,7 @@ Many packages include vignettes, which are descriptive documents meant to illust
 
 If you find that you can't answer a question or solve a problem yourself, you can ask others for help, eg. google your problem by typing 'R' and the package name it is related to, or go directly to Stack Overflow which is a well organized and formatted site for help and discussions about programming. If you still do not find any useful answer, you can even raise a question yourself on Stack Overflow.
 
-### Exercise
+### Example task
 Once the `data.table` package is loaded in, check out the help of the Fast and friendly file finagler aka `fread` function.
 
 Source: https://www.r-project.org/help.html
