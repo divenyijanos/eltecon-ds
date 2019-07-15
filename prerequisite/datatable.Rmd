@@ -300,5 +300,6 @@ merge(sales, status_sales, by = 'customer_lifecycle_status')  # works as well
 
 - [Intro video by Matt Dowle](https://www.youtube.com/watch?v=pc1ARG6kbAM&t=49s) (Warning: Almost 4 years old, uses an older version of the package)
 - [Slides of my data.table workshop on ERUM2018 containing mainly the same content along with benchmarks about the speed of the package](http://divenyijanos.github.io/documents/erum_workshop_datatable.html#1)
+- [Talk of Arun Srinivasan (Co-Developer) at USER2019](https://github.com/Rdatatable/data.table/wiki//talks/useR2019_Arun.pdf)
 - [Introduction by Nilakanta & Ky](http://rpubs.com/kykimeng/intro-to-data-table)
 - [Comparison with dplyr](https://atrebas.github.io/post/2019-03-03-datatable-dplyr/)
