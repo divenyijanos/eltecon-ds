@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # Data Science (aka Regionális gazdaságtan)
 
 A kurzus célja, hogy a diákokat - statisztikai előképzettségükre építve - bevezesse a modern adatelemzés (data science) rejtelmeibe. Valós adatokra és konkrét üzleti alkalmazásokra építve, aktív órai munkával igyekszünk bemutatni a data scientist napi munkájához szükséges eszköztárat. A tanultakat a diákok egy maguk által választott témában, önálló projekt keretében hasznosítják.
