@@ -1,0 +1,22 @@
+---
+title: "Eltecon Data Science Course by Emarsys"
+subtitle: Introduction
+author: "Gábor Kocsis"
+date: "September 11, 2019"
+output: pdf_document
+---
+
+# RStudio project setup practice
+1. Create a Github account if you do not have one already
+2. Create a new public Github repository (name it eltecon-ds-class)
+3. Create a new RStudio project with Version Control (clone your new repository from Github)
+    - If you are using Windows git needs to be downloaded to your PC
+4. Your should make at least 2 commits throughout your work
+5. Add the word 'data' to your .gitignore file
+6. Create a directory in your project's working directory named 'data' and copy the sales.csv file into it
+7. Install data.table and ggplot2 packages if not installed yet (use the ``install.packages()`` function), and load them in (use the ``library()`` function)
+8. Create a file named analysis.R and write a short script in it that creates a simple chart using the sales.csv data
+9. Update the README.md with a short description of your project
+10. Push your working code to the remote repository
+    - Note: You might need to set the email address you used on Github to be able to push by typing ``git config --global user.email "YOUREMAILADDRESS@example.com"`` in command line
+11. Send your name and your repository's url to eltecon.ds kukac gmail pont com
