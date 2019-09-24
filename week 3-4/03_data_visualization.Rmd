@@ -76,8 +76,8 @@ knitr::include_graphics("figures/brand_alley_purchase_rate_exclude_leads.png")
 ```{r, echo=FALSE}
 dt <- data.table(
     Year = c(1:6),
-    A = c(0.15, 0.22, 0.42, 0.40, 0.36, 0.20), 
-    B = c(0.35, 0.17, 0.34, 0.30, 0.29, 0.26), 
+    A = c(0.15, 0.22, 0.42, 0.40, 0.36, 0.20),
+    B = c(0.35, 0.17, 0.34, 0.30, 0.29, 0.26),
     C = c(0.55, 0.30, 0.58, 0.11, 0.25, 0.49)
 )
 
@@ -86,11 +86,11 @@ knitr::kable(dt)
 
 ## Tables vs _charts_
 ```{r, echo=FALSE, out.width='85%', fig.align='center'}
-dt %>% 
+dt %>%
   melt(measure.vars = c("A", "B", "C"), id.vars = "Year", variable.name = "Company") %>%
   ggplot(aes(x = Year, y = value, fill = Company, color = Company)) +
   geom_point(size = 3.5) +
-  geom_line(size = 1.5) + 
+  geom_line(size = 1.5) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
   scale_y_continuous(labels = scales::percent) +
   labs(
@@ -121,12 +121,12 @@ knitr::include_graphics("figures/bbc_example.png")
 
 - Reproducibility
     - BBC example
-    - Data wrangling is an important step we have to do 
+    - Data wrangling is an important step we have to do
         - If it's done e.g. in Excel, the steps might not be replicable, or they just take time to do
 - Fast iteration
     - Above also means that it is easy to change something,
     - Or visualize new data in "old" ways
-    
+
 ## Explorative vs Descriptive Data Viz
 
 - Explorative: during research, getting to know the data
@@ -277,11 +277,11 @@ knitr::include_graphics("figures/uncertainty_timeseries.png")
 ## Why ggplot2?
 
 - Very mature, 10+ years in the making
-- Enables fast in prototyping 
+- Enables fast in prototyping
 - But also good enough in customization
 - Great set of extensions
 - Just get your data in the right format
-- And then apply the "grammar of graphics" 
+- And then apply the "grammar of graphics"
 
 ## Grammar of graphics
 
@@ -321,7 +321,7 @@ p
 \footnotesize
 ```{r, out.height='65%', fig.align='center'}
 p <- p + labs(
-  title = "Density plot by names", x = "Value", y = "" 
+  title = "Density plot by names", x = "Value", y = ""
 )
 p
 ```
@@ -330,13 +330,14 @@ p
 \footnotesize
 ```{r, out.height='65%', fig.align='center'}
 p + scale_x_continuous(breaks = c(-2:3)) +
-  scale_color_manual(values = c("A" = "#2c7bb6", "B" = "#d7191c")) + 
-  scale_fill_manual(values = c("A" = "#2c7bb6", "B" = "#d7191c")) 
+  scale_color_manual(values = c("A" = "#2c7bb6", "B" = "#d7191c")) +
+  scale_fill_manual(values = c("A" = "#2c7bb6", "B" = "#d7191c"))
 ```
 
 ## Some useful resources
 
-- https://www.rstudio.com/wp-content/uploads/2016/11/ggplot2-cheatsheet-2.1.pdf
+- [RStudio ggplot2 cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/11/ggplot2-cheatsheet-2.1.pdf)
+- [Hadley Wickham: ggplot2: Elegant Graphics for Data Analysis](https://ggplot2-book.org/index.html)
 - https://www.r-graph-gallery.com/
 - https://coolors.co/app
 - http://colorbrewer2.org/
