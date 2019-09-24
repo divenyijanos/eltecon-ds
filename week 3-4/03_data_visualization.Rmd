@@ -40,12 +40,12 @@ library(magrittr)
 
 ## Why should you care?
 
-- Data Science is very complex, technical field
+- Data Science is a very complex, technical field
 - But at the end we usually want to have an impact on the business
 - Business people tend not to be technical
-- Our impact as a DS depends on the decisions (human-made or automated) that we can influence.
+- Our impact as a data scientist depends on the decisions (human-made or automated) that we can influence.
 - Communication is the tool to transfer the right ideas, and build _trust_
-- You'll most frequently communicate with charts and other visualization tools
+- You'll most frequently communicate using charts and other visualization tools
 
 ## Let's see an example about Hurricanes
 
