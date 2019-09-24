@@ -57,7 +57,7 @@ Error in fread("data/raw_data.csv"): File 'data/raw_data.csv' does not exist or 
 
 ## Infinite number of versions saved
 ```{r, echo=FALSE, out.width='50%', fig.align='center'}
-knitr::include_graphics('../course_material/figures/final_doc.png')
+knitr::include_graphics('figures/final_doc.png')
 ```
 
 ## Don't understand what is happening in the code you wrote last year
@@ -72,12 +72,12 @@ plotMoreDetailedFigures(boo)
 
 ## Have to change one of your assuptions in your model that was copy pasted throughout the whole project
 ```{r, echo=FALSE, out.width='70%', fig.align='center'}
-knitr::include_graphics('../course_material/figures/copy_paste.png')
+knitr::include_graphics('figures/copy_paste.png')
 ```
 
 ## Working on the same project with others at the same time
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
-knitr::include_graphics('../course_material/figures/conflict.png')
+knitr::include_graphics('figures/conflict.png')
 ```
 
 # Code and data - Guidelines
@@ -118,7 +118,7 @@ knitr::include_graphics('../course_material/figures/conflict.png')
 
 ## Clean coding
 ```{r, echo=FALSE, out.width='50%', fig.align='center'}
-knitr::include_graphics('../course_material/figures/uncle_bob.jpg')
+knitr::include_graphics('figures/uncle_bob.jpg')
 ```
 
 *"You shouldn't have to read the body of a function to know what it does. It's name should tell you."* - Robert Cecil Martin aka Uncle Bob
@@ -205,7 +205,7 @@ knitr::include_graphics('../prerequisite/figures/git_commit_in_RStudio.png')
 - We use Trello and Google Spreadsheets
 
 ```{r, echo=FALSE, out.width='70%', fig.align='center'}
-knitr::include_graphics('../course_material/figures/trello.png')
+knitr::include_graphics('figures/trello.png')
 ```
 
 # Summary
