@@ -36,6 +36,8 @@ library(magrittr)
 - Economics MSc in Amsterdam
 - email: <peter.lukacs@emarsys.com>
 
+# QUIZ TIME
+
 # Communication as a Data Scientist
 
 ## Why should you care?
