@@ -50,6 +50,10 @@ crime_raw <- fread("data/crime.csv")
 ```
 
 #### TODO: What would you do with this plot?
+```{r, echo = FALSE}
+knitr::include_graphics("figures/plot_to_fix.png")
+```
+
 ##### 1. categorize less common `OFFENSE_CODE_GROUP` into "Other"
 ##### 2. Order categories by their occurence. Leave "Other" for last on the plot!
 
