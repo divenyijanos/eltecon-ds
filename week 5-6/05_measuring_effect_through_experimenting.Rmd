@@ -1,6 +1,6 @@
 ---
 title: "Eltecon Data Science Course by Emarsys"
-subtitle: Measuring effect through experimenting
+subtitle: "Measuring effect through experimenting"
 author: "András Bérczi"
 date: "October 9, 2019"
 output:
@@ -67,7 +67,7 @@ To decide if our treatment works
 - Measure one feature at a time
 - (Or control for other effects)
 - Split contacts *randomly* into control and treatment group(s)
-- Do not change parameters during the experiment (Simpsons-paradox)
+- Do not change parameters during the experiment (Simpson-paradox)
 
 ## There is always an effect...
 
