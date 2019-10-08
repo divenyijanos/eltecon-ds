@@ -73,6 +73,19 @@ To decide if our treatment works
 - Split contacts *randomly* into control and treatment group(s)
 - Do not change parameters during the experiment (Simpson-paradox)
 
+## How to calculate the effect
+
+$$Uplift_{KPI} = \frac{KPI_{treatment}}{KPI_{control}} - 1$$
+
+## How to aggregate the effect
+
+$$KPI_{treatment} = \frac{\sum_{i = 1}^{n}KPI_{treatment, i} * SampleSize_{i}}{\sum_{i = 1}^{n}{SampleSize_{i}}}$$
+
+$$KPI_{control} = \frac{\sum_{i = 1}^{n}KPI_{control, i} * SampleSize_{i}}{\sum_{i = 1}^{n}{SampleSize_{i}}}$$
+
+$$Uplift_{KPI} = \frac{KPI_{treatment}}{KPI_{control}} - 1$$
+, where *n* is the number of unit levels.
+
 ## There is always an effect...
 
 - We can always measure something.

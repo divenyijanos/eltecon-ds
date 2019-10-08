@@ -22,7 +22,7 @@ calculateMinimumDetectableEffect <- function(p1, n, prop_of_treatment = 0.5, alp
 }
 ```
 
-# 2. Calculate the effect for the whole period of the [provided exapmle experiment](./experiment_result.csv)
+# 2. Calculate the effect for the whole period of the [provided example experiment](./experiment_result.csv)
 
 # 3. Plot the results
 
