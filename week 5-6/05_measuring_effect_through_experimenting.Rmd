@@ -24,6 +24,10 @@ library(knitr)
 - Background in Economics
 - Works as Data Scientist @ Emarsys
 
+# We want to understand the effect of a new feature
+
+Kép STO-ról gombról UI-on, meg Image pref explr Shiny app-ról
+
 # What is an effect?
 
 ## What is an effect?
@@ -34,9 +38,9 @@ Added value of a treatment
 
 To decide if our treatment works
 
-# What to measure?
+# What to experiment on?
 
-## What is worth measureing?
+## What is worth experimenting?
 
 - **Based on customer's need**
 - Validated by data based research

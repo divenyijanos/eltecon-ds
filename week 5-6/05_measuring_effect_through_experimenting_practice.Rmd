@@ -29,3 +29,5 @@ calculateMinimumDetectableEffect <- function(p1, n, prop_of_treatment = 0.5, alp
 # 4. Calculate the effect week-by-week
 
 # 5. Plot the results
+
+# 6. How would you plot uncertainty? Try to do it for both plots!
