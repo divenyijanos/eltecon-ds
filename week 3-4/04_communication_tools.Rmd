@@ -55,7 +55,7 @@ knitr::include_graphics("figures/before_after_population.png")
   - save and execute code
   - generate high quality reports that can be shared with an audience
 - R Markdown documents are fully reproducible
-- They support dozens of static and dynamic output formats \linebreak \linebreak
+- They support dozens of static and dynamic output formats
 [Source: rmarkdown.rstudio.com](https://rmarkdown.rstudio.com/lesson-1.html)
 
 ## Other uses of (R) Markdown
