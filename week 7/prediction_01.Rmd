@@ -25,6 +25,7 @@ library(data.table)
 library(ggplot2)
 library(magrittr)
 library(glue)
+library(purrr)
 ```
 
 ## About me
@@ -254,10 +255,11 @@ knitr::include_graphics("./figures/R2_RSS_TSS.png")
 
 - Casuality: http://nickchk.com/causalgraphs.html
 
+
+## Reproducing a graph from the book
 ```{r}
 ls_lines <- map(1:10, ~{
     adv_s <- adv[sample(.N, 30)]
-    # geom_smooth(data = adv_s, mapping = aes(tv, sales), method = lm, se = FALSE, alpha = .3)
     stat_smooth(data = adv_s, mapping = aes(tv, sales), method = lm,
         se = FALSE, alpha = .3, geom = 'line', color = "blue")
 })
