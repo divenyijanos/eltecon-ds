@@ -24,6 +24,7 @@ knitr::opts_chunk$set(fig.height = 3, fig.width = 7)
 library(data.table)
 library(ggplot2)
 library(magrittr)
+library(glue)
 ```
 
 ## About me
@@ -156,13 +157,18 @@ $$RSS = (y_1 - \hat{\beta_0} - \hat{\beta_1} x_1)^2 +
 slm <- lm(formula = sales ~ tv, data = adv)
 slm$coefficients 
 ```
-- type `names(slm)` to the console to see other attributes
+Type `names(slm)` to the console to see `slm`'s other attributes
 
 ## Estimating Coefficients: Least Squares
 
 ```{r}
-ggplot(adv, aes(tv, sales)) + geom_point() + geom_smooth() +
-    theme_minimal()
+int <- slm$coefficients["(Intercept)"]
+b1  <- slm$coefficients["tv"]
+ggplot(adv, aes(tv, sales)) + geom_point() +
+geom_smooth(method = "lm") + labs(subtitle = glue(
+        "B0: {round(int, digits = 3)}\n",
+        "B1: {round(b1, digits=3)}"
+    )) + theme_minimal()
 ```
 
 ## Assessing the Coefficient Estimation Accuracy
@@ -247,3 +253,18 @@ knitr::include_graphics("./figures/R2_RSS_TSS.png")
 ## Great resources
 
 - Casuality: http://nickchk.com/causalgraphs.html
+
+```{r}
+ls_lines <- map(1:10, ~{
+    adv_s <- adv[sample(.N, 30)]
+    # geom_smooth(data = adv_s, mapping = aes(tv, sales), method = lm, se = FALSE, alpha = .3)
+    stat_smooth(data = adv_s, mapping = aes(tv, sales), method = lm,
+        se = FALSE, alpha = .3, geom = 'line', color = "blue")
+})
+
+tr_line <- ggplot(adv, aes(tv, sales)) +
+        geom_point() +
+        geom_smooth(method = lm, se = FALSE, color = "red")
+reduce(list(tr_line, ls_lines), `+`)
+
+```
