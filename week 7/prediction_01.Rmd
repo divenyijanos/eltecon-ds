@@ -60,20 +60,20 @@ knitr::include_graphics("./figures/ISLR_book_cover.png")
 ## What is Statistical Learning?
 ![Data Science vs. Statistics](./figures/ml_vs_stat.jpeg)
 
-## What is Statistical Learning
+## What is Statistical Learning?
 >  "**Machine learning** is all about results, it is likely working in a company where your worth is characterized solely by your performance. Whereas, **statistical modeling** is more about finding relationships between variables and the significance of those relationships, whilst also catering for prediction"  
 
 _**[source](https://towardsdatascience.com/the-actual-difference-between-statistics-and-machine-learning-64b49f07ea3)**_
 
-## What is Statistical Learning
+## What is Statistical Learning?
 **Assumption:**
 $$Y = f(X) + \epsilon$$
 
 - We **assume** a systematic relationship between $X$ and $Y$
-- $f$ is generally unknown
+- $f$ represents the systematic information that $X$ provides about $Y$ and is generally unknown
 - **Statistical Learning refers to a set of approaches for estimating $f$ based on the available observations ($X$)**
 
-## What is Statistical Learning
+## What is Statistical Learning?
 **Assumption:**
 $$Y = f(X) + \epsilon$$
 
@@ -82,7 +82,7 @@ $$Y = f(X) + \epsilon$$
    
 $\Rightarrow$ **otherwise** could be modeled through $f$
 
-## What is Statistical Learning: Reducible error/Irreducible error
+## What is Statistical Learning?: Reducible error/Irreducible error
 $$Y = f(X) + \epsilon$$
 
 $$\begin{aligned}
@@ -209,8 +209,6 @@ _**source:**_ ISLR, p.64.
 knitr::include_graphics("./figures/pop_reg_line_vs_least_sq_reg_line.png")
 ```
 
-_**source:**_ ISLR, p.64.
-
 - Data Generated: $f(X) = 2 + 3X + \epsilon$
 - Population regression line (red): $f(X) = 2 + 3X$
 - Least Squares regression line (blue)
@@ -281,12 +279,11 @@ mlm <- lm(medv ~ lstat + age, data = boston)
 summary(mlm)
 mlm <- lm(medv ~ ., data = boston)
 mlm <- lm(medv ~ . - indus -age, data = boston)
-cor(boston)
 mlm <- lm(medv ~ . + zn*chas - indus -age, data = boston)
 mlm <- lm(medv ~ . + I(lstat^2) - indus -age, data = boston)
 ```
 
-## `R` syntax: Multiple Linear Regression
+## `R` syntax: Regression w/ quantitative var.
 
 ```{r, eval = FALSE}
 car <- ISLR::Carseats
@@ -294,14 +291,21 @@ summary(lm(Sales ~ ShelveLoc, data = car))
 contrasts(car$ShelveLoc)
 ```
 
-## `R` syntax: Multiple Linear Regression
-
-```{r, out.height = "50px", echo = FALSE}
-knitr::include_graphics("./figures/p_value_TV_on_sales.png")
+## `R` syntax: Correlation
+```{r}
+boston <- MASS::Boston
+cor(boston)
 ```
-_**source:**_ ISLR, p.68.
 
-<!-- TASK: find the best linear model for  Boston-->
+## `R` syntax: Residuals
+```{r}
+boston <- MASS::Boston
+mlm <- lm(medv ~ . - indus -age, data = boston)
+residuals <- data.table(residuals = mlm$residuals, fitted = mlm$fitted.values)
+ggplot(residuals, aes(fitted, residuals)) +
+    geom_point(alpha = .3) +
+    theme_minimal()
+```
 
 # Binary Classification
 
@@ -352,6 +356,7 @@ p(X) &= \frac{e^{\beta_0 + \beta_1 X}}{1 + e^{\beta_0 + \beta_1 X}} & (logistic)
 - How do you interpret if $\beta_1 = 2$?
 
 ## `R` syntax: Classification
+
 ```{r, results = "hide"}
 default <- data.table(ISLR::Default)
 # simple binary model
@@ -363,7 +368,7 @@ contrasts(default$default)
 pred_response <- rep("No", length(pred_prob))
 pred_response[pred_prob > .5] <- "Yes"
 ```
-## `R` syntax Evaluation
+## `R` syntax: Evaluation
 
 ```{r}
 table(pred_response, default$default)
@@ -381,7 +386,23 @@ ggplot(pred) +
 
 # Hands on Exercises
 
-## `R` Commands
+## Now your turn!
+
+1. Either use your project data or find Something on [Kaggle](https://www.kaggle.com/)
+2. Find a good research/business question that involves prediction (either ) and write it down
+3. Answer your question using what we've learned previously and today
+    a. Use at least one graph to see variable interdependence (use `geom_smooth`)
+    a. Look at variable correlations
+    b. See what do residuals look like. Is it random? Why? Why not?
+    c. Run a regression
+    d. Add/Remove variables based on the result, rerun the regression
+    e. Try adding an interaction
+    f. Describe how well the model fits your data. Try to reason why is it week if so?
+    g. Try answering your question with your words
+
+## Finish at home!
+
+Thanks for being here!
 
 ## Great resources (click the links!)
 
@@ -424,7 +445,7 @@ p <- plotLinData(50, i = 0, b = 2)
 p + geom_smooth(method = lm, se = FALSE)
 ```
 
-## Assessing the Coefficient Estimation Accuracy: hands on
+## Assessing the Coefficient Estimation Accuracy: hands on (1)
 
 ```{r, eval = FALSE}
 ls_lines <- map(1:20, ~{
@@ -437,7 +458,11 @@ ggplot(adv, aes(tv, sales)) +
     geom_point(alpha = .5) +
     geom_smooth(method = lm, color = "red", se = FALSE) +
     ls_lines
+```
 
+## Assessing the Coefficient Estimation Accuracy: hands on (2)
+
+```{r}
 ls_betas <- map(1:1000, ~{
     adv_s <- adv[sample(.N, 20)]
     lm <- lm(sales ~ tv, data = adv_s)
