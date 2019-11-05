@@ -11,15 +11,17 @@ output:
         # toc: true
         slide_level: 2
 header-includes:
-  \usefonttheme[onlymath]{serif}
+- \usefonttheme[onlymath]{serif}
+- \usepackage{float}
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 # knitr::opts_knit$set(root.dir = '..')
-knitr::opts_chunk$set(fig.height = 3, fig.width = 7) 
-
+knitr::opts_chunk$set(fig.height = 3, fig.width = 7)
+knitr::opts_chunk$set(fig.pos='H')
 
 library(data.table)
 library(ggplot2)
@@ -37,13 +39,25 @@ library(purrr)
 
 ## Goal of the lesson
 
+- touch on stat learning basic theory (with examples!)
+- see/try basic `R` linreg and classification syntax
+- give you resources to reach for when you'll need it
+
 # Statistical Learning in General
 
 ## Introduction to Statistical Learning
 
-- tell about the book and what chapters are covered
+```{r, out.height = "100px", echo = FALSE}
+knitr::include_graphics("./figures/ISLR_book_cover.png")
+```
 
-## What is Statistical Learning
+- What is Statistical Learning? [pp. 15 - 28]
+- Simple Linear Regression [pp. 61 - 70]
+- Multiple Linear Regression [pp. 71 - 81]
+- Classification [pp. 128 - 137]
+- Plus `Lab` from the end of the chapters
+
+## What is Statistical Learning?
 ![Data Science vs. Statistics](./figures/ml_vs_stat.jpeg)
 
 ## What is Statistical Learning
@@ -64,14 +78,11 @@ $$Y = f(X) + \epsilon$$
 $$Y = f(X) + \epsilon$$
 
 - $\epsilon$ is assumed to have mean $0$
-- $\epsilon$ is assumed to be independent of $X$  
+- $\epsilon$ is assumed to be independent of $X$   
+   
 $\Rightarrow$ **otherwise** could be modeled through $f$
 
-## Why estimate $f$?
-- Causality/Inference (more in Econ, e.g. What drives unemployment?)
-- Prediction (more in Business, e.g. How much Happy Socks are we selling next month?)
-
-## Prediction: Reducible error/Irreducible error
+## What is Statistical Learning: Reducible error/Irreducible error
 $$Y = f(X) + \epsilon$$
 
 $$\begin{aligned}
@@ -85,6 +96,10 @@ E(Y-\hat{Y}) &= E[f(X) + \epsilon - \hat{f}(X)]^2 \\
     - Didn't measure :(
     - Can't measure: e.g. mood of a buyer on the day she's buying the house
 
+## Why estimate $f$?
+- Causality/Inference (more in Econ, e.g. What drives unemployment?)
+
+- Prediction (more in Business, e.g. How much Happy Socks are we selling next month?)
 
 ## How to estimate $f$?
 - parametric models   
@@ -96,7 +111,7 @@ E(Y-\hat{Y}) &= E[f(X) + \epsilon - \hat{f}(X)]^2 \\
     **-** can overfit the data   
 
 ## Prediction Accuracy vs. Model Interpretability
-```{r, out.height = "190px", echo=FALSE}
+```{r, out.height = "190px", echo = FALSE}
 knitr::include_graphics("./figures/flexibility_vs_interpretability.png")
 ```
 
@@ -108,7 +123,7 @@ _**source:**_ ISLR, p.25.
 - Unsupervised: no supervisor response variable
     - cluster analysis
 
-```{r, out.height = "160px", echo=FALSE}
+```{r, out.height = "160px", echo = FALSE}
 knitr::include_graphics("./figures/supervised_vs_unsupervised.png")
 ```
 
@@ -116,7 +131,7 @@ knitr::include_graphics("./figures/supervised_vs_unsupervised.png")
 - Regression: quantitative response (e.g. market price prediction)
 - Classification: qualitative response (e.g. male/female based on purchase patterns)
 
-```{r, out.height = "160px", echo=FALSE}
+```{r, out.height = "160px", echo = FALSE}
 knitr::include_graphics("./figures/classification_regression.png")
 ```
 
@@ -127,7 +142,7 @@ knitr::include_graphics("./figures/classification_regression.png")
 - Regression vs. Classification
 
 ## Other model selection decision points
-```{r, out.height = "190px", echo=FALSE}
+```{r, out.height = "190px", echo = FALSE}
 knitr::include_graphics("./figures/ml_map.png")
 ```
 [_**source**_](https://scikit-learn.org/stable/tutorial/machine_learning_map/index.html)
@@ -148,7 +163,7 @@ ggplot(adv, aes(tv, sales)) + geom_point() + theme_minimal()
 ## Estimating Coefficients
 We want to find the coefficients so that the resulting line is as "close" to the observations as possible.
 
-```{r, out.height = "150px", echo=FALSE}
+```{r, out.height = "150px", echo = FALSE}
 knitr::include_graphics("./figures/simple_reg_fit.png")
 ```
 
@@ -181,7 +196,7 @@ geom_smooth(method = "lm") + labs(subtitle = glue(
 ```
 
 ## Assessing the Coefficient Estimation Accuracy
-```{r, out.height = "140px", echo=FALSE}
+```{r, out.height = "140px", echo = FALSE}
 knitr::include_graphics("./figures/pop_reg_line_vs_least_sq_reg_line.png")
 ```
 
@@ -190,7 +205,7 @@ We only have one data set, and so what does it mean that two different lines des
 _**source:**_ ISLR, p.64.
 
 ## Assessing the Coefficient Estimation Accuracy
-```{r, out.height = "140px", echo=FALSE}
+```{r, out.height = "120px", echo = FALSE}
 knitr::include_graphics("./figures/pop_reg_line_vs_least_sq_reg_line.png")
 ```
 
@@ -230,14 +245,14 @@ $$ t = \frac{\hat{\beta}_1 - 0}{SE(\hat{\beta}_1)} $$
 
 ## Assessing the Coefficient Estimation Accuracy: Hypothesis test
 
-```{r, out.height = "50px", echo=FALSE}
+```{r, out.height = "50px", echo = FALSE}
 knitr::include_graphics("./figures/p_value_TV_on_sales.png")
 ```
 _**source:**_ ISLR, p.68.
 
-## Assessing the Accuracy of the Model: Residual Standard Error
+## Assessing the Accuracy of the Model: Residual Standard Error (RSE)
 
-- RSE (Residual Standard Error)
+- $RSE = \hat{\sigma} = \sqrt{RSS/(n-2)}$
 - Roughly speaking, it is the average amount that the response will deviate from the true regression line
 - Sales in each market deviate from the true regression line by approximately 3,260 units, on average
 - The RSE is considered a measure of the lack of fit of the model to the data
@@ -249,11 +264,11 @@ $$ R^2 = \frac{TSS - RSS}{TSS} = 1 - \frac{RSS}{TSS} $$
 - where $TSS = \sum(y_i - \bar{y})^2$ is the *total sum of squares*
 - $R^2$ measures the proportion of variability in Y that can be explained using X
 
-```{r, out.height = "130px", echo=FALSE}
+```{r, out.height = "130px", echo = FALSE}
 knitr::include_graphics("./figures/R2_RSS_TSS.png")
 ```
 
-## `R` Syntax: Multiple Linear Regression
+## `R` syntax: Multiple Linear Regression
 
 - example: median Boston house prices
 
@@ -271,7 +286,7 @@ mlm <- lm(medv ~ . + zn*chas - indus -age, data = boston)
 mlm <- lm(medv ~ . + I(lstat^2) - indus -age, data = boston)
 ```
 
-## `R` Syntax: Multiple Linear Regression
+## `R` syntax: Multiple Linear Regression
 
 ```{r, eval = FALSE}
 car <- ISLR::Carseats
@@ -279,28 +294,139 @@ summary(lm(Sales ~ ShelveLoc, data = car))
 contrasts(car$ShelveLoc)
 ```
 
-## `R` Syntax: Multiple Linear Regression
+## `R` syntax: Multiple Linear Regression
 
-```{r, eval = FALSE}
-mlm <- lm(medv ~ . - indus -age, data = boston)
-pred <- predict(mlm)
+```{r, out.height = "50px", echo = FALSE}
+knitr::include_graphics("./figures/p_value_TV_on_sales.png")
 ```
+_**source:**_ ISLR, p.68.
 
 <!-- TASK: find the best linear model for  Boston-->
 
 # Binary Classification
 
+## Why not Linear Regression?
+
+- Encoding output with numbers would suggest ordering and distance (e.g. 0 - epileptic seizure, 1 - stroke, 2 - drug overdose)
+- Shuffling the encoding would result in different predictions
+- Logistic regression models the probability if $Y$ belongs to group, instead of modeling it’s value directly. $\Rightarrow p(X) = Pr(Y=1|X)$
+
+```{r, out.height = "110px", echo = FALSE}
+knitr::include_graphics("./figures/linear_regression_vs_classification.png")
+```
+
+_**source:**_ ISLR, p.131.
+
+## Logistic Regression
+
+Instead of the linear approach we use the *logistic function* so that all our predictions will be between 0 and 1. This is useful if we are talking about probabilities.
+
+$$ p(X) = \frac{e^{\beta_0 + \beta_1 X}}{1 + e^{\beta_0 + \beta_1 X}} $$
+
+Estimate the coefficients with the *log likelihood* method
+
+## `R`'s `glm` function
+
+```{r, eval = FALSE}
+default <- data.table(ISLR::Default)
+glm(default ~ balance, data = default, family = "binomial")
+```
+```{r, out.height = "110px", echo = FALSE}
+knitr::include_graphics("./figures/simple_binom_regression_default.png")
+```
+
+_**source:**_ ISLR, p.134.
+
+## How to interpret the model: Log-likelihood (Logit)
+
+The problem with the logistic regression is that it's hard to interpret its coefficients. (See the plot above.) For easy interpretation we need a linear formula.
+
+$$\begin{aligned}
+p(X) &= \frac{e^{\beta_0 + \beta_1 X}}{1 + e^{\beta_0 + \beta_1 X}} & (logistic) \\
+\frac{p(X)}{1 - p(X)} &= e^{\beta_0 + \beta_1 X} & (odds) \\
+\log\left(\frac{p(X)}{1 - p(X)}\right) &= \beta_0 + \beta_1 X & (log-odds)
+\end{aligned}$$
+
+- What does it mean to have odds of 4 to win the horse race?
+- How do you calculate your chance of winning the horse race when $X=8$?
+- How do you interpret if $\beta_1 = 2$?
+
+## `R` syntax: Classification
+```{r, results = "hide"}
+default <- data.table(ISLR::Default)
+# simple binary model
+sbm <- glm(default ~ balance, data = default,
+    family = "binomial")
+pred_prob <- predict(sbm, type = "response")
+# type = "response" -> P(Y = 1 | X) otherwise logit
+contrasts(default$default)
+pred_response <- rep("No", length(pred_prob))
+pred_response[pred_prob > .5] <- "Yes"
+```
+## `R` syntax Evaluation
+
+```{r}
+table(pred_response, default$default)
+mean(pred_response == default$default)
+```
+
+## `R` syntax: Classification
+
+```{r}
+pred <- data.table(
+    p_default = pred_prob, balance = default$balance)
+ggplot(pred) +
+    geom_point(aes(balance, p_default))
+```
+
 # Hands on Exercises
 
 ## `R` Commands
 
-## Great resources
+## Great resources (click the links!)
 
-- Casuality: http://nickchk.com/causalgraphs.html
+- [Free Intro to Stat Learning textbook](http://faculty.marshall.usc.edu/gareth-james/ISL/)
+- Casuality: [http://nickchk.com/causalgraphs.html](http://nickchk.com/causalgraphs.html)
+- Two Stat blogs: [1](https://www.countbayesie.com/) and [2](http://varianceexplained.org/)
+- [Online Stat](http://onlinestatbook.com/2/index.html)
+- MOOCS:
+    - [Machine Learning @ Coursera](https://www.coursera.org/learn/machine-learning/home/welcome)
+    - [Deep Learning @ Coursera](https://www.coursera.org/learn/neural-networks-deep-learning/home/welcome)
+    - [Statistics @ Edx](https://www.edx.org/course/subject/data-analysis-statistics)
 
+# Interesting Stuff
 
-## Reproducing a graph from the book
+## Assessing the Coefficient Estimation Accuracy: hands on
+
+```{r, echo = FALSE}
+linTransform <- function(x, i, b, seed = 666) {
+    set.seed(seed)
+    sapply(x, function(x) i + b * x) + rnorm(length(x), sd = length(x))
+}
+
+genLinData <- function(n, i, b, seed = 666) {
+    set.seed(seed)
+    x <- runif(n, min = 0, max = n * 3)
+    data.table(x, y = linTransform(x, i, b, seed))
+}
+
+plotLinData <- function(n, i, b, seed = 666) {
+    set.seed(seed)
+    myData <- genLinData(n, i, b, seed)
+    ggplot(myData, aes(x, y)) +
+        geom_point() +
+        geom_abline(intercept = i, slope = b, color = "red")
+}
+```
+
 ```{r}
+p <- plotLinData(50, i = 0, b = 2)
+p + geom_smooth(method = lm, se = FALSE)
+```
+
+## Assessing the Coefficient Estimation Accuracy: hands on
+
+```{r, eval = FALSE}
 ls_lines <- map(1:20, ~{
     adv_s <- adv[sample(.N, 10)]
     stat_smooth(data = adv_s, mapping = aes(tv, sales), method = lm,
