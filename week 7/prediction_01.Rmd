@@ -10,10 +10,11 @@ output:
         theme: AnnArbor
         # toc: true
         slide_level: 2
+        includes:
+            in_header: header.tex
 header-includes:
 - \usefonttheme[onlymath]{serif}
 - \usepackage{float}
-
 ---
 
 ```{r setup, include=FALSE}
@@ -150,7 +151,7 @@ knitr::include_graphics("./figures/ml_map.png")
 # Linear Regression
 
 ## Simple Linear Regression Formula
-- assumes an approximate linear relationship between $X$ and $Y$
+Assumes an approximate linear relationship between $X$ and $Y$:
 $$ Y \approx \beta_0 + \beta_1 X $$
 
 
@@ -171,7 +172,7 @@ _**source:**_ ISLR, p.62.
 
 ## Estimating Coefficients: Least Squares
 
-- Minimize the *Residual Sum of Squares* (*RSS*)
+Minimize the *Residual Sum of Squares* (*RSS*):
 
 $$RSS = (y_1 - \hat{\beta_0} - \hat{\beta_1} x_1)^2 +
         (y_2 - \hat{\beta_0} - \hat{\beta_2} x_2)^2 + ... +
@@ -213,6 +214,22 @@ knitr::include_graphics("./figures/pop_reg_line_vs_least_sq_reg_line.png")
 - Population regression line (red): $f(X) = 2 + 3X$
 - Least Squares regression line (blue)
 - Unbiased estimation
+
+## Assessing the Coefficient Estimation Accuracy
+
+```{r, echo = FALSE}
+ls_betas <- map(1:1000, ~{
+    adv_s <- adv[sample(.N, 20)]
+    lm <- lm(sales ~ tv, data = adv_s)
+    lm$coefficients["tv"]
+}) %>% unlist()
+
+true_beta <- lm(sales ~ tv, data = adv)$coefficients["tv"]
+
+ggplot(data.table(betas = ls_betas), aes(betas)) +
+    geom_histogram(bins = 40) +
+    geom_vline(xintercept = true_beta, color = "red")
+```
 
 ## Assessing the Coefficient Estimation Accuracy: Standard Error
 
@@ -268,7 +285,7 @@ knitr::include_graphics("./figures/R2_RSS_TSS.png")
 
 ## `R` syntax: Multiple Linear Regression
 
-- example: median Boston house prices
+Example: median Boston house prices
 
 ```{r, eval = FALSE}
 ?MASS::Boston
@@ -285,9 +302,9 @@ mlm <- lm(medv ~ . + I(lstat^2) - indus -age, data = boston)
 
 ## `R` syntax: Regression w/ quantitative var.
 
-```{r, eval = FALSE}
+```{r}
 car <- ISLR::Carseats
-summary(lm(Sales ~ ShelveLoc, data = car))
+lm(Sales ~ ShelveLoc, data = car)
 contrasts(car$ShelveLoc)
 ```
 
@@ -298,7 +315,7 @@ cor(boston)
 ```
 
 ## `R` syntax: Residuals
-```{r}
+```{r, fig.height = 3}
 boston <- MASS::Boston
 mlm <- lm(medv ~ . - indus -age, data = boston)
 residuals <- data.table(residuals = mlm$residuals, fitted = mlm$fitted.values)
@@ -399,15 +416,16 @@ ggplot(pred) +
     e. Try adding an interaction
     f. Describe how well the model fits your data. Try to reason why is it week if so?
     g. Try answering your question with your words
+    h. finis @ Home!
 
-## Finish at home!
+## Thanks!
 
 Thanks for being here!
 
 ## Great resources (click the links!)
 
 - [Free Intro to Stat Learning textbook](http://faculty.marshall.usc.edu/gareth-james/ISL/)
-- Casuality: [http://nickchk.com/causalgraphs.html](http://nickchk.com/causalgraphs.html)
+- Causality: [http://nickchk.com/causalgraphs.html](http://nickchk.com/causalgraphs.html)
 - Two Stat blogs: [1](https://www.countbayesie.com/) and [2](http://varianceexplained.org/)
 - [Online Stat](http://onlinestatbook.com/2/index.html)
 - MOOCS:
@@ -417,7 +435,7 @@ Thanks for being here!
 
 # Interesting Stuff
 
-## Assessing the Coefficient Estimation Accuracy: hands on
+## Assessing the Coefficient Estimation Accuracy: hands on (1)
 
 ```{r, echo = FALSE}
 linTransform <- function(x, i, b, seed = 666) {
@@ -445,22 +463,27 @@ p <- plotLinData(50, i = 0, b = 2)
 p + geom_smooth(method = lm, se = FALSE)
 ```
 
-## Assessing the Coefficient Estimation Accuracy: hands on (1)
+## Assessing the Coefficient Estimation Accuracy: hands on (2)
 
-```{r, eval = FALSE}
+```{r}
 ls_lines <- map(1:20, ~{
     adv_s <- adv[sample(.N, 10)]
     stat_smooth(data = adv_s, mapping = aes(tv, sales), method = lm,
         se = FALSE, alpha = .3, geom = 'line', color = "blue")
 })
+```
+Plot on next slide
 
+## Least Square estimates on multiple samples
+
+```{r}
 ggplot(adv, aes(tv, sales)) +
     geom_point(alpha = .5) +
     geom_smooth(method = lm, color = "red", se = FALSE) +
     ls_lines
 ```
 
-## Assessing the Coefficient Estimation Accuracy: hands on (2)
+## Assessing the Coefficient Estimation Accuracy: hands on (3)
 
 ```{r}
 ls_betas <- map(1:1000, ~{
@@ -471,6 +494,12 @@ ls_betas <- map(1:1000, ~{
 
 true_beta <- lm(sales ~ tv, data = adv)$coefficients["tv"]
 
+```
+Plot on next slide
+
+## Output
+
+```{r}
 ggplot(data.table(betas = ls_betas), aes(betas)) +
     geom_histogram(bins = 40) +
     geom_vline(xintercept = true_beta, color = "red")
