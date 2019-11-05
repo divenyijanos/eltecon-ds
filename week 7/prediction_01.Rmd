@@ -76,7 +76,7 @@ $$Y = f(X) + \epsilon$$
 
 $$\begin{aligned}
 E(Y-\hat{Y}) &= E[f(X) + \epsilon - \hat{f}(X)]^2 \\
-             &= \underbrace{[f(X) - \hat{f}(X)]^2}_\text{reducible error} + 
+             &= \underbrace{[f(X) - \hat{f}(X)]^2}_\text{reducible error} +
              \underbrace{Var(\epsilon)}_\text{irreducible error}
 \end{aligned}$$
 
@@ -108,9 +108,17 @@ _**source:**_ ISLR, p.25.
 - Unsupervised: no supervisor response variable
     - cluster analysis
 
+```{r, out.height = "160px", echo=FALSE}
+knitr::include_graphics("./figures/supervised_vs_unsupervised.png")
+```
+
 ## Regression vs. Classification
 - Regression: quantitative response (e.g. market price prediction)
 - Classification: qualitative response (e.g. male/female based on purchase patterns)
+
+```{r, out.height = "160px", echo=FALSE}
+knitr::include_graphics("./figures/classification_regression.png")
+```
 
 ## Statistical Learning Dimensions Summarized
 - Goal: inference vs. prediction
@@ -156,7 +164,7 @@ $$RSS = (y_1 - \hat{\beta_0} - \hat{\beta_1} x_1)^2 +
 
 ```{r}
 slm <- lm(formula = sales ~ tv, data = adv)
-slm$coefficients 
+slm$coefficients
 ```
 Type `names(slm)` to the console to see `slm`'s other attributes
 
@@ -222,19 +230,19 @@ $$ t = \frac{\hat{\beta}_1 - 0}{SE(\hat{\beta}_1)} $$
 
 ## Assessing the Coefficient Estimation Accuracy: Hypothesis test
 
-```{r, out.height = "140px", echo=FALSE}
+```{r, out.height = "50px", echo=FALSE}
 knitr::include_graphics("./figures/p_value_TV_on_sales.png")
 ```
 _**source:**_ ISLR, p.68.
 
-## Assessing the Coefficient Accuracy of the Model: RSE
+## Assessing the Accuracy of the Model: Residual Standard Error
 
-- RSE
+- RSE (Residual Standard Error)
 - Roughly speaking, it is the average amount that the response will deviate from the true regression line
 - Sales in each market deviate from the true regression line by approximately 3,260 units, on average
 - The RSE is considered a measure of the lack of fit of the model to the data
 
-## Assessing the Coefficient Accuracy of the Model: $R^2$
+## Assessing the Accuracy of the Model: $R^2$
 
 $$ R^2 = \frac{TSS - RSS}{TSS} = 1 - \frac{RSS}{TSS} $$
 
@@ -244,6 +252,41 @@ $$ R^2 = \frac{TSS - RSS}{TSS} = 1 - \frac{RSS}{TSS} $$
 ```{r, out.height = "130px", echo=FALSE}
 knitr::include_graphics("./figures/R2_RSS_TSS.png")
 ```
+
+## `R` Syntax: Multiple Linear Regression
+
+- example: median Boston house prices
+
+```{r, eval = FALSE}
+?MASS::Boston
+boston <- MASS::Boston
+names(boston)
+mlm <- lm(medv ~ lstat, data = boston)
+mlm <- lm(medv ~ lstat + age, data = boston)
+summary(mlm)
+mlm <- lm(medv ~ ., data = boston)
+mlm <- lm(medv ~ . - indus -age, data = boston)
+cor(boston)
+mlm <- lm(medv ~ . + zn*chas - indus -age, data = boston)
+mlm <- lm(medv ~ . + I(lstat^2) - indus -age, data = boston)
+```
+
+## `R` Syntax: Multiple Linear Regression
+
+```{r, eval = FALSE}
+car <- ISLR::Carseats
+summary(lm(Sales ~ ShelveLoc, data = car))
+contrasts(car$ShelveLoc)
+```
+
+## `R` Syntax: Multiple Linear Regression
+
+```{r, eval = FALSE}
+mlm <- lm(medv ~ . - indus -age, data = boston)
+pred <- predict(mlm)
+```
+
+<!-- TASK: find the best linear model for  Boston-->
 
 # Binary Classification
 
@@ -258,15 +301,26 @@ knitr::include_graphics("./figures/R2_RSS_TSS.png")
 
 ## Reproducing a graph from the book
 ```{r}
-ls_lines <- map(1:10, ~{
-    adv_s <- adv[sample(.N, 30)]
+ls_lines <- map(1:20, ~{
+    adv_s <- adv[sample(.N, 10)]
     stat_smooth(data = adv_s, mapping = aes(tv, sales), method = lm,
         se = FALSE, alpha = .3, geom = 'line', color = "blue")
 })
 
-tr_line <- ggplot(adv, aes(tv, sales)) +
-        geom_point() +
-        geom_smooth(method = lm, se = FALSE, color = "red")
-reduce(list(tr_line, ls_lines), `+`)
+ggplot(adv, aes(tv, sales)) +
+    geom_point(alpha = .5) +
+    geom_smooth(method = lm, color = "red", se = FALSE) +
+    ls_lines
 
+ls_betas <- map(1:1000, ~{
+    adv_s <- adv[sample(.N, 20)]
+    lm <- lm(sales ~ tv, data = adv_s)
+    lm$coefficients["tv"]
+}) %>% unlist()
+
+true_beta <- lm(sales ~ tv, data = adv)$coefficients["tv"]
+
+ggplot(data.table(betas = ls_betas), aes(betas)) +
+    geom_histogram(bins = 40) +
+    geom_vline(xintercept = true_beta, color = "red")
 ```
