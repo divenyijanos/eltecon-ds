@@ -1,0 +1,270 @@
+---
+title: Introduction to Statistical Learning
+subtitle: Eltecon Data Science Course by Emarsys
+author: Holler Zsuzsa
+date: November 13, 2019
+output:
+    beamer_presentation:
+        colortheme: dolphin
+        fonttheme: structurebold
+        theme: AnnArbor
+        # toc: true
+        slide_level: 2
+        includes:
+            in_header: header.tex
+header-includes:
+- \usefonttheme[onlymath]{serif}
+- \usepackage{float}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+# knitr::opts_knit$set(root.dir = '..')
+knitr::opts_chunk$set(fig.height = 3, fig.width = 7)
+knitr::opts_chunk$set(fig.pos='H')
+
+library(data.table)
+library(ggplot2)
+library(magrittr)
+library(glue)
+library(purrr)
+```
+
+## Goal of the lesson
+
+- cover the basics of theory of model selection
+- train and assess the quality of linear/logistic regression models in `R` 
+
+# Model Selection
+
+## Measuring the Quality of Fit
+
+Regression:
+
+- $$RSE = \hat{\sigma} = \sqrt{RSS/(n-2)}$$
+- $$ R^2 = \frac{TSS - RSS}{TSS} = 1 - \frac{RSS}{TSS} $$
+
+Classification:
+
+- Confusion matrix - accuracy
+- ROC curve - AUC
+
+## How to Select the Best Model
+
+ **Goal**: Good generalisation i.e.: best predictive performance on new data
+ 
+ What if I choose the one with the lowest error (RSE)/ best fit (R^2)?
+ 
+ How to select the best type of model for our application?
+ 
+## How to Select the Best Model
+ 
+```{r, echo=FALSE}
+set.seed(1234)
+n <- 50
+x <- runif(n, min = 0, max = 1)
+e <- rnorm(n, 0, 0.1)
+y <- sin(2*pi*x) + e
+
+x_range <- seq(0,1,0.01)
+f <- sin(2*pi*x_range)
+
+train_proportion <- 0.7
+train_index <- sample(1:n, floor(n*train_proportion))
+
+data <- data.table(x = x, y = y)
+data_train <- data[train_index,]
+data_test <- data[-train_index,]
+data_range <- data.table(x = x_range, y = f)
+
+p <- ggplot(data_train, aes(x, y)) +
+    geom_point()  + 
+    geom_line(data = data_range, aes(x, y)) +
+    theme_minimal() +
+    xlim(0, 1) + ylim(-1.3, 1.3)
+
+p
+```
+
+## The Loss Function
+
+Common choice for regression problem is the **squared loss**:
+ $$L(f(x),y) = (f(x) - y)^2$$
+
+Goal is to choose $f(x)$ that **minimises the expected loss**: 
+$$E[L(f)] = E[(f(x) - y)^2]$$
+
+On can show that the:
+$$f^*(x) = argmin_{f(x)} E[L(f(x),y)] = E[y|x]$$
+
+## The Empirical Loss Minimiser
+
+Let's say you fit a linear regression model with $k$ parameters.
+
+The **empirical loss** of the fitted model:
+$$\hat L(f_k) = \frac{1}{n} \sum (f_k(x) - y)^2$$
+Is this a good estimate of the expected loss of $f_k^*(x)$? Beware of overfitting!
+
+## The Empirical Loss Minimiser
+
+```{r, warning = FALSE, echo=FALSE}
+k <- c(0, 1, 5, 30)
+
+p2 <- p
+for (i in k) {
+    if (i == 0) {
+        model <- lm(y ~ 1, data = data_train)
+    } else {
+        model <- lm(y ~ poly(x, i, raw = TRUE), data = data_train)
+    }
+    colname <- paste0("pred",i)
+    data_range <- data_range[, eval(colname):=predict(model, newdata = data_range)]
+    p2 <- p2 + geom_line(data = data_range, aes_string("x", colname), color = "red")
+}
+
+p2
+```
+
+## What is overfitting
+
+Among a set of possible models we choose one with poor generalisation properties. 
+
+**Why?** Because we have a biased estimate of its expected loss.
+
+**Overfitting error**:
+$$E[L(f_k)] - \hat L(f_k)$$
+
+## Model complexity
+
+How to avoid overfitting?
+
+Find the ideal level of model complexity within a given model type (e.g.: choose k for linear regression) for a given set of data.
+
+$$ E[L(f_k)] - E[L(f^*)] = \underbrace{[E[L(f_k)] -  E[L(f_k^*)]]}_\text{estimation error} + \underbrace{[E[L(f_k^*)] -  E[L(f^*)]]}_\text{approximation error} $$
+where $f_k^*$ is the best estimator among models with complexity k.
+
+## Train vs. Test Error
+
+**Training set:** $N$ observations of labeled data used to tune the parameters of the model (e.g.: estimate coefficients of linear regression)
+
+**Validation set/Test set:** $M$ observations of data used to optimize model complexity and/or choose between different types of models
+
+Overfitting to the validation set??? Possible!
+
+One may want to set aside a third set of data to assess the performance of the final model.
+
+## Train vs. Test Error
+
+**Advantages:**
+
+- Simple approch
+
+**Disadvantages:**
+
+- Loss of valuable training data
+- Small validation set gives noisy estimate of predictive performance
+
+## Train vs. Test Error
+
+```{r, warning = FALSE, echo=FALSE}
+MSE <- function(y, pred) {
+    mean((y - pred)**2)
+}
+
+mse_train <- list()
+mse_test <- list()
+for (i in k) {
+    if (i == 0) {
+        model <- lm(y ~ 1, data = data_train)
+    } else {
+        model <- lm(y ~ poly(x, i, raw = TRUE), data = data_train)
+    }
+    colname <- paste0("pred",i)
+    data_train <- data_train[, eval(colname):=predict(model, newdata = data_train)]
+    mse_train[[colname]] <-  MSE(data_train[, y], data_train[, get(colname)])
+    data_test <- data_test[, eval(colname):=predict(model, newdata = data_test)]
+    mse_test[[colname]] <-  MSE(data_test[, y], data_test[, get(colname)])
+}
+
+evals <- cbind("train MSE" = unlist(mse_train), "test MSE" = unlist(mse_test))
+evals
+```
+
+
+## Information criteria
+
+**Idea**: Correct for the bias in the estimation of prediction error in complex models by adding a penalty term.
+
+Definition:
+
+- **BIC** (Bayesian approach): $$ -\text{ln}(\hat L) + \frac{1}{2}M\text{ln}(N) $$
+- **AIC** (Information theory): $$ -2\text{ln}(\hat L) + 2M$$
+
+where $M$ is the number of parameters, $N$ is the number of data points and $\hat L$ is the maxinal value of the likelihood function. 
+
+## Information criteria
+
+**Advantages:**
+
+- No need to set aside data for validation
+- No need to train models multiple times
+
+**Disadvantages:**
+
+- Rely on assumptions that are often invalid in practice 
+- In practice, they tend to favor overly simple models
+
+## Information criteria
+
+```{r, warning = FALSE, echo=FALSE}
+aic <- list()
+bic <- list()
+for (i in k) {
+    if (i == 0) {
+        model <- lm(y ~ 1, data = data_train)
+    } else {
+        model <- lm(y ~ poly(x, i, raw = TRUE), data = data_train)
+    }
+    colname <- paste0("pred",i)
+    aic[[colname]] <-  AIC(model)
+    bic[[colname]] <-  BIC(model)
+}
+
+cbind(evals, "AIC" = unlist(aic), "BIC" = unlist(bic))
+```
+
+## Regularisation
+
+**Idea:** Add a penalty term to the error function to discourage the coefficients from reaching large values. 
+
+$$E(w) = E_D(w) + \lambda E_W(w) $$
+
+where $E_D(w)$ is the data-dependent error, $E_W(w)$ regularisation term and $\lambda$ is the regularisation parameter that controls the relative importance of these two terms. 
+
+## Regularisation
+
+**Advantages:**
+
+- allows to train complex models on limited size data
+- computationally cheap
+
+**Disadvantages:**
+
+- not clear how to choose $\lambda$
+
+More on ridge, LASSO, the Bias-Variance trade-off later...
+
+
+## Cross validation
+
+**Leave-one-out:**
+**K-fold:**
+
+**Advantages:**
+
+- Utilizes all the data
+
+**Disadvantages:**
+
+- computationally expensive
