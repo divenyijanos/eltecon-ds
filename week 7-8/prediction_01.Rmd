@@ -406,7 +406,7 @@ ggplot(pred) +
 ## Now your turn!
 
 1. Either use your project data or find Something on [Kaggle](https://www.kaggle.com/)
-2. Find a good research/business question that involves prediction (either ) and write it down
+2. Find a good research/business question that involves prediction and write it down
 3. Answer your question using what we've learned previously and today
     a. Use at least one graph to see variable interdependence (use `geom_smooth`)
     a. Look at variable correlations
@@ -416,7 +416,7 @@ ggplot(pred) +
     e. Try adding an interaction
     f. Describe how well the model fits your data. Try to reason why is it week if so?
     g. Try answering your question with your words
-    h. finis @ Home!
+    h. finish @ Home!
 
 ## Thanks!
 
