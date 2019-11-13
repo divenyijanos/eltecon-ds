@@ -1,5 +1,5 @@
 ---
-title: Introduction to Statistical Learning
+title: Model Selection and Prediction Accuracy
 subtitle: Eltecon Data Science Course by Emarsys
 author: Holler Zsuzsa
 date: November 13, 2019
@@ -29,15 +29,16 @@ library(ggplot2)
 library(magrittr)
 library(glue)
 library(purrr)
-library(viridis)
 library(caret)
-library(kableExtra)
+library(knitr)
 ```
 
 ## Goal of the lesson
 
-- cover the basics of theory of model selection
-- train and assess the quality of linear/logistic regression models in `R` 
+- Intro to the **theory of model selection**, model complexity, overfitting, etc.
+- Cover some **practical solutions** to the model selection problem
+- Implement cross-validation in `R`
+- Get some hands-on experience with your own data
 
 # Model Selection in Theory
 
@@ -45,7 +46,7 @@ library(kableExtra)
 
  **Goal**: Good generalisation i.e.: best predictive performance on new data
  
- What if I choose the one with the lowest error (RSE)/ best fit (R^2)?
+ What if I choose the one with the lowest error ($MSE$)/ best fit ($R^2$)?
  
  How to select the best type of model for our application?
  
@@ -118,7 +119,6 @@ data_range_long <- melt(data_range, id.vars = c("x", "y"))
 
 p +
     geom_line(data = data_range_long, aes(x, value)) +
-    labs(color = "") + 
     facet_wrap(~variable)
 
 ```
@@ -129,7 +129,6 @@ p +
 
 p +
     geom_line(data = data_range_long, aes(x, value)) +
-    labs(color = "") +
     geom_point(data = data_test, aes(x, y), color = "red") + 
     facet_wrap(~variable)
 
@@ -137,12 +136,108 @@ p +
 
 ## What is overfitting
 
-Among a set of possible models we choose one with poor generalisation properties. 
+Among a set of possible models we choose one that is <em>too complex<em> and has poor generalisation properties. 
 
 **Why?** Because we have an incorrect estimate of its expected loss.
 
 **Overfitting error**:
 $$E[L(f_k)] - \hat L(f_k)$$
+
+```{r, warning = FALSE, echo=FALSE}
+
+generate_dependence <- function(n, small_n, seed_c) {
+  set.seed(seed_c)
+  x <- runif(n, min = -1, max = 1)
+  e <- rnorm(n, mean = 0, sd = .25)
+  y <- sin(2*pi*x) + e
+  
+  daf <- data.frame(x = x, e = e, y = y)
+  daf_restrict <- daf[sample.int(nrow(daf), small_n),]
+  return(list(complete_data = daf, restricted_data = daf_restrict))
+}
+
+# Model family
+# Assume that we have the polynomial model family with which we want to estimate 
+
+generate_formula <- function(k, symbol) {
+  ret <- as.character()
+  for(i in 1:k) {
+    ret <- c(ret, paste0("I(",symbol, "^", i,")"))
+  }
+  return(paste0("y~",paste(ret, collapse = "+")))
+}
+
+estimate_model_family <- function(inp_dat, k_max) {
+  ret <- list()
+  for(i in 1:k_max) {
+    ret[[i]] <- lm(as.formula(generate_formula(i, "x")), inp_dat)
+  }
+  return(ret)
+}
+
+predict_family <- function(inp_dat, fam) {
+  
+  for(i in 1:length(fam)) {
+    inp_dat[, paste0("pred_",i)] <- predict(fam[[i]], inp_dat)
+    inp_dat[, paste0("err_",i)] <- inp_dat[, paste0("pred_",i)] - inp_dat$y
+  }
+  return(inp_dat)
+}
+
+calculate_error <- function(inp_dat, fam, fieldname) {
+  for(i in 1:length(fam)) {
+    fam[[i]][[fieldname]] <- sum(inp_dat[, paste0("err_",i)]^2) / nrow(inp_dat)
+  }
+  return(fam)
+}
+
+summarise_result <- function(fam, fieldname) {
+  daf <- data.frame(degree = 1:length(fam))
+  v <- rep(0, length(fam))
+  for(i in 1:length(fam)) {
+    v[i] <- fam[[i]][[fieldname]]
+  }
+  daf[, fieldname] <- v
+  return(daf)
+}
+
+run_analysis <- function(sample_size, small_sample_size, seed_c, max_degree) {
+  sample_data <- generate_dependence(sample_size,small_sample_size, seed_c)
+  #model_family <- estimate_model_family(sample_data$dt, 20)
+  model_family_rest <- estimate_model_family(sample_data$restricted_data, max_degree)
+  
+  sample_data_with_pred <- predict_family(sample_data$complete_data, model_family_rest)
+  sample_data_with_pred_rest <- predict_family(sample_data$restricted_data, model_family_rest)
+  
+  model_family_err <- calculate_error(sample_data_with_pred, model_family_rest, "complete")
+  model_family_err_rest <- calculate_error(sample_data_with_pred_rest, model_family_rest, "training")
+  
+  results <- summarise_result(model_family_err, "complete")
+  results_rest <- summarise_result(model_family_err_rest, "training")
+  
+  res_comp <- as.data.table(merge(results, results_rest, by = c('degree')))
+}
+res_comp <- run_analysis(10000, 200, 2004, 17)
+crs <- c("complete"="red", "training"="blue")
+ggplot(res_comp) + 
+  geom_line(aes(x=degree, y= complete, color = "expected loss")) +
+  geom_line(aes(x=degree, y =training, color = "training loss")) +
+  geom_vline(xintercept = res_comp[complete == min(complete),degree], color = "grey") +
+  geom_segment(aes(x = 14, y = res_comp[degree == 14,training], 
+                   xend = 14, yend = res_comp[degree == 14,complete]),
+               arrow = arrow(length = unit(0.1,"cm"))) +
+  geom_segment(aes(xend = 14, yend = res_comp[degree == 14,training], 
+                   x = 14, y = res_comp[degree == 14,complete]),
+               arrow = arrow(length = unit(0.1,"cm"))) +
+  annotate("text", x = 14, y = res_comp[degree == 14,training], label = "Overfitting error", size = 3, hjust = 0, vjust =-1) +
+  xlab("polynomial degree") +
+  ylab("loss") +
+  guides( color = guide_legend(title = "")) +
+  theme(legend.position = "bottom") +
+  theme_minimal()
+
+
+```
 
 ## Model complexity
 
@@ -163,11 +258,27 @@ where $f_k^*$ is the best estimator among models with complexity k.
 
 **Validation set/Test set:** $M$ observations of data used to optimize model complexity and/or choose between different types of models
 
+Watch out for use-cases where random assignment does not work!
+
+## Train vs. Test Error
+
+```{r, warning = FALSE, echo=FALSE}
+
+p +
+    geom_line(data = data_range_long, aes(x, value)) +
+    geom_point(data = data_test, aes(x, y), color = "red") + 
+    annotate("text", x = 0.9, y = 1, label = "Test data", color="red") +
+    annotate("text", x = 0.9, y = 1.3, label = "Train data") +
+    facet_wrap(~variable)
+
+```
+
 ## Train vs. Test Error
 
 $$ MSE = \frac{1}{n} \sum (\hat f(x) - y)^2$$
 
-```{r, warning = FALSE, echo=FALSE}
+
+```{r echo=FALSE, warning=FALSE, results='asis'}
 MSE <- function(y, pred) {
     mean((y - pred)**2)
 }
@@ -188,14 +299,14 @@ for (i in k) {
 }
 
 evals <- cbind("train MSE" = unlist(mse_train), "test MSE" = unlist(mse_test))
-kable(evals, digits = 2 )
+kable(evals, digits = 2)
 ```
 
 ## Train vs. Test Error
 
 **Advantages:**
 
-- Simple approch
+- Simple approach
 
 **Disadvantages:**
 
@@ -208,7 +319,7 @@ One may want to set aside a third set of data to assess the performance of the f
 
 ## Cross validation
 
-**Idea:** Instead of having a single validation set spli the data multiple times to estimate the performance of the fitted model
+**Idea:** Instead of having a single validation set split the data multiple times to estimate the performance of the fitted model
 
 **Leave-one-out:** split tha data $N$ times, always leave one observation out for testing
 
@@ -229,6 +340,7 @@ knitr::include_graphics("./figures/k_fold.png")
 ## Cross validation
 
 $$ CV_k = \frac{1}{k} \sum MSE_i$$
+
 
 ```{r, warning = FALSE, echo=FALSE}
 
@@ -261,6 +373,8 @@ kable(evals, digits = 2)
 **Advantages:**
 
 - utilizes all the data
+- suitable for parameter tuning
+- can decrease variance of the error estimation
 
 **Disadvantages:**
 
@@ -306,16 +420,18 @@ for (i in k) {
     bic[[colname]] <-  BIC(model)
 }
 
-kable(cbind(evals, "AIC" = unlist(aic), "BIC" = unlist(bic)), digits = 2)
+evals <- cbind(evals, "AIC" = unlist(aic), "BIC" = unlist(bic))
+kable(evals, digits = 2)
 ```
+
 
 ## Regularisation
 
-**Idea:** Add a penalty term to the error function to discourage the coefficients from reaching large values. 
+**Idea:** Add a **penalty term** to the error function to discourage the coefficients from reaching large values. 
 
 $$E(w) = E_D(w) + \lambda E_W(w) $$
 
-where $E_D(w)$ is the data-dependent error, $E_W(w)$ regularisation term and $\lambda$ is the regularisation parameter that controls the relative importance of these two terms. 
+where $E_D(w)$ is the **data-dependent error**, $E_W(w)$ **regularisation term** and $\lambda$ is the **regularisation parameter** that controls the relative importance of these two terms. 
 
 ## Regularisation
 
@@ -330,4 +446,22 @@ where $E_D(w)$ is the data-dependent error, $E_W(w)$ regularisation term and $\l
 
 More on ridge, LASSO, the Bias-Variance trade-off later...
 
+
+## Now your turn!
+
+1. Either use your project data or find Something on [Kaggle](https://www.kaggle.com/) **DONE**
+2. Find a good research/business question that involves prediction and write it down **DONE**
+3. Answer your question using what we've learned previously and today
+    a. Select a set of candidate models with different complexity (i.e.: different variable sets)
+    b. Separate a validation set from your data
+    c. Fit all the candidate regressions on the rest of your data
+    d. Compare the fit of your models on the train and validation data
+    e. Perform cross-validation of your models
+    f. Try regularisation if it makes sense!
+    g. Conclude on your models in terms of their prediction performance
+    h. Finish @ Home!
+
 ## Resources
+
+- Bishop, Christopher: Pattern Recognition and Machine Learning
+- Gareth J., Witten D., Hastie T. and Tibshirani R.: An Introduction to Statistical Learning
