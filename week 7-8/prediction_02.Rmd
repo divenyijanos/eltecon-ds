@@ -66,7 +66,6 @@ data <- data.table(x = x, y = y)
 
 train_proportion <- 0.7
 train_index <- sample(1:n, floor(n*train_proportion))
-# train_index <- createDataPartition(data$y, p=train_index, list=FALSE)
 
 data_train <- data[train_index,]
 data_test <- data[-train_index,]
