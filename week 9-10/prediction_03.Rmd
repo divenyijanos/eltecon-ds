@@ -2,7 +2,7 @@
 title: Regularisation
 subtitle: Eltecon Data Science Course by Emarsys
 author: Holler Zsuzsa
-date: November 13, 2019
+date: November 20, 2019
 output:
     beamer_presentation:
         colortheme: dolphin
