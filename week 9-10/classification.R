@@ -63,13 +63,16 @@ calculateFPRTPR(confusionMatrix(predict(glm_model, data_test, type = "response")
 
 predicted_probs_glm <- predict(glm_model, data_test, type = "response")
 
-cutoffs <- seq(0, 1, 0.01)
-roc_data <- map_df(cutoffs, ~{
-    confusionMatrix(predicted_probs_glm, data_test, cutoff = .x) %>%
+generateROCdata <- function(predictions) {
+    map_df(seq(0, 1, 0.01), ~{
+        confusionMatrix(predictions, data_test, cutoff = .x) %>%
         calculateFPRTPR()
-})
+    })
+}
 
-roc_plot <- ggplot(roc_data, aes(FPR, TPR)) +
+roc_data_glm <- generateROCdata(predicted_probs_glm)
+
+roc_plot <- ggplot(roc_data_glm, aes(FPR, TPR)) +
     geom_path() +
     geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
     scale_x_continuous(limits = c(0, 1)) +
@@ -92,13 +95,8 @@ calculateAccuracy(getTreePredictions(tree_model, data_train), data_train)
 calculateAccuracy(getTreePredictions(tree_model, data_test), data_test)
 
 prune(tree_model, cp = 1) %>% rpart.plot()
-calculateAccuracy(getTreePredictions(prune(tree_model, cp = 1), data_test), data_test)
-
 prune(tree_model, cp = 0.1) %>% rpart.plot()
-calculateAccuracy(getTreePredictions(prune(tree_model, cp = 0.1), data_test), data_test)
-
 prune(tree_model, cp = 0.01) %>% rpart.plot()
-calculateAccuracy(getTreePredictions(prune(tree_model, cp = 0.01), data_test), data_test)
 
 accuracy_by_params <- map_df(seq(0, 0.5, 0.001), ~{
     pruned_tree <- prune(tree_model, cp = .x)
@@ -122,38 +120,23 @@ calculateAccuracy(getTreePredictions(default_tree_model, data_test), data_test)
 predicted_probs_simple_tree <- getTreePredictions(prune(tree_model, 0.1), data_test)
 confusionMatrix(predicted_probs_simple_tree, data_test, 0.5) %>% calculateFPRTPR()
 
-roc_data_simple_tree <- map_df(cutoffs, ~{
-    confusionMatrix(predicted_probs_simple_tree, data_test, cutoff = .x) %>%
-        calculateFPRTPR()
-})
-
-roc_plot + geom_path(data = roc_data_simple_tree, color = "red")
+roc_data_simple_tree <- generateROCdata(predicted_probs_simple_tree)
+roc_plot <- roc_plot + geom_path(data = roc_data_simple_tree, color = "red")
+roc_plot
 
 # complex tree
 predicted_probs_complex_tree <- getTreePredictions(prune(tree_model, 0.01), data_test)
 
-roc_data_complex_tree <- map_df(cutoffs, ~{
-    confusionMatrix(predicted_probs_complex_tree, data_test, cutoff = .x) %>%
-        calculateFPRTPR()
-})
-
-roc_plot +
-    geom_path(data = roc_data_simple_tree, color = "red") +
-    geom_path(data = roc_data_complex_tree, color = "orange")
+roc_data_complex_tree <- generateROCdata(predicted_probs_complex_tree)
+roc_plot <- roc_plot + geom_path(data = roc_data_complex_tree, color = "orange")
+roc_plot
 
 # default tree
 predicted_probs_default_tree <- getTreePredictions(default_tree_model, data_test)
 
-roc_data_default_tree <- map_df(cutoffs, ~{
-    confusionMatrix(predicted_probs_default_tree, data_test, cutoff = .x) %>%
-        calculateFPRTPR()
-})
-
-roc_plot +
-    geom_path(data = roc_data_simple_tree, color = "red") +
-    geom_path(data = roc_data_complex_tree, color = "orange") +
-    geom_path(data = roc_data_default_tree, color = "darkred")
-
+roc_data_default_tree <- generateROCdata(predicted_probs_default_tree)
+roc_plot <- roc_plot + geom_path(data = roc_data_default_tree, color = "darkred")
+roc_plot
 
 # Ensemble --------------------------------------------------------------------
 
@@ -165,16 +148,9 @@ predicted_probs_bagging <- predict(bagged_tree_model, data_test, type = "prob") 
 calculateAccuracy(predicted_probs_bagging, data_test)
 confusionMatrix(predicted_probs_bagging, data_test, 0.5) %>% calculateFPRTPR()
 
-roc_data_bagging <- map_df(cutoffs, ~{
-    confusionMatrix(predicted_probs_bagging, data_test, cutoff = .x) %>%
-        calculateFPRTPR()
-})
-
-roc_plot +
-    geom_path(data = roc_data_simple_tree, color = "red") +
-    geom_path(data = roc_data_complex_tree, color = "orange") +
-    geom_path(data = roc_data_default_tree, color = "darkred") +
-    geom_path(data = roc_data_bagging, color = "navy")
+roc_data_bagging <- generateROCdata(predicted_probs_bagging)
+roc_plot <- roc_plot + geom_path(data = roc_data_bagging, color = "navy")
+roc_plot
 
 
 # Random forest
@@ -185,21 +161,12 @@ predicted_probs_rf <- predict(random_forest_model, data_test, type = "prob") %>%
 calculateAccuracy(predicted_probs_rf, data_test)
 confusionMatrix(predicted_probs_rf, data_test, 0.5) %>% calculateFPRTPR()
 
-
-roc_data_rf <- map_df(cutoffs, ~{
-    confusionMatrix(predicted_probs_rf, data_test, cutoff = .x) %>%
-        calculateFPRTPR()
-})
-
-roc_plot +
-    geom_path(data = roc_data_simple_tree, color = "red") +
-    geom_path(data = roc_data_complex_tree, color = "orange") +
-    geom_path(data = roc_data_default_tree, color = "darkred") +
-    geom_path(data = roc_data_bagging, color = "navy") +
-    geom_path(data = roc_data_rf, color = "darkgreen")
+roc_data_rf <- generateROCdata(predicted_probs_rf)
+roc_plot <- roc_plot + geom_path(data = roc_data_rf, color = "darkgreen")
+roc_plot
 
 
-# Recommended resources
+# Recommended resources -------------------------------------------------------
 
 # ISLR Ch8
 # www.r2d3.us
