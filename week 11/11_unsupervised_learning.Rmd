@@ -286,14 +286,14 @@ knitr::include_graphics("figures/hierarchical_clust_ex1.2.png")
 
 - The height of fusion (on the vertical axis) indicates how different the observations are.
 
-- Clusters are defined by cuting the dendogram horizontally, although where to make the cut is not so obvious.
+- Clusters are defined by cutting the dendogram horizontally, although where to make the cut is not so obvious.
 
 - *Hierarchical* refers to that clusters obtained by cutting the tree at a given height are necessarily nested within the clusters obtained by cutting higher. However, it isn't always the case!
 
 ## Hierarchical clustering algorithm
 - We need to define a *dissimilarity measure* between each pair of observations (most often Euclidean distance).
 
-- Starting from the bottom, each observation is treated as a separate cluster, then the two most similar are *fused*, next the two most similar clusters are fused, etc., until all observations belon to a cluster and the dendogram is complete.
+- Starting from the bottom, each observation is treated as a separate cluster, then the two most similar are *fused*, next the two most similar clusters are fused, etc., until all observations belong to a cluster and the dendogram is complete.
 
 - Dissimilarity between clusters depend on the selected *linkage* (average and complete linkage are the most preferred ones) and the dissimilarity measure.
 
@@ -305,14 +305,14 @@ knitr::include_graphics("figures/hierarchical_clust_algo.png")
 ## Linkage types
 - The linkage function tells you how to measure the distance between clusters.
 
+- Average linkage: Mean intercluster dissimilarity.
+$$f = average(d(x, y))$$
+
 - Single linkage: Minimal intercluster dissimilarity.
 $$f = min(d(x, y))$$
 
 - Complete linkage: Maximal intercluster dissimilarity.
 $$f = max(d(x, y))$$
-
-- Average linkage: Mean intercluster dissimilarity.
-$$f = average(d(x, y))$$
 
 ## Clustering with different linkages
 ```{r, out.width = "100%", fig.align = "center", echo=FALSE}
@@ -340,7 +340,7 @@ knitr::include_graphics("figures/correlation_based_linkage.png")
 - We might also want to scale the variables to have standard deviation one if they are measured on different scales.
 
 ## Practical issues in clustering
-- There are tevhniques for validating clustering, although there is no single best approach.
+- There are techniques for validating clustering, although there is no single best approach.
 
 - Outliers might distort the clustering. The mixture of models are used to treat this.
 
