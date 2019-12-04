@@ -281,3 +281,6 @@ knitr::include_graphics("figures/hierarchical_clust_algo.png")
 - [James, G., Witten, D., Hastie, T., and Tibshirani, R. *An Introduction to Statistical Learning with Applications in R.*](http://faculty.marshall.usc.edu/gareth-james/ISL/)
 - [Gatto, L. Chapter 4 Unsupervised Learning. In *An Introduction to Machine Learning with R*.](https://lgatto.github.io/IntroMachineLearningWithR/unsupervised-learning.html)
 - [Surles, W. *Unsupervised Learning in R.*](https://rpubs.com/williamsurles/310847)
+
+# Data for lab
+https://drive.google.com/open?id=1Mg4kMmIc8y0JHtJIkXx33JKbwgDdTImw
