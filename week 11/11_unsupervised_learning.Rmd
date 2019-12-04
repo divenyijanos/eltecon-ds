@@ -39,20 +39,20 @@ knitr::include_graphics("figures/supervised_vs_unsupervised.png")
 - The goal is to find relationship or structure among the measurements.
 
 ## Goals of unsupervised learning
-- Find patterns in the features of the data by dimensionality reduction
-    - Ex 1. instead of using both humidity and rainfall in a classification problem, they can be collapsed into just one underlying feature, since both of them are strongly correlated
+- Find patterns in the features of the data by dimensionality reduction.
+    - Eg 1. instead of using both humidity and rainfall in a classification problem, they can be collapsed into just one underlying feature, since both of them are strongly correlated.
 \linebreak
-- Find homogenous subgroups (clusters) within a population
-    - Ex 1. segmenting consumers based on demographics and purchasing history
-    - Ex 2. find similar movies based on features of each movie and reviews of the movies
+- Find homogenous subgroups (clusters) within a population.
+    - Eg 1. segmenting consumers based on demographics and purchasing history.
+    - Eg 2. find similar movies based on features of each movie and reviews of the movies.
 
 # Dimensionality reduction with PCA
 - This section is based on [James, G., Witten, D., Hastie, T., and Tibshirani, R. *An Introduction to Statistical Learning with Applications in R.*  Pages 373-385.](http://faculty.marshall.usc.edu/gareth-james/ISL/)
 
 ## Dimensionality reduction with PCA
-- *Principal components* allow us to summarize a large set of correlated variables with a smaller number of representative variables that collectively explain most of the variablility in the original set.
+- **Principal components** allow us to **summarize a large set of correlated variables with a smaller number of representative variables** that collectively explain most of the variablility in the original set.
 
-- *Principal component analysis* (PCA) is simply reducing the number of variables of a data set, while preserving as much information as possible.
+- **Principal component analysis** (PCA) is simply **reducing the number of variables of a data set, while preserving as much information as possible**.
 
 - Reducing the number of variables comes at the expense of accuracy, so with PCA we trade a little accuracy for simplicity.
 
@@ -97,8 +97,6 @@ $$\begin{bmatrix}
     - if negative: one increases when the other decreases (inversely correlated)
 
 ## Step 3: Compute the eigenvectors and eigenvalues of the covariance matrix to identify the PCs
-- Every eigenvector has an eigenvalue and their number is equal to the number of dimensions of the data.
-
  - **Eigenvectors** of the covariance matrix **are actually the directions of the axes where there is the most variance** and that we call principal components. 
  
  - **Eigenvalues** are simply the coefficients attached to eigenvectors, which **give the amount of variance carried in each principal component**.
@@ -129,16 +127,11 @@ $$
 # K-means clustering
 
 ## K-means theory
-- Clustering the observations of a data set means partitioning them into groups so that observations within each group are quite *similar*, while observations in different groups are quite *different* from each other.
+- Clustering the observations of a data set means partitioning them into groups so that **observations within each group are quite similar**, while **observations in different groups are quite different** from each other.
 
 - Each observation should belong to exactly one cluster.
 
 - To perform K-means clustering, we must first specify the desired number of clusters K; then the K-means algorithm will assign each observation to exactly one of the K clusters.
-
-## K-means clustering with different values of K
-```{r, echo=FALSE}
-knitr::include_graphics("figures/kmeans_different_ks.png")
-```
 
 ## K-means optimization problem
 - A *good* clustering is one for which the *within-cluster variation* is as small as possible.
@@ -155,13 +148,7 @@ $$\underset{C_{1},...,C_{K}}{\text{minimize}}\left\{\sum_{k=1}^{K}\frac{1}{|C_{k
 2. Iterate until the cluster assignments stop changing:
     (a) For each of the *K* clusters, compute the cluster *centroid*. The *k*th cluster centroid is the vector of the *p* feature means for the observations in the *k*th cluster.
     (b) Assign each observation to the cluster whose centroid is closest (where *closest* is defined using Euclidean distance).
-
-## K-means algorithm (cont.)
-- The results will depend on the initial (random) cluster assignment in Step 1, thus we need to run the algorithm multiple times from different random initial
-configurations.
-
-- We select the *best* solution, for which the objective is the smallest.
-
+    
 ## K-means algorithm explained
 - Notice that:
 $$\frac{1}{|C_{k}|}\sum_{i,i'\in C_{k}}\sum_{j=1}^{p}(x_{ij}-x_{i'j})^2=2\sum_{i\in C_{k}}\sum_{j=1}^{p}(x_{ij}-\bar{x}_{kj})^2$$
@@ -170,6 +157,12 @@ where $$\bar{x}_{kj}=\frac{1}{|C_{k}|}\sum_{i\in C_{k}}x_{ij}$$ is the mean for 
 - The above shows that in Step 2(a) the cluster means for each feature are the constants that minimize the sum-of-squared deviations, and by reallocation in Step 2(b) we can only improve.
 
 - When the result no longer changes, a *local optimum* has been reached.
+
+## K-means algorithm (cont.)
+- The results will depend on the initial (random) cluster assignment in Step 1, thus we need to run the algorithm multiple times from different random initial
+configurations.
+
+- We select the *best* solution, for which the objective is the smallest.
 
 ## K-means clustering progression
 ```{r, echo=FALSE}
@@ -181,6 +174,11 @@ knitr::include_graphics("figures/kmeans_iterations_1.png")
 knitr::include_graphics("figures/kmeans_iterations_2.png")
 ```
 
+## K-means clustering with different values of K
+```{r, echo=FALSE}
+knitr::include_graphics("figures/kmeans_different_ks.png")
+```
+
 # Hierarchical clustering
 - Hierarchical clustering does not require choosing a particular *K* number of clusters.
 
@@ -189,29 +187,48 @@ knitr::include_graphics("figures/kmeans_iterations_2.png")
 - We focus on *bottom-op* or *agglomerative* clustering (vs *top-down* or *divisive*).
 
 ## The dendogram
+
+::: columns
+::: column
+```{r, echo=FALSE, fig.show='hold', out.height = "80%"}
+knitr::include_graphics("figures/hierarchical_clust_ex1.3.png")
+```
+:::
+::: column
+- Each *leaf* is an observation, as we move up the tree, leafs begin to *fuse* into branches based on their *similarity*.
+\linebreak
+- The height of fusion (on the vertical axis) indicates how different the observations are.
+\linebreak
+- Clusters are defined by cutting the dendogram horizontally, although where to make the cut is not so obvious.
+:::
+:::
+
+## The dendogram (cont.)
 ```{r, echo=FALSE}
 knitr::include_graphics("figures/hierarchical_clust_ex1.2.png")
 ```
-
-## The dendogram
-- Each *leaf* is an observation, as we move up the tree, leafs begin to *fuse* into branches based on their *similarity*.
-
-- The height of fusion (on the vertical axis) indicates how different the observations are.
-
-- Clusters are defined by cutting the dendogram horizontally, although where to make the cut is not so obvious.
-
 - *Hierarchical* refers to that clusters obtained by cutting the tree at a given height are necessarily nested within the clusters obtained by cutting higher. However, it isn't always the case!
 
 ## Hierarchical clustering algorithm
-- We need to define a *dissimilarity measure* between each pair of observations (most often Euclidean distance).
+- We need to define a **dissimilarity measure** between each pair of observations.
 
 - Starting from the bottom, each observation is treated as a separate cluster, then the two most similar are *fused*, next the two most similar clusters are fused, etc., until all observations belong to a cluster and the dendogram is complete.
 
-- Dissimilarity between clusters depend on the selected *linkage* (average and complete linkage are the most preferred ones) and the dissimilarity measure.
+- Dissimilarity between clusters depend on the selected **linkage** and the dissimilarity measure.
 
-## Hierarchical clustering algorithm (example)
-```{r, out.width = "65%", fig.align = "center", echo=FALSE}
-knitr::include_graphics("figures/hierarchical_clust_algo.png")
+## Dissimilarity measures
+- Euclidean distance is the most common measure used.
+
+$$\sqrt{\sum_{i}(a_{i}-b_{i})^2}$$
+
+- *Correlation-based distance* is also very useful, eg. it is used for gene expression. 
+    - It considers two observations to be similar if their features are highly correlated, even though the observed values may be far apart in terms of Euclidean distance. 
+    - The distance between two vectors is 0 when they are perfectly correlated.
+    - It focuses on the shapes of observation profiles rather than their magnitudes.
+
+## Euclidean vs correlation-based distance
+```{r, out.width = "100%", fig.align = "center", echo=FALSE}
+knitr::include_graphics("figures/correlation_based_linkage.png")
 ```
 
 ## Linkage types
@@ -231,19 +248,9 @@ $$f = max(d(x, y))$$
 knitr::include_graphics("figures/linkages.png")
 ```
 
-## Dissimilarity measures
-- Euclidean distance is the most common measure used.
-
-$$\sqrt{\sum_{i}(a_{i}-b_{i})^2}$$
-
-- *Correlation-based distance* is also very useful, eg. it is used for gene expression. 
-    - It considers two observations to be similar if their features are highly correlated, even though the observed values may be far apart in terms of Euclidean distance. 
-    - The distance between two vectors is 0 when they are perfectly correlated.
-    - It focuses on the shapes of observation profiles rather than their magnitudes.
-
-## Euclidean vs correlation-based distance
-```{r, out.width = "100%", fig.align = "center", echo=FALSE}
-knitr::include_graphics("figures/correlation_based_linkage.png")
+## Hierarchical clustering algorithm (example)
+```{r, out.width = "65%", fig.align = "center", echo=FALSE}
+knitr::include_graphics("figures/hierarchical_clust_algo.png")
 ```
 
 ## Scaling variables before clustering
