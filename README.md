@@ -31,7 +31,7 @@ Az évvégi jegy két részből tevődik össze: kisebb részben a heti házi fe
 - James - Witten - Hastie - Tibshirani: [An Introduction to Statistical Learning](http://faculty.marshall.usc.edu/gareth-james/ISL/)
 - Grolemund - Hadley: [R for Data Science](https://r4ds.had.co.nz/)
 - Gentzkow - Shapiro: [Code and Data for the Social Sciences: A Practitioner's Guide](https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf)
-- (Emarsys Craftlab blog - data section](https://blog.craftlab.hu/tagged/emarsys-data)
+- [Emarsys Craftlab blog - data section](https://blog.craftlab.hu/tagged/emarsys-data)
 
 # Tematika
 
