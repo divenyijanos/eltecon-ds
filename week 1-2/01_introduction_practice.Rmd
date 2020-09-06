@@ -1,22 +1,69 @@
 ---
-title: "Eltecon Data Science Course by Emarsys"
-subtitle: Introduction
-author: "Gábor Kocsis"
-date: "September 11, 2019"
-output: pdf_document
+title: "Eltecon Data Science Course"
+subtitle: "Introduction - Practice"
+author: "Gabor Kocsis"
+date: 'September 9, 2020'
+output:
+  html_document:
+    df_print: paged
 ---
 
-# RStudio project setup practice
-1. Create a Github account if you do not have one already
-2. Create a new public Github repository (name it eltecon-ds-class)
-3. Create a new RStudio project with Version Control (clone your new repository from Github)
-    - If you are using Windows git needs to be downloaded to your PC
-4. Your should make at least 2 commits throughout your work
-5. Add the word 'data' to your .gitignore file
-6. Create a directory in your project's working directory named 'data' and copy the sales.csv file into it
-7. Install data.table and ggplot2 packages if not installed yet (use the ``install.packages()`` function), and load them in (use the ``library()`` function)
-8. Create a file named analysis.R and write a short script in it that creates a simple chart using the sales.csv data
-9. Update the README.md with a short description of your project
-10. Push your working code to the remote repository
-    - Note: You might need to set the email address you used on Github to be able to push by typing ``git config --global user.email "YOUREMAILADDRESS@example.com"`` in command line
-11. Send your name and your repository's url to eltecon.ds kukac gmail pont com
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assigning objects
+Store the sum of 24 and 42 in an object named `foo`, then divide `foo` by 3. What did you get as a result?
+
+# Data types
+### Vectors
+```{r}
+starks <- c("Arya", "Sansa", "Bran", "Rick")
+```
+Using the above defined `starks` vector, create a new character vector called `northeners` but extend it with "Cat" and "Ned".
+
+Try out what happens when you mix different data types in a vector by using `class()` on the following vectors:
+```{r}
+nums_and_char <- c(1, 2, 3, 'a')
+nums_and_logical <- c(1, 2, 3, TRUE)
+chars_and_logical <- c('a', 'b', 'c', TRUE)
+nums_and_char_again <- c(1, 2, 3, '4')
+```
+
+### Factors
+```{r}
+is_alive <- factor(c(TRUE, TRUE, TRUE, FALSE), levels = c(TRUE, FALSE), labels = c("alive", "dead"))
+factor(is_alive)
+```
+
+Instead of typing in three times TRUE and two times FALSE, you can use the `rep(x, times)` function to replicate the value `x` the number of times set in the `times` parameter. Try to re-create `is_alive` uising `rep()`.
+
+### Lists
+```{r}
+heights <- c(155, 175, 180, 145)
+L <- list(A = starks, B = heights, C = is_alive)
+L
+```
+In the list `L` - defined above - the second element contains the height of the Starks. Can you return it? Can you return just the height of Bran? Note that his height is the third element in the B sublist.
+
+### Data frames
+```{r}
+GT <- data.frame(person = starks, height = heights, status = is_alive)
+GT
+```
+Return the first and the third columns togehter and the second column separately by subsetting the `GT` data.frame. 
+
+Use the `nrow()` function to get the number of rows in `GT`, then use this number to subset the data frame only to that row. 
+
+Use the `summary()` function to calculate the mean and median height in the GT data frame. 
+
+# Packages
+Install the `data.table` package and then load it into R by using `library()`.
+
+Once the `data.table` package is loaded in, check out the help of the Fast and friendly file finagler aka `fread` function.
+
+# Functions
+Write your own function which given a numeric vector, returns only those values from it that are above the average.
+
+# Loops
+Now modify the previous function so that instead of returning a vector, it prints out each value above the average in a separate line.
