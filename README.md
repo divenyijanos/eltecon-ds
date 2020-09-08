@@ -20,7 +20,7 @@ The course expects basic knowledge of the programming language `R` and the corre
 
 First, install [R](https://cran.r-project.org/) and [RStudio](https://www.rstudio.com/products/rstudio/download/) on your local machine. There are 4 topics in the prerequisite folder: R introduction, functions, data.table (for data manipulation), ggplot (for data visualization). Each topic contains a description, some sample exercises and references for further studies. The sample exercises show the level we expect throughout the course. To ensure that we are on the same page, we are going to spend some time on refreshing this knowledge in the first few weeks.
 
-You can get the material by clicking on the button `Clone or download` and chosing the option `Download ZIP`. After extracting, you can browse the files. Each file has two versions: you can open the `html` files in your browser and view them, or you can open the `.Rmd` files in Rstudio and interact with the material (e.g. run code chunks).
+You can get the material by clicking on the button `Code` and chosing the option `Download ZIP`. After extracting, you can browse the files. Each file has two versions: you can open the `html` files in your browser and view them, or you can open the `.Rmd` files in Rstudio and interact with the material (e.g. run code chunks).
 
 # Evaluation
 
