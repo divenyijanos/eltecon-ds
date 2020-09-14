@@ -1,6 +1,7 @@
 ---
 title: "My first RMarkdown document"
-output: pdf_document
+output:
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}

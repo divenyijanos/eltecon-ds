@@ -73,7 +73,6 @@ knitr::include_graphics('figures/copy_paste.png')
     - data
     - figures
     - README.md
-    - .gitignore
 
 ## analysis.R
 - Save your analysis script here

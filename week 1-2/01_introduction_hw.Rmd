@@ -1,0 +1,33 @@
+---
+title: "Eltecon Data Science Course"
+subtitle: "Introduction - Home work"
+output:
+  pdf_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Send your solution in a file named `intro_hw_{your_name}.R` to eltecon.ds@gmail.com.
+### Include both names of your tw-person group in the email.
+### Deadline: 3:59 PM September 16, 2020
+
+Write a function, that if given a character vector (string), returns the string, and then the number of characters in it. If more then one element is provided in the vector, return the results in a one row per element format.
+
+Example:
+```{r}
+foo <- c(
+    "I love data.table",
+    "That sounded nerdy"
+)
+
+# countNumberOfCharacters(foo)
+#> 'I love data.table' --> length: 17
+#> 'That sounded nerdy' --> length: 18
+```
+
+Optional extra: Write a function, that if given two numeric vectors (`x` and `y`):
+    - sums up the two vectors separately, and then multiplies the results together if the `sum_then_multiply` argument is `TRUE`
+    - multiplies the two vectors element by element, and then sums up the results together if the `sum_then_multiply` argument is `FALSE`
+    - `sum_then_multiply` should be `TRUE` by default
