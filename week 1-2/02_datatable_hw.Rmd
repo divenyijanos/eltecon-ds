@@ -1,0 +1,32 @@
+---
+title: "Eltecon Data Science Course"
+subtitle: "Data cleaning with data.table - Homework"
+output:
+  pdf_document:
+    df_print: paged
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(ecso = TRUE)
+```
+### Send your solution in a file named `data_cleaning_hw.R` to eltecon.ds@gmail.com.
+### Include both names of your two-person group in the email.
+### Deadline: 3:59 PM September 23, 2020
+
+This homework is about doing the data cleaning part of an Exploratory Data Analysis. You should pick a data source from the list below and do at least tree data cleaning steps using the syntax of the `data.table` package in R. Some examples would be filtering unwanted outliers, removing duplicates, handling missing values, fixing typos in character variables (especially if they are categorical), scaling variables where different measures are used for the same thing, changing the type or format of a variable, etc. Please create functions for each data cleaning steps, having descriptive names and using the [camelCase](https://en.wikipedia.org/wiki/Camel_case) naming convention. An example would be:
+
+```{r}
+clearUnreliableHeight <- function(student) {
+  student[height < 100 | height > 230, height := NA]
+}
+```
+
+Pick one dataset from the list below:
+
+- [Budapest House Prices](https://drive.google.com/file/d/1rvWvsEXhHeHV7SDUskk4t36UVeyQGtSP/view?usp=sharing)
+- [Telco Customer Churn](https://www.kaggle.com/blastchar/telco-customer-churn)
+- [Wine Reviews](https://www.kaggle.com/zynicide/wine-reviews)
+- [Ads From hasznaltauto.hu](https://github.com/divenyijanos/eltecon-ds/blob/master/week%203-4/data/astra_h_ads_20190912_cleaned.csv)
+- [World Cup Team Statistics](https://github.com/jokecamp/FootballData/blob/master/World%20Cups/All%20World%20Cup%20team%20summary%20stats.csv)
+- [Online News Popularity](https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity#)
