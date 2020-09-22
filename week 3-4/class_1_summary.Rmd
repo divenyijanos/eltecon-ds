@@ -1,0 +1,212 @@
+---
+title: "Data Viz - Class 1 - Notes"
+author: "Peter Lukacs"
+date: "9/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+local({
+  r <- getOption("repos")
+  r["CRAN"] <- "https://cran.rapporter.net//"
+  options(repos = r)
+})
+```
+
+## Install/load packages
+
+```{r warning=FALSE, message=FALSE, results='hide'}
+install.packages("ggplot2")
+install.packages("data.table")
+library(ggplot2)
+library(data.table)
+```
+
+```{r}
+theme_set(theme_minimal())
+```
+
+## mpg: mileage per gallon
+
+```{r}
+mpg <- unique(as.data.table(mpg))
+head(mpg)
+nrow(mpg)
+```
+
+## Simple plotting
+
+> Always start with the data transformed to your needs
+> then add the ggplot func. call with the data
+> and finally add one or more layers
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy))
+```
+
+```{r}
+mpg_agg <- mpg[, .(avg_displ = mean(displ)), by = drv]
+ggplot(data = mpg_agg) +
+    geom_col(mapping = aes(x = drv, y = avg_displ))
+```
+
+```{r}
+mpg_agg <- mpg[, .(avg_cty = mean(cty)), year]
+ggplot(data = mpg_agg) +
+    geom_line(mapping = aes(x = year, y = avg_cty, group = 1))
+```
+
+## Adding more than just X and Y variables
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, color = drv))
+```
+
+```{r}
+# see what happens if you add the color param outside of the mapping function
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, color = drv), color = "blue")
+```
+
+```{r}
+# the following wouldn't really make sense
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, size = drv))
+```
+
+```{r}
+# use alpha to see through
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, size = drv), alpha = .3)
+```
+
+```{r}
+# but this would sometimes (maybe not this time)
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, shape = drv), alpha = .3)
+```
+
+## Adding extra lines
+
+```{r}
+# ab line
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy)) +
+    geom_abline(slope = 1, intercept = 0, color = "red")
+# see also hline/vline
+```
+
+```{r}
+# linear regression line
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy)) +
+    geom_smooth(mapping = aes(x = cty, y = hwy), method = "lm")
+```
+
+## Facets
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy), alpha = .3) +
+    facet_wrap(~drv)
+```
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy), alpha = .3) +
+    facet_wrap(~drv, ncol = 1)
+```
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, color = fl)) +
+    facet_wrap(~drv, ncol = 1)
+```
+
+## Plot types where data aggregation happens while plotting 
+
+### histogram
+
+```{r}
+ggplot(data = mpg) +
+    geom_histogram(mapping = aes(x = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+    geom_bar(mapping = aes(x = fl))
+# Where does count come from?
+```
+
+```{r}
+ggplot(data = mpg) +
+    geom_bar(mapping = aes(x = fl, y = stat(prop), group = 1))
+```
+
+```{r}
+ggplot(data = mpg) +
+    geom_boxplot(mapping = aes(x = manufacturer, y = hwy))
+```
+
+## Beautifying the plot 
+
+### labels
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, color = class)) +
+    labs(
+        title = "Vehicle fuel consumption: city vs. highway",
+        subtitle = "City vs. Highway",
+        x = "City",
+        y = "Highway",
+        color = "Type of car",
+        caption = "Fuel consumption is shown in milage per gallon (mpg)"
+    ) +
+    coord_fixed()
+```
+
+### coord(inate systems)
+
+```{r}
+# See how ugly the X axis labels are
+ggplot(data = mpg) +
+    geom_boxplot(mapping = aes(x = manufacturer, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+    geom_boxplot(mapping = aes(x = manufacturer, y = hwy)) +
+    coord_flip()
+```
+
+### zooming with coord
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, color = class)) +
+    coord_cartesian(xlim = c(15, 20), ylim = c(25, 30))
+```
+
+### scales: breaks and labels
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, color = class)) +
+    scale_y_continuous(breaks = seq(0, 45, by = 5)) +
+    scale_x_continuous(labels = function(x) paste(x, "m/g"))
+```
+
+### saving your plot
+
+```{r}
+my_plot <- ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy, color = class))
+```{r}
+
+
+```{r}
+# Or you can skip the 'plot = ' part. (See the default for the 'plot' parameter!)
+ggsave("figures/my_plot.png", plot = my_plot)
+```
