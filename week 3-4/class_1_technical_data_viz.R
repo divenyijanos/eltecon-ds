@@ -111,6 +111,17 @@ ggplot(data = mpg) +
     geom_boxplot(mapping = aes(x = manufacturer, y = hwy))
 
 
+# providing data in ggplot()
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = cty, y = hwy)) +
+    geom_smooth(mapping = aes(x = cty, y = hwy), method = "lm")
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+    geom_point() +
+    geom_smooth(method = "lm")
+
+# note that the order of the parameters is not the same in ggplot() and geom_*()
+
 ### Beautifing the plot ————————————————————————————————————————————————————————
 
 # labels
@@ -141,7 +152,6 @@ ggplot(data = mpg) +
     scale_y_continuous(breaks = seq(0, 45, by = 5)) +
     scale_x_continuous(labels = function(x) paste(x, "m/g"))
 
-
 # zooming
 ggplot(data = mpg) +
     geom_point(mapping = aes(x = cty, y = hwy, color = class)) +
@@ -153,3 +163,42 @@ my_plot <- ggplot(data = mpg) +
 
 # you can skip the 'plot = ' part
 ggsave("figures/my_plot.png", plot = my_plot)
+
+# using save + show in one function
+plotCtyHwy <- function(dt, path = "figures/my_plot.png") {
+    my_plot <- ggplot(data = mpg) +
+        geom_point(mapping = aes(x = cty, y = hwy, color = class))
+    ggsave("figures/my_plot.png", plot = my_plot)
+    my_plot
+}
+
+# text
+mpg_agg <- mpg[, .(avg_displ = mean(displ)), by = drv]
+ggplot(data = mpg_agg) +
+    geom_col(mapping = aes(x = drv, y = avg_displ)) +
+    geom_label(mapping = aes(x = drv, y = avg_displ, label = round(avg_displ, 2)))
+    # geom_text(mapping = aes(x = drv, y = avg_displ, label = round(avg_displ, 2)))
+
+# geom_col + fill
+ggplot(data = mpg) +
+    geom_bar(mapping = aes(x = fl, fill = drv))
+
+ggplot(data = mpg) +
+    geom_bar(mapping = aes(x = fl, fill = drv), position = position_dodge())
+
+# ordering
+mpg_agg <- mpg[, .(avg_displ = mean(displ)), by = drv]
+ggplot(data = mpg_agg) +
+    geom_col(mapping = aes(x = drv, y = avg_displ))
+
+ggplot(data = mpg_agg) +
+    geom_col(mapping = aes(x = reorder(drv, -avg_displ), y = avg_displ))
+
+ggplot(data = mpg) +
+    geom_bar(mapping = aes(x = reorder(
+        fl, fl, function(x) -length(x)
+    )))
+
+# using other stats
+ggplot(data = mpg) +
+    geom_bar(mapping = aes(x = fl, y = stat(prop), group = 1))

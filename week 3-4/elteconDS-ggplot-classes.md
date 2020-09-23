@@ -37,10 +37,9 @@
     + Bat-Erdene, Boldmaa - Kashirin, Andrey
     + Kim Yeonggyeong - Im Seongwon
 - missed from 1st class
-    + ordering a bar chart
-    + How to return + save a plot
     + patchwork to put plots next to eachother
     + Multiple data on one chart
+- Extensions: https://exts.ggplot2.tidyverse.org/gallery/
 - Why visualization is important?
     + You'll use it for communicating your results most of the time
 - Homework presentation for next class
