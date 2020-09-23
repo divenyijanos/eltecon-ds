@@ -203,10 +203,18 @@ ggplot(data = mpg) +
 ```{r}
 my_plot <- ggplot(data = mpg) +
     geom_point(mapping = aes(x = cty, y = hwy, color = class))
-```{r}
+```
 
 
 ```{r}
 # Or you can skip the 'plot = ' part. (See the default for the 'plot' parameter!)
 ggsave("figures/my_plot.png", plot = my_plot)
 ```
+
+# Resources
+
+- Use the RStudio built in cheat-sheet (find it in in the 'help' file menu)
+- [quick reference](https://ggplot2.tidyverse.org/reference/) and 
+- Hadley Wickham's book chapters:
+  - [this](https://r4ds.had.co.nz/data-visualisation.html) and
+  - [this](https://r4ds.had.co.nz/graphics-for-communication.html).
