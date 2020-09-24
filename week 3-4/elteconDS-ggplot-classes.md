@@ -39,6 +39,7 @@
 - missed from 1st class
     + patchwork to put plots next to eachother
     + Multiple data on one chart
+    + Parts of the plot as a list
 - Extensions: https://exts.ggplot2.tidyverse.org/gallery/
 - Why visualization is important?
     + You'll use it for communicating your results most of the time
