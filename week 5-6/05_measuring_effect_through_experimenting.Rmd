@@ -13,10 +13,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = '..')
+# knitr::opts_knit$set(root.dir = '..')
 
 library(knitr)
+library(data.table)
+library(ggplot2)
 ```
 
 ## About me
@@ -24,9 +25,9 @@ library(knitr)
 - Background in Economics
 - Works as Data Scientist @ Emarsys
 
-# We want to understand the effect of a new feature
+# Homeworks from last week
 
-Kép STO-ról gombról UI-on, meg Image pref explr Shiny app-ról
+# We want to understand the effect of a new feature
 
 # What is an effect?
 
@@ -68,14 +69,52 @@ To decide if our treatment works
 ## Setup
 
 - Define the goal
+- Definte KPIs
+    - How much added value does it bring to the user?
 - Measure one feature at a time
 - (Or control for other effects)
 - Split contacts *randomly* into control and treatment group(s)
-- Do not change parameters during the experiment (Simpson-paradox)
+- Do not change parameters during the experiment
+
+## What are good KPIs?
+
+FIXME
 
 ## How to calculate the effect
 
 $$Uplift_{KPI} = \frac{KPI_{treatment}}{KPI_{control}} - 1$$
+
+## Calculate the effect for the first period!
+
+Use `experiment_results.csv`
+Enter your results in socrative!
+
+## Calculate the effect for the second period and plot the results!
+
+Use `experiment_results.csv`
+When you are done, share your screen showing the plot!
+
+The *design* should look something like this:
+```{r effect-example, echo=FALSE, out.width='60%', fig.align='center'}
+dt <- data.table(
+    group = c("control", "treatment"),
+    open_rate = c(0.1, 0.12)
+)
+ggplot(dt, aes(x = group, y = open_rate)) +
+    geom_col() +
+    scale_y_continuous(labels = scales::percent) +
+    labs(
+        title = "Open rates for second period",
+        subtitle = paste0("Uplift: 20%"),
+        x = "", y = "Open rate"
+    )
+```
+
+## Calculate the effect for the whole period and plot the results!
+
+When you are done, share your screen showing the plot!
+
+*Do you notice anything weird?*
 
 ## How to aggregate the effect
 
@@ -86,74 +125,45 @@ $$KPI_{control} = \frac{\sum_{i = 1}^{n}KPI_{control, i} * SampleSize_{i}}{\sum_
 $$Uplift_{KPI} = \frac{KPI_{treatment}}{KPI_{control}} - 1$$
 , where *n* is the number of unit levels.
 
-## There is always an effect...
+## Calculate the effect for the whole period and plot the results!
 
-- We can always measure something.
-- Is there really an effect?
+Weight the open rates by the number of contacts present in the period!
 
-## There is always an effect...
+When you are done, share your screen showing the plot!
 
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/sto_effect.png")
+## Plot the effect (uplift) over time!
+
+Use `experiment_results_over_time.csv`
+
+When you are done, share your screen showing the plot!
+
+The *design* should look something like this:
+```{r effect-over-time-example, echo=FALSE, out.width='60%', fig.align='center'}
+
+dt <- data.table(
+    date = as.Date(c(
+        "2020-01-01", "2020-02-01", "2020-03-01",
+        "2020-04-01", "2020-05-01", "2020-06-01"
+    )),
+    uplift = c(0.1, 0.05, 0.07, -0.2, -0.12, 0.1)
+)
+ggplot(dt, aes(date, uplift)) +
+    geom_line() +
+    geom_hline(yintercept = 0) +
+    scale_y_continuous(labels = scales::percent) +
+    labs(
+        title = "Change in uplift over time",
+        x = "Uplift", y = ""
+    )
+
 ```
-
-## But not necessarily significant!
-
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/sto_effect_with_uncertainty.png")
-```
-
-## Know your data!
-
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/know_your_data.png")
-```
-
-## Minimum Detectable Effect
-
-A great [blogpost](https://blog.craftlab.hu/checking-both-sides-the-minimum-detectable-effect-f34a6c0db4fb) by a great guy
-
-## Detectable Effects for Useless Feature
-
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/detectable_effects.png")
-```
-
-## Hypothesis testing
-
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/useless_feature_distribution.png")
-```
-
-## But what if we really have an effect?
-
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/useless_and_super_feature_distribution.png")
-```
-
-## Use more data points!
-
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/useless_and_super_feature_distribution_w_30000_sample_size.png")
-```
-
-## Or even more!
-
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/useless_and_super_feature_distribution_w_200000_sample_size.png")
-```
-
-## We can calculate this in advance!
-
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
-include_graphics("figures/mde_vs_sample_size.png")
-```
-
 ## How to present
 
-```{r, echo=FALSE, out.width='80%', fig.align='center'}
+```{r, out.width='80%', fig.align='center'}
 include_graphics("figures/uplift.png")
 ```
 
 # How to present: [Shiny app from Emarsys](https://rserver.service.emarsys.net/app/sto-monitoring)
+
+# Homework for next week and presenters
 
