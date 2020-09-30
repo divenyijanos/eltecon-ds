@@ -74,6 +74,7 @@ To decide if our treatment works
 - Define the goal
 - Definte KPIs
     - How much added value does it bring to the user?
+- **Make sure you have enough data to measure significant results**
 - Measure one feature at a time
 - Split contacts *randomly* into control and treatment group(s)
 - Do not change parameters during the experiment
