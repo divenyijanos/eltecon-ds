@@ -17,6 +17,7 @@ output:
 
 library(knitr)
 library(data.table)
+library(magrittr)
 library(ggplot2)
 ```
 
@@ -26,6 +27,8 @@ library(ggplot2)
 - Works as Data Scientist @ Emarsys
 
 # Homeworks from last week
+
+# Why talk about effect measurement in Data Science?
 
 # We want to understand the effect of a new feature
 
@@ -72,13 +75,23 @@ To decide if our treatment works
 - Definte KPIs
     - How much added value does it bring to the user?
 - Measure one feature at a time
-- (Or control for other effects)
 - Split contacts *randomly* into control and treatment group(s)
 - Do not change parameters during the experiment
 
 ## What are good KPIs?
 
-FIXME
+Treatment receives personalized email, control receives "standard" email.
+```{r example-for-KPIs, echo = FALSE}
+data.table(
+    id = c(1:6, "...", 100),
+    group = c(
+        "control", "treatment", "control", "treatment",
+        "control", "treatment", "...", "treatment"),
+    did_open = c(0, 0, 1, 0, 1, 1, "...", 1),
+    did_click = c(0, 0, 1, 0, 0, 1, "...", 0),
+    sales_amount = c(0, 0, 30, 0, 50, 12, "...", 0)
+) %>% kable()
+```
 
 ## How to calculate the effect
 
@@ -115,8 +128,14 @@ ggplot(dt, aes(x = group, y = open_rate)) +
 When you are done, share your screen showing the plot!
 
 *Do you notice anything weird?*
+```{r simpsons-paradox, echo = FALSE, include = FALSE}
+dt <- fread("experiment_result.csv")
 
-## How to aggregate the effect
+dt[, .(.N, mean(did_open)), keyby = .(period, group)]
+dt[, .(.N, mean(did_open)), group]
+```
+
+## One way to aggregate the effect
 
 $$KPI_{treatment} = \frac{\sum_{i = 1}^{n}KPI_{treatment, i} * SampleSize_{i}}{\sum_{i = 1}^{n}{SampleSize_{i}}}$$
 
@@ -159,7 +178,7 @@ ggplot(dt, aes(date, uplift)) +
 ```
 ## How to present
 
-```{r, out.width='80%', fig.align='center'}
+```{r, echo = FALSE, out.width='80%', fig.align='center'}
 include_graphics("figures/uplift.png")
 ```
 
