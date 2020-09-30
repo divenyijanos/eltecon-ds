@@ -2,7 +2,7 @@
 title: "Eltecon Data Science Course by Emarsys"
 subtitle: "Measuring effect through experimenting"
 author: "András Bérczi"
-date: "October 9, 2019"
+date: "October 7, 2020"
 output:
   beamer_presentation:
     colortheme: dolphin
