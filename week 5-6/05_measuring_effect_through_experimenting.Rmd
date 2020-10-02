@@ -30,21 +30,17 @@ library(ggplot2)
 
 # Why talk about effect measurement in Data Science?
 
-# We want to understand the effect of a new feature
-
-# What is an effect?
-
 ## What is an effect?
 
-Added value of a treatment
+Added value of a treatment (the new feature)
 
 ## Why do we want to measure the effect?
 
-To decide if our treatment works
+To decide if the new feature works
 
 # What to experiment on?
 
-## What is worth experimenting?
+## How to decide?
 
 - **Based on customer's need**
 - Validated by data based research
@@ -53,35 +49,28 @@ To decide if our treatment works
     - Cost of the feature?
 - Make sure you understand your feature/algorithm!
 
-
-## Measure the effect of what?
-
-- Adding a new feature to the software
-- Change in the algorithm
-- Change on the website/UI
-- etc.
-
 ## How can we measure the effect?
 
 - Simulation
 - Based on historical data
-- **Experimenting**
+- **Experimenting** (A/B test or something like that...)
 
 # How do we experiment?
 
 ## Setup
 
 - Define the goal
+    - Measure one feature at a time
 - Definte KPIs
     - How much added value does it bring to the user?
-- **Make sure you have enough data to measure significant results**
-- Measure one feature at a time
-- Split contacts *randomly* into control and treatment group(s)
+- Make sure you have enough data to measure significant results
+    - check the minimum effect you can measure beforehand!
+- Split contacts *randomly* into control and treatment groups
 - Do not change parameters during the experiment
 
 ## What are good KPIs?
 
-Treatment receives personalized email, control receives "standard" email.
+Treatment receives personalized email (80% of contacs), control receives "standard" email (20% of contacs).
 ```{r example-for-KPIs, echo = FALSE}
 data.table(
     id = c(1:6, "...", 100),
@@ -98,18 +87,20 @@ data.table(
 
 $$Uplift_{KPI} = \frac{KPI_{treatment}}{KPI_{control}} - 1$$
 
-## Calculate the effect for the first period!
+## Calculate the effect for the **first period**!
 
 Use `experiment_results.csv`
-Enter your results in socrative!
 
-## Calculate the effect for the second period and plot the results!
+Enter your results in Socrative!
+
+## Calculate the effect for the **second period** and plot the results!
 
 Use `experiment_results.csv`
-When you are done, share your screen showing the plot!
+
+When you are done with both the calculation and the plot, enter your results in Socrative!
 
 The *design* should look something like this:
-```{r effect-example, echo=FALSE, out.width='60%', fig.align='center'}
+```{r effect-example, echo=FALSE, out.width='50%', fig.align='center'}
 dt <- data.table(
     group = c("control", "treatment"),
     open_rate = c(0.1, 0.12)
@@ -124,9 +115,9 @@ ggplot(dt, aes(x = group, y = open_rate)) +
     )
 ```
 
-## Calculate the effect for the whole period and plot the results!
+## Calculate the effect for the **whole period** and plot the results!
 
-When you are done, share your screen showing the plot!
+When you are done with both the calculation and the plot, enter your results in Socrative!
 
 *Do you notice anything weird?*
 ```{r simpsons-paradox, echo = FALSE, include = FALSE}
@@ -149,16 +140,14 @@ $$Uplift_{KPI} = \frac{KPI_{treatment}}{KPI_{control}} - 1$$
 
 Weight the open rates by the number of contacts present in the period!
 
-When you are done, share your screen showing the plot!
+When you are done with both the calculation and the plot, enter your results in Socrative!
 
 ## Plot the effect (uplift) over time!
 
 Use `experiment_results_over_time.csv`
 
-When you are done, share your screen showing the plot!
-
 The *design* should look something like this:
-```{r effect-over-time-example, echo=FALSE, out.width='60%', fig.align='center'}
+```{r effect-over-time-example, echo=FALSE, out.width='50%', fig.align='center'}
 
 dt <- data.table(
     date = as.Date(c(
@@ -177,13 +166,19 @@ ggplot(dt, aes(date, uplift)) +
     )
 
 ```
-## How to present
 
+# How to present
+
+## How to present
+What is missing from the previous plots?
+
+## How we do it in Emarsys
 ```{r, echo = FALSE, out.width='80%', fig.align='center'}
 include_graphics("figures/uplift.png")
 ```
 
-# How to present: [Shiny app from Emarsys](https://rserver.service.emarsys.net/app/sto-monitoring)
+## How we do it in Emarsys
+[Shiny app from Emarsys](https://rserver.service.emarsys.net/app/sto-monitoring)
 
 # Homework for next week and presenters
 
