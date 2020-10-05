@@ -1,0 +1,61 @@
+---
+title: "Week 4 - Data Viz - Homework"
+author: "xy, zw"
+date: "10/01/2020"
+output: html_document
+---
+
+<br>
+
+```{r loading data}
+# put code here to load your data
+```
+
+***
+<br>
+
+# First person's plots
+> second person's feedback and amended plots. No need to name who did what but you can.
+
+<br>
+
+```{r 1st plot}
+# put your first plot here
+```
+
+<br>
+
+Write down your feedback on the first plot here!
+
+<br>
+
+```{r 1st plot amended}
+# put your amended first plot here
+```
+
+***
+<br>
+
+```{r 2nd plot}
+# put your second plot here
+```
+
+<br>
+
+Write down your feedback on the second plot here!
+
+<br>
+
+```{r 2nd plot amended}
+# put your amended first plot here
+```
+
+***
+<br>
+
+# Second person's plots
+> First person's feedback and amended plots. No need to name who did what but you can.
+
+<br>
+
+`<COMPLETE THE REST BY YOURSELF FOLLOWING THE ABOVE>`

@@ -2,10 +2,12 @@
 title: "Data Viz - Class 2 - Notes"
 author: "Peter Lukacs"
 date: "9/29/2020"
-output: html_document
+output:
+    html_document:
+        number_sections: TRUE
 ---
 
-```{r setting cran mirror}
+```{r setting cran mirror, echo=FALSE}
 local({
   r <- getOption("repos")
   r["CRAN"] <- "https://cran.rapporter.net//"
@@ -15,31 +17,40 @@ local({
 
 
 ```{r installing packages, warning=FALSE, message=FALSE, eval=FALSE}
-install.packages('data.table')
-install.packages('ggplot2')
+# Set eval=TRUE if you want this to run!
+install.packages("data.table")
+install.packages("ggplot2")
 ```
-
-## Warning: remove `eval=FALSE` from above when done. Also, move the below to the above section.
 
 ```{r}
 library(data.table)
 library(ggplot2)
 ```
 
+<br>
+
 ```{r}
 mpg <- unique(as.data.table(mpg))
 ```
 
-## How to load your data when you do your homework the next time (not related to this class)
+***
+<br>
 
-### What I saw (and that's OK btw)
+# How to load your data when you do your homework the next time (not related to this class)
+
+<br>
+
+## What I saw (and that's OK btw)
 
 ```{r eval=FALSE}
 setwd("F:\\Dropbox\\!ELTECON BA (18'-21')\\5th Semester (39 credits)\\Data Science (Regional Economics)\\hw") # this doesn't work on a Mac (only on Windows)
 dt = fread("All World Cup team summary stats.csv")
 ```
 
-### What we'd like to see next time
+<br>
+
+## What we'd like to see next time
+
 ```{r eval=FALSE}
 wd <- file.path("~", "my-code-files", "my-homework.R") # this outputs the path correctly on all platforms (Mac, Windows, Linux, etc.)
 setwd(wd)
@@ -50,13 +61,19 @@ my_data <- fread(file.path(wd, "my-data.csv"))
 print(file.path("~", "my-code-files", "my-homework.R"))
 ```
 
+***
+<br>
 
-## Recap of the first data viz class
+# Recap of the first data viz class
+
+## Smple framework
 
 - ```ggplot(data = <DATA>) +
     <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))```
     - map your data columns to parts of the plot in `aes`
 - [ggplot references](https://ggplot2.tidyverse.org/reference)
+
+<br>
 
 ## The full ggplot framework
 
@@ -70,7 +87,11 @@ ggplot(data = <DATA>) +
   <COORDINATE_FUNCTION> +
   <FACET_FUNCTION>
 ```
-#### Using an example:
+
+<br> 
+
+### Using an example:
+
 ```{r}
 ggplot(data = ggplot2::diamonds) +
     geom_bar(
@@ -82,7 +103,9 @@ ggplot(data = ggplot2::diamonds) +
     facet_grid() # not necessary in reality
 ```
 
-#### Dissecting the above example
+<br>
+
+### Dissecting the above example
 
 ![ggplot-framework-1](images/1.png){width=750px}
 ![ggplot-framework-2](images/2.png){width=750px}
@@ -90,9 +113,12 @@ ggplot(data = ggplot2::diamonds) +
 
 > [source](https://r4ds.had.co.nz/data-visualisation.html#the-layered-grammar-of-graphics)
 
-### Missed last class
+***
+<br>
 
-#### 1. Same thing multiple ways
+# Missed last class
+
+## Same thing multiple ways
 
 Examples:
 
@@ -103,7 +129,9 @@ Examples:
 
 **This can make learning harder and cause frustration. My advice is that you try to learn one way and stick to it.**
 
-#### 2. Themes
+<br>
+
+## Themes
 
 ```{r}
 ggplot(data = mpg) +
@@ -128,15 +156,15 @@ ggplot(data = mpg) +
     theme_light()
 ```
 
-
 ```{r}
 ggplot(data = mpg) +
     geom_point(mapping = aes(x = cty, y = hwy)) +
     theme_gray()
 ```
 
+<br>
 
-#### 3. Managing colors when plotting factors
+## Managing colors when plotting factors
 
 ```{r}
 # mpg <- as.data.table(unique(ggplot2::mpg))
@@ -149,7 +177,10 @@ ggplot(data = mpg) +
 
 ggplot(data = mpg) +
     geom_bar(mapping = aes(x = class, fill = class)) +
-    scale_fill_manual(values = c("blue", "green", "red", "yellow", "black", "magenta", "white"))
+    scale_fill_manual(
+        values = c("blue", "green", "red", "yellow", "black", "magenta", "white"),
+        labels = 1:7        
+    )
 
 ggplot(data = mpg) +
     geom_bar(mapping = aes(x = class, fill = class)) +
@@ -158,7 +189,9 @@ ggplot(data = mpg) +
 
 **Find color palettes [here](http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually) for example.**
 
-#### 4. Multiple graphs on the same plot
+<br>
+
+## Multiple graphs on the same plot
 
 ```{r message=FALSE}
 install.packages("patchwork")
@@ -179,7 +212,9 @@ p3 <- ggplot(mpg) + geom_bar(aes(x = class, fill = class)) + scale_fill_brewer(p
 
 **Find out more [about the package here](https://patchwork.data-imaginist.com/articles/patchwork.html)!**
 
-#### 5.Returning layers in a function
+<br>
+
+## Returning layers in a function
 
 Instead of this:
 ```{r, eval=FALSE}
@@ -190,6 +225,9 @@ ggplot(mpg) +
     coord_cartesian(ylim = c(0, 30))
     
 ```
+
+<br>
+
 You can do this:
 ```{r}
 setPlotAesthetics <- function(palette, title, ylimmax) {
@@ -204,7 +242,9 @@ ggplot(mpg) +
     setPlotAesthetics(3, "Not bad either!", 120)
 ```
 
-#### 6. The data behind the plots
+<br>
+
+## The data behind the plots
 
 ```{r}
 p <- ggplot(mpg, aes(hwy)) +
@@ -215,20 +255,78 @@ pg <- ggplot_build(p)
 head(pg$data[[1]])
 ```
 
+<br>
 
-### [Presentation on Sensible data visualization](https://docs.google.com/presentation/d/1OVXG1kTaztY1huhLB89ZqyDHa-cTn1eS4oXnCR5iVe4/edit?usp=sharing)
+# [Presentation on Sensible data visualization](https://docs.google.com/presentation/d/1OVXG1kTaztY1huhLB89ZqyDHa-cTn1eS4oXnCR5iVe4/edit?usp=sharing)
 
-### What we didn't cover
+***
+<br>
 
-#### Output types
+# What we didn't cover
+
+## Output types
 
 - ".png" / ".jpg"
-- Rmarkdown
-- Plotly
-- Shiny
+- [Rmarkdown](https://rmarkdown.rstudio.com/)
+- [Plotly](https://plotly.com/r/)
+- [Shiny](https://shiny.rstudio.com/)
 
-#### Extending ggplot
+<br>
+
+```{r message=FALSE, warning=FALSE}
+install.packages("plotly")
+library(plotly)
+```
+
+```{r message=FALSE, warning=FALSE}
+ggplotly(
+    ggplot(mpg) +
+        geom_bar(aes(x = class, fill = class))
+)
+```
+
+<br>
+
+## Extending ggplot
 
 Check out [this open source list of extensions](https://r4ds.had.co.nz/data-visualisation.html#geometric-objects)!
 
-#### And a lot more :)
+## And a lot more :)
+
+For inspiration browse the (R graph gallery)[https://www.r-graph-gallery.com/]!
+
+***
+<br>
+
+# Homework
+
+- This time you will work separately.
+- Both of you should create two sensible plots (each) based on my slides during the class.
+- Make sure that it conveys a message and that everything on the plot supports that message.
+- After you are done, share the plot with your teammate who will give written feedback and also will amend the received plot.
+- I would like to receive a knitted htlm Rmarkdown as an output with the following format:
+
+***
+
+    - First person's first plot
+    - Written feedback of the above plot from the second person
+    - Amended plot by the second person
+
+***
+
+    - Second person's first plot
+    - Written feedback of the above plot from the first person
+    - Amended plot by the first person
+
+
+- And then repeat for a second time!
+***
+
+- This is not a competition: give both positive and negative feedback. When you give negative feedback make sure that you do it gently. When you recive negative feedback remember, that feedback is a gift and your can grow through it.
+- I will be giving points based on both the original plot, the feedback and the amended plot. I will consider the two best out of the four plots when scoring.
+- submit it via email using the following subject: `homework-4-dataviz-<one-name>-<the-other-name>`
+
+***
+<br>
+
+**Find the rmarkdown template in the shared folder!**
