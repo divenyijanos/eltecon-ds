@@ -34,21 +34,6 @@ library(ggplot2)
 
 Added value of a treatment (the new feature)
 
-## Why do we want to measure the effect?
-
-To decide if the new feature works
-
-# What to experiment on?
-
-## How to decide?
-
-- **Based on customer's need**
-- Validated by data based research
-    - Will the algo work?
-    - Does it scale?
-    - Cost of the feature?
-- Make sure you understand your feature/algorithm!
-
 ## How can we measure the effect?
 
 - Simulation
@@ -56,6 +41,15 @@ To decide if the new feature works
 - **Experimenting** (A/B test or something like that...)
 
 # How do we experiment?
+
+## What to experiment on?
+
+- **Based on customer's need**
+- Validated by data based research
+    - Will the algo work?
+    - Does it scale?
+    - Cost of the feature?
+- Make sure you understand your feature/algorithm!
 
 ## Setup
 
@@ -127,6 +121,33 @@ dt[, .(.N, mean(did_open)), keyby = .(period, group)]
 dt[, .(.N, mean(did_open)), group]
 ```
 
+## What's happening here?
+
+We have too much 'bad' control! (Let's check the code!)
+```{r explaining-the-simpson-paradox, echo = FALSE, include = FALSE}
+
+num_contact <- 100000
+
+control_measured_value_first_period <- 0.2
+control_measured_value_second_period <- 0.1
+treatment_measured_value_first_period <- 0.21
+treatment_measured_value_second_period <- 0.11
+
+ratio_of_treatment_in_first_period <- 0.2
+ratio_of_treatment_in_second_period <- 0.5
+
+treatment_first_period <- num_contact * ratio_of_treatment_in_first_period
+treatment_second_period <- num_contact * ratio_of_treatment_in_second_period
+
+control_first_period <- num_contact * (1 - ratio_of_treatment_in_first_period)
+control_second_period <- num_contact * (1 - ratio_of_treatment_in_second_period)
+
+# calculate the uplift
+(treatment_measured_value_first_period * treatment_first_period + treatment_measured_value_second_period * treatment_second_period) /
+(control_measured_value_first_period * control_first_period + control_measured_value_second_period * control_second_period)
+
+```
+
 ## One way to aggregate the effect
 
 $$KPI_{treatment} = \frac{\sum_{i = 1}^{n}KPI_{treatment, i} * SampleSize_{i}}{\sum_{i = 1}^{n}{SampleSize_{i}}}$$
@@ -181,4 +202,15 @@ include_graphics("figures/uplift.png")
 [Shiny app from Emarsys](https://rserver.service.emarsys.net/app/sto-monitoring)
 
 # Homework for next week and presenters
+## Homework for next week
 
+Use `experiment_result_HW.csv` for your homework. Define KPIs which describe the best the succes of the experiment. Calculate and plot the uplift for the *whole* period for each KPI.
+
+You should send the plots along with a short explanation how you assess the results based on the KPIs.
+
+## Presenting next week
+Nguyen Thai Duong - Szentistványi János
+
+Kovács Ádám - Nguyen Nam Son
+
+Bakirov, Aslan - Yatsenko, Anzhelika
