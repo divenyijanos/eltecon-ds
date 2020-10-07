@@ -53,6 +53,7 @@ Added value of a treatment (the new feature)
 
 ## Setup
 
+- Together with customer or darklaunch?
 - Define the goal
     - Measure one feature at a time
 - Definte KPIs
