@@ -41,7 +41,7 @@ Consult with us regularly! We will have dedicated sessions and homeworks for tha
 
 We will help you by consulting about your project's status at these milestones:
 
-1. You figure out your research question / hypothesis (will be part of the **October 7th** class' homework)
+1. You figure out your research question / hypothesis (will be part of the **October 14th** class' homework)
 2. You have a high level outline of how you mean to answer the question (will be part of the **November 4th** class' homework)
 
 ### Timeline for consultations
