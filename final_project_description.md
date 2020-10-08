@@ -41,10 +41,19 @@ Consult with us regularly! We will have dedicated sessions and homeworks for tha
 
 We will help you by consulting about your project's status at these milestones:
 
-1. You figure out your research question / hypothesis 
-2. You have a high level outline of how you mean to answer the question
+1. You figure out your research question / hypothesis (will be part of the **October 7th** class' homework)
+2. You have a high level outline of how you mean to answer the question (will be part of the **November 4th** class' homework)
 
-Once you've completed the written part of the project, we'll give you feedback. You can't change this part after this point but it will help you to prepare for your presentation.
+### Timeline for consultations
+
+- 3 consultations (you can book a 15 min slot later for the last 30 minutes of each class). On these dates you can consult about anything related to your final project, may that be the research question, methods, structure or anything else.
+    + **November 18th** *(Wednesday)*
+    + **November 25th** *(Wednesday)*
+    + **December 2nd** *(Wednesday)*
+- **December 4th** *(Friday)*: You will hand in your your written project.
+- **December 9th** *(Wednesday)*: This class will be mostly about giving you feedback on your written projects.
+- **December 11th** *(Friday)*: You can re-submit your written project based on our feedback. Note, that this is not compulsory and you can only get 15% (out of the total) additional points.
+- **December 16th** *(Wednesday)*: Final project's live presentation. Even if you decided not to re-submit your the written part, you'll need to address our feedback/questions during your presentation.
 
 ## What are we looking for in your project?
 
@@ -62,17 +71,25 @@ We don't expect your answer to the research question to be ground breaking. Stat
 
 ## Technical requirements
 
+### Written part
+
 **Length**: Not limited but usually between 3-5 pages   
 **Output**:
 
 - PDF, 12p font size, 1.5 line spacing
 - You should also attach any code that you used to produce your document
-- Presentation: either in PDF or in pptx
+
+### Presentation
+
+**Length**: Maximum 5 minutes + 2 minutes will be provided for questions   
+**Output**:
+
+- Any presentation format that you are able to run on your computer while sharing your screen with the rest of us
 
 ## Final grading
 
 - 25% homeworks
-- 25% homework presentation
+- 25% homework presentations
 - 25% final project (written)
 - 20% presentation
 - 5% code for the final project (we grade readability and structure)
