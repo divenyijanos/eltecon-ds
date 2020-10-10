@@ -81,6 +81,16 @@ ggplot(dt, aes(values_in_sample)) +
     transition_states(group)
 ```
 
+## Law of Large Numbers
+
+*The average of the results obtained from a large number of trials should be close to the expected value and will tend to become closer to the expected value as more trials are performed.*
+ 											- [Wikipedia](https://en.wikipedia.org/wiki/Law_of_large_numbers)
+
+## Central Limit Theorem
+
+*When independent random variables are added, their properly normalized sum tends toward a normal distribution (informally a bell curve) even if the original variables themselves are not normally distributed.*
+ 											- [Wikipedia](https://en.wikipedia.org/wiki/Central_limit_theorem)
+
 ## Distribution of sample means - LLN + CLT
 
 ```{r distribution-of-sample-means, out.width='80%', fig.align='center'}
@@ -118,12 +128,13 @@ sample_mean_w_CI <- dt[, .(
     )]
 ggplot(sample_mean_w_CI, aes(
 	x = group, y = mean_of_sample,
-	color = any(CI_lower > 178, CI_higher < 178)
+	color = or(CI_lower > 178, CI_higher < 178)
 )) +
     geom_point() +
     geom_errorbar(aes(ymin = CI_lower, ymax = CI_higher)) +
     geom_hline(yintercept = 178, color = "red") +
-    coord_flip()
+    coord_flip() + 
+    theme(legend.position = "none") 
 ```
 
 ## What are the key assumptions?
