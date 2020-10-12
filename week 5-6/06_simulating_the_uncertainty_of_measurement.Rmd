@@ -25,6 +25,7 @@ library(data.table)
 library(magrittr)
 library(ggplot2)
 library(gganimate)
+library(magick)
 library(ggtext)
 library(flextable)
 ```
@@ -67,7 +68,7 @@ include_graphics("figures/sto_effect_with_uncertainty.png")
 ```{r sampling-from-height-1, out.width='80%', fig.align='center'}
 sample_size <- 500
 set.seed(1111)
-dt <- data.table(sample_id = rep(1:100, sample_size)) %>%
+dt <- data.table(sample_id = rep(1:1000, sample_size)) %>%
     .[, values_in_sample := rnorm(sample_size, mean = 178, sd = 7.5), sample_id] %>%
     .[, mean_of_sample := mean(values_in_sample), sample_id]
 
@@ -113,7 +114,7 @@ ggplot(dt[sample_id == 2], aes(values_in_sample)) +
 ## Sampling from a population
 
 ```{r sampling-from-height, out.width='80%', fig.align='center', fig.show='animate', interval=1/20}
-ggplot(dt, aes(values_in_sample)) +
+sampling_from_population_anim <- ggplot(dt[sample_id <= 100], aes(values_in_sample)) +
     geom_histogram(aes(y = ..density..), fill = "darkgreen") +
     geom_vline(aes(xintercept = mean_of_sample)) +
     stat_function(
@@ -130,6 +131,8 @@ ggplot(dt, aes(values_in_sample)) +
     theme(text = element_text(size=20)) +
     theme(plot.title = element_markdown()) +
     transition_states(sample_id)
+
+sampling_from_population_anim
 ```
 
 ## Distribution of sample means - LLN + CLT
@@ -174,10 +177,78 @@ dt[, .(sample_id, mean_of_sample)] %>% unique() %>%
 *When independent random variables are added, their properly normalized sum tends toward a normal distribution (informally a bell curve) even if the original variables themselves are not normally distributed.*
  											- [Wikipedia](https://en.wikipedia.org/wiki/Central_limit_theorem)
 
-## What we do when we check for CI
+<!-- ## What we do when we check for CI -->
+
+<!-- ```{r calculating-ci-animation, out.width='80%', fig.align='center', fig.show='animate'} -->
+<!-- sample_mean_w_CI <- dt[sample_id <= 100, .( -->
+<!--     mean_of_sample = mean(values_in_sample), -->
+<!--     SD_of_sample = sd(values_in_sample), -->
+<!--     sample_size = .N), sample_id -->
+<!-- ] %>% -->
+<!--     .[, `:=`( -->
+<!--         CI_lower = mean_of_sample - 1.96*(SD_of_sample/sqrt(sample_size)), -->
+<!--         CI_higher = mean_of_sample + 1.96*(SD_of_sample/sqrt(sample_size)) -->
+<!--     )] -->
+
+<!-- sample_means_anim <- ggplot(sample_mean_w_CI, aes( -->
+<!-- 	x = sample_id, y = mean_of_sample, -->
+<!-- 	color = !or(CI_lower > 178, CI_higher < 178) -->
+<!-- )) + -->
+<!--     geom_point() + -->
+<!--     geom_errorbar(aes(ymin = CI_lower, ymax = CI_higher)) + -->
+<!--     geom_hline(yintercept = 178, color = "black") + -->
+<!--     coord_flip() + -->
+<!--     labs(x = NULL, y = "Height (in cm)", title = "Mean and CI from different samples") + -->
+<!--     theme_classic() + -->
+<!--     theme(legend.position = "none") + -->
+<!--     theme(text = element_text(size=20)) + -->
+<!--     theme(plot.title = element_markdown()) + -->
+<!--     transition_states(sample_id) -->
+
+<!-- animate(sample_means_anim, width = 240, height = 240) %>% -->
+<!--     anim_save( -->
+<!--         filename = "figures/sample_means.gif", -->
+<!--         duration = 5, fps = 20, -->
+<!--         width = 240, height = 240 -->
+<!--     ) -->
+<!-- sample_means_mgif <- image_read("figures/sample_means.gif") -->
+
+<!-- animate(sampling_from_population_anim, width = 240, height = 240) %>% -->
+<!--     anim_save( -->
+<!--         filename = "figures/sampling_from_population.gif", -->
+<!--         duration = 5, fps = 20, -->
+<!--         width = 240, height = 240 -->
+<!--     ) -->
+<!-- sampling_from_population_mgif <- image_read("figures/sampling_from_population.gif") -->
+
+<!-- new_gif <- image_append(c(sampling_from_population_mgif[1], sample_means_mgif[1])) -->
+<!-- for(i in 2:100){ -->
+<!--   combined <- image_append(c(sampling_from_population_mgif[i], sample_means_mgif[i])) -->
+<!--   new_gif <- c(new_gif, combined) -->
+<!-- } -->
+
+<!-- new_gif -->
+<!-- ``` -->
+
+## What are Confidence Intervals?
+
+* The normal table gives us the fact that P[ -1.96 < Z < 1.96 ] = 0.95.
+
+* With a sample of n values from a population with mean $\mu$ and standard deviation $\sigma$, the
+Central Limit theorem gives us the result that Z = $\sqrt n\frac{\bar x - \mu}{\sigma}$ is approximately normally distributed with mean 0 and with standard deviation 1.
+
+## What are Confidence Intervals?
+
+```{r, out.width='75%', fig.align='center'}
+include_graphics("figures/confidence_interval_proof.png")
+```
+
+<font size="2"> [http://people.stern.nyu.edu/gsimon/Pamphlets/ConfidenceIntervalCollection16APR08.pdf](http://people.stern.nyu.edu/gsimon/Pamphlets/ConfidenceIntervalCollection16APR08.pdf) </font>
+
+## What are Confidence Intervals?
 
 ```{r calculating-ci, out.width='80%', fig.align='center'}
-sample_mean_w_CI <- dt[, .(
+sample_mean_w_CI <- dt[sample_id <= 100, .(
     mean_of_sample = mean(values_in_sample),
     SD_of_sample = sd(values_in_sample),
     sample_size = .N), sample_id
@@ -186,6 +257,7 @@ sample_mean_w_CI <- dt[, .(
         CI_lower = mean_of_sample - 1.96*(SD_of_sample/sqrt(sample_size)),
         CI_higher = mean_of_sample + 1.96*(SD_of_sample/sqrt(sample_size))
     )]
+
 ggplot(sample_mean_w_CI, aes(
 	x = sample_id, y = mean_of_sample,
 	color = !or(CI_lower > 178, CI_higher < 178)
