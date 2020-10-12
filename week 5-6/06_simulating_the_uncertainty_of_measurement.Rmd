@@ -451,6 +451,84 @@ $s$ is the standard deviation of the sample distribution,
 
 $n$ is the sample size
 
+## Calculate uncertainty for a point estimate
+
+```{r, out.width='60%'}
+dt <- fread("experiment_result_2.csv")
+head(dt) %>% kable()
+```
+
+## Results from an experiment:
+
+```{r}
+open_rate_dt <- dt[,
+    .(open_rate = sum(num_open) / sum(num_send),
+      num_send = sum(num_send)),
+    by = group
+]
+
+ggplot(open_rate_dt, aes(x = group, y = open_rate, fill = group)) +
+    geom_col() +
+    theme_light() +
+    labs(x = NULL, y = "open rate") +
+    scale_y_continuous(labels = scales::percent)
+```
+
+## Are the results significant? Calculate the variance!
+
+```{r}
+open_rate_dt %>%
+    copy() %>%
+    .[, CI_lower := open_rate - (1.96 * sqrt(open_rate * (1 - open_rate) / num_send))] %>%
+    .[, CI_higher := open_rate + (1.96 * sqrt(open_rate * (1 - open_rate) / num_send))] %>%
+    ggplot(aes(x = group, y = open_rate, fill = group)) +
+        geom_col() +
+        geom_errorbar(aes(ymin = CI_lower, ymax = CI_higher)) +
+        theme_light() +
+        labs(x = NULL, y = "open rate") +
+        scale_y_continuous(labels = scales::percent)
+```
+
+## Now your turn!
+### 1. Calculate the click rate and the uncertainty!
+
+```{r}
+# click_rate_dt <- dt[, .(
+#     click_rate = sum(num_click) / sum(num_send),
+#     num_send = sum(num_send)
+#     ), by = group
+# ] %>%
+#     .[, CI_lower := click_rate - (1.96 * sqrt(click_rate * (1 - click_rate) / num_send]))] %>%
+#     .[, CI_higher := click_rate + (1.96 * sqrt(click_rate * (1 - click_rate) / num_send]))]
+```
+
+### 2. Plot the results! What do you see on the plots? Are the results significant?
+
+```{r}
+# ggplot(click_rate_dt, aes(
+#     x = group, y = click_rate, fill = group
+# )) +
+#     geom_col() +
+#     geom_errorbar(aes(ymin = CI_lower, ymax = CI_higher)) +
+#     theme_light() +
+#     labs(x = NULL, y = "open rate") +
+#     scale_y_continuous(labels = scales::percent)
+```
+
+## Calculating the absolute uplift
+
+Distribution of difference of sample means is normally distributed:
+
+$$ \mu_{diff} = \mu_{1} - \mu_{2} $$
+
+$$ \sigma_{diff} = \sqrt{\frac{\sigma_{1}^{2}}{n_{1}} + \frac{\sigma_{2}^{2}}{n_{2}}} $$
+
+## Calculating the relative uplift
+
+Distribution of ratio of sample means is ??
+
+How to calculate it? -> Next time :)
+
 ## Bayesian uncertainty
 
 Confidence Interval: If we would resample from our population, 95% of times the Confidence Interval will contain the true, unknown parameter.
@@ -498,6 +576,7 @@ ggplot(coin_flip_dt_bayes, aes(
 
 - Credible Interval is easier to understand
 - Credible Interval gives smaller interval if we have some prior knowledge
+    - eg.: Use group averages as prior for contact level data
 - With wrong prior provided, our posterior distribution is going to be wrong as well!
 
 - With a lot of data or with non-informative priors, the two intervals are about the same
@@ -522,12 +601,50 @@ kable(coin_flip_dt[, .(head_ratio, cred_int_lower, cred_int_higher)])
 kable(coin_flip_dt[, .(head_ratio, conf_int_lower, conf_int_higher)])
 ```
 
-## How to plot uncertainty
-
 ## Calculate uncertainty over time
+
+```{r uncertainty-over-time, out.height='70%', fig.align='center'}
+dt <- fread("experiment_results_over_time.csv")
+
+uncertainty_over_time_dt <- dt[, .(open_rate = sum(did_open) / .N, num_send = .N), .(date, group)] %>%
+    dcast(date ~ group, value.var = c("open_rate", "num_send")) %>%
+    .[, `:=`(
+        absolute_uplift = open_rate_treatment - open_rate_control,
+        standard_error = sqrt(open_rate_treatment * (1 - open_rate_treatment) / num_send_treatment + open_rate_control * (1 - open_rate_control) / num_send_control)
+    )] %>%
+    .[, `:=`(
+        CI_lower = absolute_uplift - 1.96 * standard_error,
+        CI_higher = absolute_uplift + 1.96 * standard_error
+    )]
+
+ggplot(uncertainty_over_time_dt, aes(date, absolute_uplift)) +
+    geom_point() +
+    geom_line() +
+    geom_errorbar(aes(ymin = CI_lower, ymax = CI_higher)) +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    labs(x = "Date", y = "Absolute uplift (%point)") +
+    theme_classic()
+```
+## Your turn!
+
+Try to re-create the plot seen before, using `experiment_results_over_time.csv`!
 
 ## Takeaways
 
 - Always show uncertainty
 - Think about your audience
 
+# Homework for next week and presenters
+
+## Homework for next week
+
+1. Figure out your research question / hypothesis!
+
+2. Show (plot) that if there is a difference between two/multiple groups, add uncertainty as well!
+    a. If it makes sense for your research question, do it for that! Eg.: Is there a difference in house prices on Buda compared to Pest?
+    b. If not, use `experiment_result_HW.csv`: calculate the the point estimates and add uncertainty to one of your KPIs (defined by you in last week's homework) for both periods! Include the *absolute* uplift in the subtitle with confidence intervals!
+
+## Presenting next week
+Both Márton - Kamenár Gyöngyvér
+Emerson, Ian - Ralbovszki Judit
+Bat-Erdene, Boldmaa - Kashirin, Andrey
