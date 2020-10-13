@@ -135,7 +135,7 @@ sampling_from_population_anim <- ggplot(dt[sample_id <= 100], aes(values_in_samp
 sampling_from_population_anim
 ```
 
-## Distribution of sample means - LLN + CLT
+## Distribution of sample means
 
 ```{r distribution-of-sample-means, out.width='80%', fig.align='center'}
 dt[, .(sample_id, mean_of_sample)] %>% unique() %>%
@@ -155,6 +155,12 @@ dt[, .(sample_id, mean_of_sample)] %>% unique() %>%
 			xintercept = 178 + 1.96*(7.5/sqrt(sample_size)),
 			color = "red"
 		) +
+		geom_vline(
+			aes(xintercept = quantile(mean_of_sample, 0.025))
+		) +
+		geom_vline(
+			aes(xintercept = quantile(mean_of_sample, 0.975))
+		) +
 		geom_vline(xintercept = 178, color = "red") +
         labs(
 	    	x = "Height (in cm)", y = NULL,
@@ -166,6 +172,18 @@ dt[, .(sample_id, mean_of_sample)] %>% unique() %>%
         theme(text = element_text(size=20)) +
         theme(plot.title = element_markdown())
 ```
+
+## Distribution of sample means
+
+Normal distribution with parameters:
+
+$$\bar x \pm 1.96 * \frac{s}{\sqrt{n}}$$
+
+$\bar x$ is the sample mean,
+
+$s$ is the standard deviation of the sample distribution,
+
+$n$ is the sample size
 
 ## Law of Large Numbers
 
@@ -364,7 +382,7 @@ coin_flip_dt_big_sample %>%
 
 ## What are the key assumptions?
 
-- i.i.d. sampling
+- we have a random sample from the distribution (= independent and identically distributed random variables are drawn)
 - finite variance / distribution is not 'long tailed'
 
 ## What if variance is infinite?
@@ -392,7 +410,7 @@ ggplot(sales[sales_amount <= 1000], aes(sales_amount)) +
 
 ```{r estimate-sales-distribution}
 set.seed(1478)
-# mean(rlnorm(10000, 4, 1))
+# mean(rlnorm(10000, 4, 1.7))
 ggplot(mapping = aes(rlnorm(10000, 4, 1.7))) +
 	geom_density() +
 	theme_classic() +
@@ -419,14 +437,16 @@ sales_sample %>%
 
 ## How can we calculate the uncertainty of our measurement?
 
-- Based on variance of known distribution
+- **Based on variance of known distribution**
 - Monte-Carlo method
 - Bootstrapping
 - (and other methods as well of course)
 
 ## Calculate uncertainty based on variance
 
-```{r normal-distribution-w-2sigma, out.width='80%', fig.align='center'}
+Calculate interval to show how wide range we need in order to be 'sure' that we have the real value included.
+
+```{r normal-distribution-w-2sigma, out.width='75%', fig.align='center'}
 ggplot() +
 	stat_function(fun = dnorm) +
 	geom_vline(xintercept = -2) +
@@ -441,15 +461,61 @@ ggplot() +
 
 ## How to calculate uncertainty from sampling distribution
 
-By CLT + LLN, you can add uncertainty to your point estimate, such as:
+By CLT + LLN, you can add uncertainty to your point estimate (for a 95% Confidence Interval), such as:
 
-$$\bar x \pm 1.96 * \frac{s}{\sqrt{n}}$$
+$$\bar x \pm 1.96 * \frac{\sigma}{\sqrt{n}}$$
 
 $\bar x$ is the sample mean,
 
-$s$ is the standard deviation of the sample distribution,
+$\sigma$ standard deviation of the population,
 
 $n$ is the sample size
+
+## Standard Error
+
+We want to calculate the variance of means of different samples.
+
+Since the standard devation for the population is rarely known, we estimate SE as:
+
+$Standard\,Error = \frac{s}{\sqrt{n}}$
+
+$s$ standard deviation of the sample,
+
+$n$ is the sample size
+
+## Standard Error vs Standard Deviation
+
+Looks similar, but it's not the same!
+
+Derivation for Standard Error:
+
+```{r, out.width='70%', fig.align='center'}
+include_graphics("figures/standard_error_derivation.png")
+```
+
+[Derivation is from here.](https://stats.stackexchange.com/questions/60484/why-is-the-formula-for-standard-error-the-way-it-is)
+
+## Calculating uncertainty for absolute uplift
+
+Distribution of difference of sample means is normally distributed:
+
+$$ \bar x_{diff} = \bar x_{1} - \bar x_{2} $$
+
+$$ \sigma_{diff} = \sqrt{\frac{\sigma_{1}^{2}}{n_{1}} + \frac{\sigma_{2}^{2}}{n_{2}}} $$
+
+## Calculating uncertainty for absolute uplift
+
+We can use the same formula:
+
+$$\bar x \pm 1.96 * \frac{\sigma}{\sqrt{n}}$$
+
+Just use the right equations for $\bar x$ and $\sigma$, depending on the distribution!
+
+## Calculating uncertainty for relative uplift
+
+Distribution of ratio of sample means is ??
+
+How to calculate it? -> Next time :)
 
 ## Calculate uncertainty for a point estimate
 
@@ -458,7 +524,33 @@ dt <- fread("experiment_result_2.csv")
 head(dt) %>% kable()
 ```
 
-## Results from an experiment:
+## How to calculate the open rate absolute uplift with uncertainty!
+
+Let me show that!
+```{r calculate-uplift-with-uncertainty}
+# dt[, .(open_rate = sum(num_open) / sum(num_send), num_send = sum(num_send)), group] %>%
+#     dcast(. ~ group, value.var = c("open_rate", "num_send")) %>%
+#     .[, .(
+#         mean = open_rate_treatment - open_rate_control,
+#         se = sqrt(
+#             (open_rate_treatment * (1-open_rate_treatment) / num_send_treatment) +
+#             (open_rate_control * (1-open_rate_control) / num_send_control)
+#         )
+#     )] %>%
+#     .[, .(
+#         mean,
+#         CI_lower = mean - 1.96 * se,
+#         CI_lower = mean + 1.96 * se
+#     )]
+```
+
+## Now your turn!
+### Calculate the open rate and the uncertainty for both groups!
+```{r calculate-OR-with-uncertainty}
+
+```
+
+## Results from an experiment - How to plot uncertainty?
 
 ```{r}
 open_rate_dt <- dt[,
@@ -474,7 +566,7 @@ ggplot(open_rate_dt, aes(x = group, y = open_rate, fill = group)) +
     scale_y_continuous(labels = scales::percent)
 ```
 
-## Are the results significant? Calculate the variance!
+## How to plot uncertainty
 
 ```{r}
 open_rate_dt %>%
@@ -489,8 +581,23 @@ open_rate_dt %>%
         scale_y_continuous(labels = scales::percent)
 ```
 
+## How to plot uncertainty - some examples
+```{r, out.width='80%', fig.align='center'}
+include_graphics("figures/uplift.png")
+```
+
+## How to plot uncertainty - some examples
+```{r, out.width='80%', fig.align='center'}
+include_graphics("figures/uplift_for_customer.png")
+```
+
+## How to plot uncertainty - some examples
+```{r, out.width='80%', fig.align='center'}
+include_graphics("figures/sto_effect_with_uncertainty.png")
+```
+
 ## Now your turn!
-### 1. Calculate the click rate and the uncertainty!
+### Calculate the click rate and the uncertainty!
 
 ```{r}
 # click_rate_dt <- dt[, .(
@@ -502,6 +609,7 @@ open_rate_dt %>%
 #     .[, CI_higher := click_rate + (1.96 * sqrt(click_rate * (1 - click_rate) / num_send]))]
 ```
 
+## Now your turn!
 ### 2. Plot the results! What do you see on the plots? Are the results significant?
 
 ```{r}
@@ -514,20 +622,6 @@ open_rate_dt %>%
 #     labs(x = NULL, y = "open rate") +
 #     scale_y_continuous(labels = scales::percent)
 ```
-
-## Calculating the absolute uplift
-
-Distribution of difference of sample means is normally distributed:
-
-$$ \mu_{diff} = \mu_{1} - \mu_{2} $$
-
-$$ \sigma_{diff} = \sqrt{\frac{\sigma_{1}^{2}}{n_{1}} + \frac{\sigma_{2}^{2}}{n_{2}}} $$
-
-## Calculating the relative uplift
-
-Distribution of ratio of sample means is ??
-
-How to calculate it? -> Next time :)
 
 ## Bayesian uncertainty
 
@@ -646,5 +740,7 @@ Try to re-create the plot seen before, using `experiment_results_over_time.csv`!
 
 ## Presenting next week
 Both Márton - Kamenár Gyöngyvér
+
 Emerson, Ian - Ralbovszki Judit
+
 Bat-Erdene, Boldmaa - Kashirin, Andrey
