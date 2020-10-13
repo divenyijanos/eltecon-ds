@@ -495,15 +495,23 @@ include_graphics("figures/standard_error_derivation.png")
 
 [Derivation is from here.](https://stats.stackexchange.com/questions/60484/why-is-the-formula-for-standard-error-the-way-it-is)
 
+## Calculating uncertainty for proportion
+
+Distribution of sample means of Bernoulli distr. is normally distributed with parameters:
+
+$$ \bar x = p $$
+
+$$ \sigma = \sqrt{\frac{p*(1-p)}{n}} $$
+
 ## Calculating uncertainty for absolute uplift
 
-Distribution of difference of sample means is normally distributed:
+Distribution of difference of sample means is also normally distributed with parameters:
 
 $$ \bar x_{diff} = \bar x_{1} - \bar x_{2} $$
 
 $$ \sigma_{diff} = \sqrt{\frac{\sigma_{1}^{2}}{n_{1}} + \frac{\sigma_{2}^{2}}{n_{2}}} $$
 
-## Calculating uncertainty for absolute uplift
+## Calculating uncertainty
 
 We can use the same formula:
 
