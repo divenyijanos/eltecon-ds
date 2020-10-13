@@ -605,7 +605,7 @@ include_graphics("figures/sto_effect_with_uncertainty.png")
 ```
 
 ## Now your turn!
-### Calculate the click rate and the uncertainty!
+### 1. Calculate the click rate and the uncertainty!
 
 ```{r}
 # click_rate_dt <- dt[, .(
@@ -617,7 +617,6 @@ include_graphics("figures/sto_effect_with_uncertainty.png")
 #     .[, CI_higher := click_rate + (1.96 * sqrt(click_rate * (1 - click_rate) / num_send]))]
 ```
 
-## Now your turn!
 ### 2. Plot the results! What do you see on the plots? Are the results significant?
 
 ```{r}
