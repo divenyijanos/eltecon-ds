@@ -177,13 +177,15 @@ dt[, .(sample_id, mean_of_sample)] %>% unique() %>%
 
 Normal distribution with parameters:
 
-$$\bar x \pm 1.96 * \frac{s}{\sqrt{n}}$$
-
 $\bar x$ is the sample mean,
 
 $s$ is the standard deviation of the sample distribution,
 
-$n$ is the sample size
+$n$ is the sample size,
+
+add 95% 'CI' interval as:
+
+$$\bar x \pm 1.96 * \frac{s}{\sqrt{n}}$$
 
 ## Law of Large Numbers
 
