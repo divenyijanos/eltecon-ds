@@ -237,14 +237,16 @@ sample_mean + 1.96 * (sample_sd / sqrt(sample_size))
 (There are other methods, e.g. you could estimate the SE with bootstrap)
 (We won't cover those in this class)
 
-## Confidence intervals: practice time {.smaller}
+## Confidence intervals: practice time
 
+\tiny
 ```{r, echo = TRUE}
 dt <- fread("experiment_result_HW.csv") %>%
     .[group == "treatment" & period == "first period"]
 
 head(dt)
 ```
+\normalsize
 
 ## Confidence intervals: practice time {.smaller}
 
@@ -355,7 +357,7 @@ bs_samples %>%
 ```{r, echo = TRUE, eval = FALSE}
 plan(multisession, workers = 4)
 furrr::future_map(.x, .f, ...)
-``` 
+```
 -->
 
 ## Let's have a break!
@@ -450,7 +452,8 @@ sample_height_diff
     )
 
     perm_sample_diffs <- rbind(
-      perm_sample_diffs, data.table(
+      perm_sample_diffs,
+      data.table(
         perm_id = i,
         perm_diff = perm_sample[group == "boys", mean(height)] - perm_sample[group == "girls", mean(height)]
       )
@@ -549,3 +552,6 @@ boot::boot.ci() # Nonparametric Bootstrap Confidence Intervals
   * Calculate p-value with the permutation method for the difference of Treatment / Control groups
 * Deadline: next class (2020-11-04)
 * Presenters:
+    * Im Seongwon - Kim Yeonggyeong
+    * Szőnyi Máté - Tran, Dung
+    * Sármány Áron - Schmall Róbert
