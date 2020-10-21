@@ -150,7 +150,7 @@ height_sample[1:5]
 ## Estimating the distribution of sample means with bootstrapping {.smaller}
 
 ```{r, echo = TRUE}
-B = 10
+B = 10000
 sample_size <- length(height_sample)
 bs_sample_means <- data.table(
   sample_id = integer(), bs_sample_mean = numeric()
@@ -275,7 +275,7 @@ TODO:
 SOLUTION
 
 ```{r, echo = FALSE, eval = FALSE}
-B = 10
+B = 10000
 bs_click_rates <- c()
 
 set.seed(1021)
@@ -289,7 +289,7 @@ quantile(bs_click_rates, c(0.025, 0.975))
 ```
 
 ```{r, echo = FALSE, eval = FALSE}
-bootstrapStatistic <- function(x, B = 10, seed = 1021, fn = mean, ...) {
+bootstrapStatistic <- function(x, B = 10000, seed = 1021, fn = mean, ...) {
   if (!is.vector(x)) stop("x needs to be a vector")
 
   bs <- c()
@@ -305,7 +305,7 @@ bootstrapStatistic <- function(x, B = 10, seed = 1021, fn = mean, ...) {
 
 mean(dt[num_items_ordered > 5, sales_amount])
 bs <- bootstrapStatistic(
-  dt[num_items_ordered > 5, sales_amount], B = 10, fn = mean
+  dt[num_items_ordered > 5, sales_amount], B = 10000, fn = mean
 )
 
 quantile(bs, c(0.025, 0.975))
@@ -315,7 +315,7 @@ quantile(bs, c(0.025, 0.975))
 
 \small
 ```{r, echo = TRUE}
-B = 10
+B = 10000
 sample_size <- length(height_sample)
 
 set.seed(1021)
@@ -441,7 +441,7 @@ sample_height_diff
 **Calculate distribution of test statistic under H0**
 \tiny
 ```{r, echo = TRUE}
-  B = 10
+  B = 10000
   perm_sample_diffs <- data.table(perm_id = integer(), perm_diff = numeric())
 
   set.seed(1021)
@@ -472,7 +472,7 @@ ggplot(perm_sample_diffs, aes(x = perm_diff)) +
     geom_vline(aes(xintercept = perm_sample_diffs[, quantile(perm_diff, 0.025)]), color = "red") +
     geom_vline(aes(xintercept = perm_sample_diffs[, quantile(perm_diff, 0.975)]), color = "red") +
     labs(
-      x = "Height (in cm)", y = NULL,
+      x = "Height Diff. (in cm)", y = NULL,
       title = "Diff. in heights under H0",
       subtitle = "<span style = 'color: blue;'>Height diff. in sample</span> vs <span style = 'color: red;'>95% CI</span>"
     ) +
@@ -547,7 +547,7 @@ boot::boot.ci() # Nonparametric Bootstrap Confidence Intervals
 ## Homework
 
 * Task:
-  * Use `experiment_result_HW.csv` or your own project data
+  * Use `experiment_result_HW.csv` or your own project datab
   * Calculate the point estimates and add uncertainty with bootstrapping to one of your KPIs
   * Calculate p-value with the permutation method for the difference of Treatment / Control groups
 * Deadline: next class (2020-11-04)
