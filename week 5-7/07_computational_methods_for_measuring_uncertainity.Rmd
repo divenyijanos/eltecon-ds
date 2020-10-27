@@ -235,6 +235,7 @@ sample_mean + 1.96 * (sample_sd / sqrt(sample_size))
 ## Confidence intervals: the percentile method
 
 (There are other methods, e.g. you could estimate the SE with bootstrap)
+
 (We won't cover those in this class)
 
 ## Confidence intervals: practice time
@@ -267,7 +268,7 @@ dt[, t.test(has_viewed_website)][["conf.int"]]
 
 TODO:
 
-  - calculate the mean for `click_rate = mean(has_viewed_website)`!
+  - calculate the mean `click_rate` `(= mean(has_viewed_website))`!
   - calculate the median for `sales_amount` of people who ordered at least 5 items!
 
 ## Confidence intervals: practice time
@@ -523,8 +524,78 @@ TODOs:
 SOLUTION
 
 ```{r, echo = FALSE, eval = FALSE}
-t.test(dt[`group` == "treatment", sales_amount], dt[group == "control", sales_amount])
-#TODO
+# set parameters
+
+seed <- 1021
+B <- 10
+
+# Plot distribution of mean diff. in `Sales Amount` (using bootstrapping)
+
+sales_amount_diff <- dt[group == "treatment", mean(sales_amount)] - dt[group == "control", mean(sales_amount)]
+
+avg_sales_amount_diffs <- c()
+
+set.seed(seed)
+for (i in 1:B) {
+  bs_sample_treatment <- sample(dt[group == "treatment", sales_amount], dt[group == "treatment", .N], replace = TRUE)
+  bs_sample_control   <- sample(dt[group == "control",   sales_amount], dt[group == "control",   .N], replace = TRUE)
+  avg_sales_amount_diffs <- c(
+    avg_sales_amount_diffs,
+    mean(bs_sample_treatment) - mean(bs_sample_control)
+  )
+}
+
+data.table(avg_sales_amount_diff = avg_sales_amount_diffs) %>%
+  ggplot(aes(x = avg_sales_amount_diff)) +
+  geom_histogram() +
+  geom_vline(xintercept = sales_amount_diff, color = "red") +
+  labs(
+    x = "Sales Amount Diff. (T-C)", y = NULL,
+    title = "Estimated distribution of Avg. Sales Amount Diff.",
+    subtitle = "Treatment - Control"
+  ) +
+  theme_classic() +
+  theme(text = element_text(size = 20))
+
+# Calculate CIs for Treatment vs Control avg. `Sales Amount` (using bootstrapping)
+
+quantile(avg_sales_amount_diffs, c(0.025, 0.975))
+
+# Calculate p-value for H0: Treatment and Control `Sales Amount`-s are the same!
+# Calculate using `t.test()` and with a permutation test as well.
+
+t.test(dt[group == "treatment", sales_amount], dt[group == "control", sales_amount])
+
+avg_sales_amount_diffs_under_h0 <- data.table(
+  perm_id = integer(),
+  avg_sales_amount_diff_under_h0 = numeric()
+)
+
+set.seed(seed)
+for (i in 1:B) {
+  print(i)
+  perm_sample <- data.table(
+    group = dt[, group],
+    sales_amount = sample(dt[, sales_amount], dt[, .N], replace = FALSE)
+  )
+
+  avg_sales_amount_diffs_under_h0 <- rbind(
+    avg_sales_amount_diffs_under_h0,
+    data.table(
+      perm_id = i,
+      avg_sales_amount_diff_under_h0 = (
+        perm_sample[group == "treatment", mean(sales_amount)] -
+          perm_sample[group == "control", mean(sales_amount)]
+      )
+    )
+  )
+}
+
+p_value <- avg_sales_amount_diffs_under_h0[,
+  sum(sales_amount_diff < abs(avg_sales_amount_diff_under_h0)) / .N
+]
+
+print(p_value)
 ```
 
 ## The `{boot}` package
@@ -547,7 +618,7 @@ boot::boot.ci() # Nonparametric Bootstrap Confidence Intervals
 ## Homework
 
 * Task:
-  * Use `experiment_result_HW.csv` or your own project datab
+  * Use `experiment_result_HW.csv` or your own project's data
   * Calculate the point estimates and add uncertainty with bootstrapping to one of your KPIs
   * Calculate p-value with the permutation method for the difference of Treatment / Control groups
 * Deadline: next class (2020-11-04)
