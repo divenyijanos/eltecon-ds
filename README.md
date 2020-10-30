@@ -1,51 +1,51 @@
-# Data Science (aka Regional economics)
+# Data Science (aka Regionális gazdaságtan)
 
-The aim of the course is to provide a detailed introduction into the modern data science. Building upon basic knowledge in statistics, real data and actual business applications we cover the tools that are elemental in our day-to-day work as data scientists. The course is practice-oriented: students will work on their own data science projects throughout the course where they can apply the methods they learn.
+A kurzus célja, hogy a diákokat - statisztikai előképzettségükre építve - bevezesse a modern adatelemzés (data science) rejtelmeibe. Valós adatokra és konkrét üzleti alkalmazásokra építve, aktív órai munkával igyekszünk bemutatni a data scientist napi munkájához szükséges eszköztárat. A tanultakat a diákok egy maguk által választott témában, önálló projekt keretében hasznosítják.
 
-The course materials can be accessed in the [course's GitHub page](https://github.com/divenyijanos/eltecon-ds).
+A kurzushoz kapcsolódó anyagok a kurzus [github oldalára](https://github.com/divenyijanos/eltecon-ds) kerülnek ki.
 
-# Format
+# Előfeltétel
 
-The course consists of 13 weekly sessions of 2x90 minutes. Each session is going to be on-line (via Zoom), and include a shorter theoretical part and a longer practice-oriented part. The sessions are going to be held by an instructor and a co-instructor to better assist students with individual problems.
+A kurzus feltételezi a `git`, illetve az `R` és az `RStudio` alapvető ismeretét. Ennek megszerzéséhez összeállítottunk egy segédanyagot, melyet a "prerequisite" mappába gyűjtöttünk. Az alapismeretek feltétlen szükségesek a kurzus elvégzéséhez.  Az alapok meglétét az első órán esedékes beugró teszt sikeres teljesítésével kell bizonyítani.
 
-# Instructors
+Segítség a segédanyaghoz: Installáld az [R-t](https://cran.r-project.org/) és az [RStudio-t](https://www.rstudio.com/products/rstudio/download/). A mappában 5 témakör található: git, R bevezetés, függvények, data.table (adatmanipuláció) és ggplot (adatvizualizáció). Minden leírás tartalmaz mintafeladatokat, amelyek az elvárt tudás szintjét jelzik. Akinek ezek nehézséget okoznak, annak a kurzus teljesítése is igen nehéz lesz. Minden témához gyűjtöttünk segédanyagokat a további elmélyüléshez.
 
-András Bérczi, János Divényi, Zsuzsa Holler, Gábor Kocsis, Tamás Koncz and Péter Lukács - members of the data science team of [Emarsys](https://www.emarsys.com/)
+Ha még nem használtál Git-et, akkor nyomj a `Clone or download` gombra és válaszd a `Download ZIP` lehetőséget. Kicsomagolás után megkezdheted a fájlok böngészését. Minden fájlt két verzióban töltöttünk fel: [RMarkdown](https://rmarkdown.rstudio.com/index.html) illetve az RMarkdown-ból létrehozott HTML. Utóbbit bármilyen böngészőben könnyen lehet olvasni, előbbivel pedig RStudioval megnyitva interaktálni is lehet (kódrészletet lefuttatni, stb.).
 
-Contact: eltecon.ds@gmail.com
+# Oktatás kerete
 
-# Prerequisite
+A kurzus időkerete hetente 2x90 perc. Minden alkalom egy elméleti és egy gyakorlati részből áll. Az elméleti rész is igyekszik gyakorlati lenni, a mindennapi munkánkból vett példák és valós esetek bemutatásával. A gyakorlati rész alatt a diákok saját gépeiken programozva önállóan alkalmazhatják az előző rész során bemutatott módszereket (óránként két oktató segítségével).
 
-The course expects basic knowledge of the programming language `R` and the corresponding application `RStudio`. To refresh this knowledge, we collected supplementary materials into the "prerequisite" folder. This knowledge is necessary to successfully complete the course.
+# Oktatók
 
-First, install [R](https://cran.r-project.org/) and [RStudio](https://www.rstudio.com/products/rstudio/download/) on your local machine. There are 4 topics in the prerequisite folder: R introduction, functions, data.table (for data manipulation), ggplot (for data visualization). Each topic contains a description, some sample exercises and references for further studies. The sample exercises show the level we expect throughout the course. To ensure that we are on the same page, we are going to spend some time on refreshing this knowledge in the first few weeks.
+Bérczi András, Divényi János, Holler Zsuzsa, Kocsis Gábor, Koncz Tamás, Lukács Péter - az [Emarsys](https://www.emarsys.com/) data science csapatának tagjai
 
-You can get the material by clicking on the button `Code` and chosing the option `Download ZIP`. After extracting, you can browse the files. Each file has two versions: you can open the `html` files in your browser and view them, or you can open the `.Rmd` files in Rstudio and interact with the material (e.g. run code chunks).
+Kontakt: eltecon.ds kukac gmail pont com
 
-# Evaluation
+# Értékelés
 
-The final grade consists of two parts: weekly homeworks (50%) and the final project (50%). The students work on the tasks in pairs. The homeworks aim to help the final project, and each homework is going to be presented by some pairs at the beginning of the sessions. The final project is to be presented in a separate session, held on the 16th of December.
+Az évvégi jegy két részből tevődik össze: kisebb részben a heti házi feladatok (30%), nagyobb részben a félévi projekt (70%) alkotják. A házi feladatok nagy része a projekt előkészítéséhez kötődik, amelyet a vizsgaidőszakban egy később megbeszélt alkalmon kell majd előadni.
 
-# Useful materials
+# Hasznos anyagok
 
 - James - Witten - Hastie - Tibshirani: [An Introduction to Statistical Learning](http://faculty.marshall.usc.edu/gareth-james/ISL/)
 - Grolemund - Hadley: [R for Data Science](https://r4ds.had.co.nz/)
 - Gentzkow - Shapiro: [Code and Data for the Social Sciences: A Practitioner's Guide](https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf)
-- Emarsys Craftlab blog: [data section](https://blog.craftlab.hu/tagged/emarsys-data)
+- (Emarsys Craftlab blog - data section](https://blog.craftlab.hu/tagged/emarsys-data)
 
-# Schedule
+# Tematika
 
-1. **9 September** Introduction: R and RStudio (project setup, directory structure, relative paths), data types in R (vectors, factors, lists, data frames), R packages, functions, loops, error handling. (*Gábor Kocsis*)
-2. **16 September**  Data manipulation with data.table. Exploratory data analysis and data cleaning. (*Gábor Kocsis*)
-3. **23 September**  Data visualization with ggplot2: how to make plots. (*Péter Lukács*)
-4. **30 September** Data visualization principles: how to make plots that make sense. (*Péter Lukács*)
-5. **7 October** Effect measurement with experiments (RCT, AB test): issues in practice.  (*András Bérczi*)
-6. **14 October** Measuring uncertainty, simulation methods: Monte-Carlo. (*András Bérczi*)
-7. **21 October** Simulation methods: bootstrap. (*Tamás Koncz*)
-8. **28 October** Fall Break
-9. **4 November** Machine learning introduction. Supervised learning basics: regression and binary prediction. Prediction versus causality. (*Tamás Koncz*)
-10. **11 November** Model Selection. Overfitting and prediction accuracy. Training, test error and cross-validation. (*Zsuzsa Holler*)
-11. **18 November** Regularisation. Lasso and Ridge Regression. (*Zsuzsa Holler*)
-12. **25 November** Supervised learning beyond linearity: decision tree. (*János Divényi*)
-13. **2 December** Unsupervised learning: clustering (K-means), dimensionality reduction (PCA). (*János Divényi*)
-14. **9 December** Project consultation (*with all instructors*)
+1. **szeptember 11.** Bevezetés: reprodukálhatóság, verziókövetés Git-tel, R projekt setup, mappastruktúra, hasznos segédfájlok. (*Kocsis Gábor*)
+2. **szeptember 18.**  Adatgyűjtés, feltáró adatelemzés (Exploratory Data Analysis), adattisztítás. (*Divényi János*)
+3. **szeptember 25.**  Adatvizualizáció: grammar of graphics, ggplot2, irányelvek. (*Koncz Tamás*)
+4. **október 2.** Kutatási riport (RMarkdown), interaktív vizualizáció (plotly). (*Koncz Tamás*)
+5. **október 9.** Hatásmérés kísérletezéssel: feltételek, minimum detectable effect.  (*Bérczi András*)
+6. **október 16.** Mérés bizonytalansága, szimulációs módszerek: Monte-Carlo, bootstrap, permutációs teszt. (*Bérczi András*)
+7. **október 23.** TANÍTÁSI SZÜNET
+8. **október 30.** TANÍTÁSI SZÜNET
+9. **november 6.** Gépi tanulás (machine learning) bevezetés. Supervised learning alapok: lineáris és logisztikus regresszió. Predikció versus okság. Előrejelzési pontosság versus interpretálhatóság. (*Lukács Péter*)
+10. **november 13.** Előrejelzési pontosság mérése, modellkiválasztás. Torzítottság versus variancia (bias-variance trade-off). Regularizáció. Cross-validation. (*Holler Zsuzsa*)
+11. **november 20.** Supervised learning modellek a linearitáson túl: shrinkage regresszió (LASSO), döntési fa. (*Holler Zsuzsa*)
+12. **november 27.** Előrejelzési pontosság javítása mintavételezéssel: boosting és bagging modellek, model ensemble.  (*Divényi János*)
+13. **december 4.** Unsupervised learning: klaszterezés (K-means, hierarchical), dimenzió redukció (PCA). (*Kocsis Gábor*)
+14. **december 11.** Projektmunka folyamatos konzultációs lehetőséggel. (*az összes oktató részvételével*)

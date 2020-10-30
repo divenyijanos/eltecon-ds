@@ -1,0 +1,115 @@
+---
+title: "Eltecon Data Science Course by Emarsys"
+subtitle: Communication Tools for Data Science
+author: "Tamás Koncz"
+date: "October 2, 2019"
+output:
+  beamer_presentation:
+    colortheme: dolphin
+    fonttheme: structurebold
+    theme: AnnArbor
+    # toc: true
+    slide_level: 2
+fontsize: 12pt
+---
+
+# Recap - List the issues & propose improvements!
+
+## London's population
+```{r, echo=FALSE, out.width='80%', fig.align='center'}
+knitr::include_graphics("figures/london_population.png")
+# Number?
+# Forecast vs actual is not marked and separated
+# Line-chart is probably better
+# Extra legend is unnecessary
+# Interesting choice of color
+```
+
+## San Francisco evictions
+```{r, echo=FALSE, out.width='85%', fig.align='center'}
+knitr::include_graphics("figures/sf_evictions.png")
+# "date" - do we need it? And actually it's not a date axis
+# n?
+# hard to read most of the lines
+# what the story it wants to tell?
+# Jumps - any explanation?
+```
+
+## Population by age group
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics("figures/before_after_population.png")
+# It's hard to tell how the number of voters changed
+# It's actually even hard to tell how their shares have changed
+# Is there a story we want to tell?
+# And also everything that can be said about a pie chart
+```
+
+# QUIZ TIME
+
+# .Rmd
+
+## What is R Markdown?
+
+- Authoring framework for data science
+- You can use a single R Markdown file to both
+  - save and execute code
+  - generate high quality reports that can be shared with an audience
+- R Markdown documents are fully reproducible
+- They support dozens of static and dynamic output formats
+[Source: rmarkdown.rstudio.com](https://rmarkdown.rstudio.com/lesson-1.html)
+
+## Other uses of (R) Markdown
+
+- [Readme documents](https://github.com/rstudio/rmarkdown/blob/master/README.md)
+- [R pkg vignettes](https://github.com/rstudio/rmarkdown/blob/master/vignettes/rmarkdown.Rmd)
+- [Blogposts](https://bookdown.org/yihui/blogdown/)
+- [Books](https://bookdown.org/)
+
+
+## Parts of an .Rmd file
+
+- An (optional) YAML header surrounded by ---s
+- Code chunks surrounded by ```s
+- Text mixed with simple text formatting
+
+## Parts of an .Rmd file
+
+```{r, echo=FALSE, out.width='60%', fig.align='center'}
+knitr::include_graphics("figures/rmarkdown.png")
+```
+
+## Basics of text formatting
+
+```{r, echo=FALSE, out.width='60%', fig.align='left'}
+knitr::include_graphics("figures/rmarkdown_text_formatting.png")
+```
+
+- *italics*
+- **bold**
+- `code`
+- [links](rmarkdown.rstudio.com)
+
+## For more, please see
+
+- https://rmarkdown.rstudio.com/lesson-1.html
+- https://bookdown.org/yihui/rmarkdown/
+- [Cheatsheet](https://rmarkdown.rstudio.com/lesson-15.html)
+- Recommended reading: [How R Helps Airbnb Make the Most of Its
+Data](https://peerj.com/preprints/3182.pdf)
+
+## Cons
+
+- The longer the analysis, the more messy it becomes (*scroll-scroll-scroll*)
+- Does not facilitate good coding style
+- Knit fails on error
+- Reporting results is not always parallel with the code
+
+# Interactive visualizations -- Plotly & Shiny   DEMO TIME
+
+# Today's dataset
+
+## Kaggle
+
+```{r, echo=FALSE, out.width='65%', fig.align='center'}
+knitr::include_graphics("figures/kaggle-logo-transparent-300.png")
+```

@@ -1,0 +1,33 @@
+---
+title: Measuring effect through experimenting
+author: "András Bérczi"
+date: "October 9, 2019"
+output: html_document
+# runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '..')
+```
+
+# 1. Calculate the Minimum Detectable Effect for a sample of 1000 contacts, when the base rate is 10%. Use the `calculateMinimumDetectableEffect` function!
+
+```{r function to calculate the Minimum Detectable Effect}
+calculateMinimumDetectableEffect <- function(p1, n, prop_of_treatment = 0.5, alpha = 0.05, beta = 0.2) {
+    M <- qt(1-alpha/2, n - 1) + qt(1-beta, n - 1)
+    variance <- p1 * (1 - p1)
+    weight <- prop_of_treatment * (1 - prop_of_treatment) * n
+    M * sqrt(variance / weight)
+}
+```
+
+# 2. Calculate the effect for the whole period of the [provided example experiment](./experiment_result.csv)
+
+# 3. Plot the results
+
+# 4. Calculate the effect week-by-week
+
+# 5. Plot the results
+
+# 6. How would you plot uncertainty? Try to do it for both plots!

@@ -1,0 +1,107 @@
+---
+title: "Communication Tools Practice"
+author: "Tamas Koncz"
+date: "10/2/2019"
+output: html_document
+# runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width = 12)
+knitr::opts_chunk$set(fig.align = 'center')
+```
+
+
+```{r}
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(magrittr))
+# suppressPackageStartupMessages(library(plotly))
+# suppressPackageStartupMessages(library(shiny))
+```
+
+
+[Download source file](https://www.kaggle.com/AnalyzeBoston/crimes-in-boston/downloads/crimes-in-boston.zip/2)
+```{r}
+crime_raw <- fread("data/crime.csv")
+```
+
+#### TODO: Knit this .Rmd file to HTML
+
+#### TODO: fix month & date formatting
+##### 1. Check the structure of the `crime` data.table. What class is the column `MONTH`?
+##### 2. Create an ordered factor column from `MONTH`, in which column names are strings ("January", "February", ...).
+##### 3. Remove the first and last months due to incomplete data (2015 June & 2018 September)!
+
+#### TODO: Visualize number of crimes over time (by month & year)
+
+#### TODO: Why we shouldn't actually say "number of crimes" when visualizing this data?
+
+#### TODO: add avg. of monthly crimes by year as horizontal lines in red.
+
+#### ggsave - saving ggplot plots
+```{r}
+# ggsave(
+#     filename = "./week 3-4/figures/ggsave_example.png",
+#     plot = crime_over_time_plot_w_avgs,
+#     width = 16, height = 9
+# )
+```
+
+#### TODO: What would you do with this plot?
+```{r, echo = FALSE}
+knitr::include_graphics("figures/plot_to_fix.png")
+```
+
+##### 1. categorize less common `OFFENSE_CODE_GROUP` into "Other"
+##### 2. Order categories by their occurence. Leave "Other" for last on the plot!
+
+### Uncertainty practice
+
+#### TODO: How many crimes are happening on each weekday?
+##### 1. Fix the type of column `DAY_OF_WEEK` (make it an ordered factor)
+##### 2. Create a column called `date`, which is derived from `OCCURED_ON_DATE`, but is actually of class `Date`
+##### 3. Create a summary table of crimes per date (keep `DAY_OF_WEEK`!)
+##### 4. Calculate medians in a separate `data.table`
+##### 5. Draw density plots, with medians represented by vertical lines
+
+#### TODO: When are crimes happening within a day?
+##### 1. Filter on `YEAR` 2016 & 2017 (complete years)
+##### 2. Visualize
+
+### plotly example
+```{r, fig.width = 8, fig.align='center'}
+# selected_offense_groups <- c("Towed",
+#                              "Vandalism",
+#                              "Motor Vehicle Accident Response")
+# ggplot_plot <- crime %>%
+#     .[OFFENSE_CODE_GROUP %in% selected_offense_groups] %>%
+#     .[, .(num_reported_crime = .N), by = OFFENSE_CODE_GROUP] %>%
+#     ggplot(aes(x = OFFENSE_CODE_GROUP)) +
+#     geom_col(aes(y = num_reported_crime)) +
+#     theme(text = element_text(size = 16))
+#
+# ggplotly(ggplot_plot, tooltip = "y")
+```
+
+### shiny example
+```{r}
+# sliderInput(
+#     inputId = "hour_slider",
+#     label = "Select hour range",
+#     min = 0, max = 23,
+#     value = c(0, 23)
+# )
+```
+
+
+```{r}
+# renderPlot({
+#     crime[, .(num_reported_crime = .N), by = HOUR] %>%
+#         .[HOUR %between% input$hour_slider] %>%
+#         ggplot(aes(x = HOUR, y = num_reported_crime)) +
+#             geom_col() +
+#             theme(text = element_text(size = 16))
+# })
+```
