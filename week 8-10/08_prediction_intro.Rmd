@@ -2,7 +2,7 @@
 title: "Eltecon Data Science Course by Emarsys"
 subtitle: "Introduction to Prediction"
 author: "Tamás Koncz"
-date: "Novebmer 11, 2020"
+date: "November 4, 2020"
 output:
   beamer_presentation:
     colortheme: dolphin
@@ -225,6 +225,8 @@ ggplot(bike_sharing_train, aes(x = temp, y = atemp)) +
     theme(text = element_text(size = 20))
 ```
 
+## Slide on model explainability?
+
 <!-- https://stats.stackexchange.com/questions/271694/confounding-variables-in-machine-learning-predictions -->
 
 <!-- model explainability -->
@@ -361,6 +363,10 @@ table(
 * Share your regression formula + achieved Accuracy & Confusion Matrix in [Socrative](https://www.socrative.com/#login)!
 * You have 20 minutes - feel free to take a break if needed.
 
+## Practice time
+
+"SOLUTION"
+
 # Generalization performance
 
 ## Why do we care?
@@ -446,9 +452,11 @@ TODO
 ## Homework
 
 * __Final project__: Have a high level outline of how you plan to answer your research question
-* If you haven't finished the binary classification practice, do so
-  * Show your best Logit formula!
-  * Present your achieved Accuracy & Confusion Matrix!
+* If you haven't finished the binary classification practice, do so.
+  * Create at least two models to predict Titanic Survival
+  * Show your Logit formulas, and the achieved Accuracy & Confusion Matrix!
+  * Reason why you would use one model or another if you had to perform an out-of-sample prediction
+  * (No right or wrong answers!)
 * Presenters:
   * Alexandrov Dániel - Földesi Attila
   * Nguyen Thai Duong - Szentistványi János
