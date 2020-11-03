@@ -69,6 +69,14 @@ Simple linear regression formula:
 
 $$ \hat{Y} = \beta_0 + \beta_1 X $$
 
+## RMSE
+
+* Root Mean Square Error (RMSE)
+* It is the standard deviation of the residuals i.e. prediction errors
+* RMSE penalizes the model for large errors
+
+$$ RMSE = \sqrt{\frac{\sum_{i=1}^n (\hat{y_i}-y_i)^2}{n}} $$
+
 ## (So what is Machine Learning?)
 
 _“A computer program is said to **learn from experience** E with respect to some class of tasks T and performance measure P, **if its performance** at tasks in T, as measured by P, **improves with experience** E.”_
@@ -196,6 +204,11 @@ calculateRMSE(
 * Share your regression formula + achieved RMSE in [Socrative](https://www.socrative.com/#login)!
 * You have 20 minutes - feel free to take a break if needed.
 
+
+## Practice time
+
+"SOLUTION"
+
 ## Don't worry about Confounding!
 
 ```{r, echo=FALSE, fig.align='center'}
@@ -223,8 +236,33 @@ ggplot(bike_sharing_train, aes(x = temp, y = atemp)) +
 
 ## Binary classification
 
-TODO: theory (logit)
+* Binary: target can take on two values (0 or 1)
+* Typical example is predicting if an event is happening or not
+* Examples:
+  * Patient has a medical condition or not
+  * Loan will be repaid in full
+  * User will make a purchase in the next 30 days (BPS - Buying Probability Score)
 
+## Question time
+
+* __Why should we not use linear regression for binary classification__?
+* Please record your answers in [Socrative](https://www.socrative.com/#login)!
+* You have 5 minutes
+
+## Logistic regression
+
+* A linear model makes continuous predictions that are unbounded.
+* In classification, we are interested in the probability of an outcome occurring
+* So we want **predictions that are bounded between 0 and 1.**
+
+<!-- + Predicting binary outcomes with a linear model violates the assumption of normal residuals, distorting inferences made on regression coefficients.
+ -->
+
+$$ Pr(Y_i=1|X_i) = {\frac{exp(\beta_0 + \beta_1X_i)}{1 + exp (\beta_0 + \beta_1X_i)}} $$
+
+## Logistic regression
+
+TODO add chart sigmoid transformation
 
 ## The Titanic dataset
 
@@ -317,6 +355,12 @@ table(
 )
 ```
 
+## Practice time
+
+* Task: improve the model to be as accurate as possible!
+* Share your regression formula + achieved Accuracy & Confusion Matrix in [Socrative](https://www.socrative.com/#login)!
+* You have 20 minutes - feel free to take a break if needed.
+
 # Generalization performance
 
 ## Why do we care?
@@ -402,8 +446,13 @@ TODO
 ## Homework
 
 * __Final project__: Have a high level outline of how you plan to answer your research question
-* TBD
+* If you haven't finished the binary classification practice, do so
+  * Show your best Logit formula!
+  * Present your achieved Accuracy & Confusion Matrix!
 * Presenters:
-    * TBD
-    * TBD
-    * TBD
+  * Alexandrov Dániel - Földesi Attila
+  * Nguyen Thai Duong - Szentistványi János
+  * Kovács Ádám - Nguyen Nam Son
+
+
+
