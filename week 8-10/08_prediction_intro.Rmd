@@ -41,14 +41,15 @@ library(ggtext)
 
 # What is prediction?
 
-**Assumption:**
+You have an assumed relationship:
+
 $$Y \approx f(X) + \epsilon$$
 
 where:
 
 - $Y$ is your target variable
 - $X$ are your predictors
-- $f()$: is the assumed relationship between $X$ and $Y$
+- $f()$: is the relationship between $X$ and $Y$
 - $\epsilon$: is the irreducible error
 
 **Prediction is**:
@@ -56,20 +57,7 @@ where:
 - estimating $f()$ based on the available observations ($X$) ...
 - **... to minimize the error $E(Y-\hat{Y})$**
 
-# Regression
-
-## When to use linear regression?
-
-When:
-
-* We want to estimate a quantitative target (e.g. price)
-* Assuming an approximate linear relationship between $X$ and $Y$
-
-Simple linear regression formula:
-
-$$ \hat{Y} = \beta_0 + \beta_1 X $$
-
-## RMSE
+## Error metric: RMSE
 
 * Root Mean Square Error (RMSE)
 * It is the standard deviation of the residuals i.e. prediction errors
@@ -77,17 +65,12 @@ $$ \hat{Y} = \beta_0 + \beta_1 X $$
 
 $$ RMSE = \sqrt{\frac{\sum_{i=1}^n (\hat{y_i}-y_i)^2}{n}} $$
 
-## (So what is Machine Learning?)
-
-_“A computer program is said to **learn from experience** E with respect to some class of tasks T and performance measure P, **if its performance** at tasks in T, as measured by P, **improves with experience** E.”_
-(Tom Mitchell)
-
 ## Bike rental - the dataset
 
 * Source: [Kaggle](https://www.kaggle.com/c/bike-sharing-demand/overview/description)
 * Goal: Predict the total count of bikes rented during each hour
 
-\small
+\tiny
 ```{r}
 bike_sharing_train <- fread("bike_sharing_train.csv")
 
@@ -109,11 +92,54 @@ fread("bike_sharing_data_fields.csv", sep = ";") %>%
 ```
 \normalsize
 
+## Benchmark "model"
+
+```{r, echo = TRUE}
+calculateRMSE <- function(actual, predictions) {
+  sqrt(mean((actual - predictions) ^ 2))
+}
+```
+
+\small
+```{r, echo = TRUE}
+predictions_benchmark_model <- rep(
+  bike_sharing_train[, mean(count)], bike_sharing_train[, .N]
+)
+
+bike_sharing_benchmark_model_rmse <- calculateRMSE(
+  actual = bike_sharing_train$count,
+  predictions = predictions_benchmark_model
+)
+
+bike_sharing_benchmark_model_rmse
+```
+\normalsize
+
+# Regression
+
+## Linear regression
+
+When to use it:
+
+* We want to estimate a numerical target (e.g. price)
+* Assuming an approximate linear relationship between $X$ and $Y$
+
+Simple linear regression formula:
+
+$$ \hat{Y} = \beta_0 + \beta_1 X $$
+
+The OLS estimation of $\beta$ will conveniently minimize RMSE for given $X$!
+
+## (So what is Machine Learning?)
+
+_“A computer program is said to **learn from experience** E with respect to some class of tasks T and performance measure P, **if its performance** at tasks in T, as measured by P, **improves with experience** E.”_
+(Tom Mitchell)
+
 ## Bike rental - minimal model
 
 ```{r, echo = TRUE}
 bike_sharing_min_model <- glm(
-  formula = count ~ windspeed,
+  formula = count ~ atemp,
   family = gaussian,
   data = bike_sharing_train
 )
@@ -142,12 +168,17 @@ slope <- bike_sharing_min_model$coefficients[2]
 ## Bike rental - minimal model - predictive fit
 
 ```{r}
-ggplot(bike_sharing_train, aes(x = temp, y = count)) +
+ggplot(bike_sharing_train, aes(x = atemp, y = count)) +
     geom_point() +
     geom_abline(intercept = intercept, slope = slope, color = "red") +
-    ggtitle("Minimal model fit for bike rentals") +
+    geom_hline(yintercept = mean(predictions_benchmark_model), color = "grey") +
+    labs(
+      title = "Minimal model fit for bike rentals",
+      subtitle = "<span style = 'color: grey;'>Benchmark</span> vs <span style = 'color: red;'>Minimal Model</span>"
+    ) +
     theme_classic() +
-    theme(text = element_text(size = 20))
+    theme(text = element_text(size = 20)) +
+    theme(plot.subtitle = ggtext::element_markdown())
 ```
 
 ## Bike rental - minimal model - prediction error
@@ -183,8 +214,8 @@ bike_sharing_min_model_rmse
 \small
 ```{r, echo = TRUE}
 bike_sharing_2nd_model <- glm(
-  formula = count ~ windspeed + temp,
-  family = gaussian, data = bike_sharing_train
+  formula = count ~ atemp + humidity,
+  data = bike_sharing_train
 )
 
 predictions_2nd_model <- predict.glm(
@@ -207,7 +238,35 @@ calculateRMSE(
 
 ## Practice time
 
-"SOLUTION"
+DEMO
+
+```{r, eval = FALSE}
+ggplot(bike_sharing_train, aes(x = hour, y = count)) +
+    geom_point() +
+    geom_smooth(method = "gam", color = "blue") +
+    labs(
+      title = "Minimal model fit for bike rentals",
+      subtitle = "<span style = 'color: blue;'>loess smoothing</span>; 1 denotes working days"
+    ) +
+    facet_wrap(.~workingday) +
+    theme_classic() +
+    theme(text = element_text(size = 20)) +
+    theme(plot.subtitle = ggtext::element_markdown())
+
+bike_sharing_improved_model <- glm(
+  formula = count ~ windspeed + temp + poly(hour, 3) + workingday,
+  data = bike_sharing_train
+)
+
+predictions_improved_model <- predict.glm(
+  bike_sharing_improved_model, newdata = bike_sharing_train
+)
+
+calculateRMSE(
+  actual = bike_sharing_train[, count],
+  predictions = predictions_improved_model
+)
+```
 
 ## Don't worry about Confounding!
 
@@ -225,14 +284,15 @@ ggplot(bike_sharing_train, aes(x = temp, y = atemp)) +
     theme(text = element_text(size = 20))
 ```
 
-## Slide on model explainability?
+## Why should you still care about model inputs?
 
 <!-- https://stats.stackexchange.com/questions/271694/confounding-variables-in-machine-learning-predictions -->
 
-<!-- model explainability -->
-<!-- example: emarsys BPS -->
-<!-- retraining -> validity -->
-<!-- TODO -->
+* Model explainability is often desirable in business (and other applications)
+* Example: [Google Flu Trends](https://www.wired.com/2015/10/can-learn-epic-failure-google-flu-trends/)
+* In Emarsys: all models are retrained every 30 days
+  * This ensures that any shifts in user behavior are promptly captured
+  * E.g. before / after Black Friday
 
 # Classification
 
@@ -262,9 +322,11 @@ ggplot(bike_sharing_train, aes(x = temp, y = atemp)) +
 
 $$ Pr(Y_i=1|X_i) = {\frac{exp(\beta_0 + \beta_1X_i)}{1 + exp (\beta_0 + \beta_1X_i)}} $$
 
-## Logistic regression
+## The sigmoid function
 
-TODO add chart sigmoid transformation
+```{r, echo=FALSE, fig.align='center', fig.='50%'}
+knitr::include_graphics('sigmoid.png')
+```
 
 ## The Titanic dataset
 
@@ -286,16 +348,21 @@ knitr::kable(head(titanic_train))
 
 ```{r, echo = TRUE}
 model <- glm(
-    Survived ~ Sex + Fare,
+    Survived ~ Fare,
     data = titanic_train,
-    family = binomial
+    family = binomial(link = "logit")
 )
 ```
 
 ## Making predictions
 
 ```{r, echo = TRUE}
-predicted_prob <- predict.glm(model, newdata = titanic_train, type = "response")
+predicted_prob <- predict.glm(
+  model,
+  newdata = titanic_train,
+  type = "response"
+)
+
 predicted_prob[1:5]
 ```
 
@@ -309,7 +376,6 @@ titanic_train %>%
     ggplot(aes(x = Fare)) +
         geom_point(aes(y = Survived)) +
         geom_point(aes(y = predicted_prob), color = "red") +
-        facet_wrap(.~Sex) +
         labs(
           title = "Model fit for Titanic survival",
           subtitle = "<span style = 'color: black;'>Actual</span> vs <span style = 'color: red;'>Predicted Probability</span>"
@@ -365,7 +431,40 @@ table(
 
 ## Practice time
 
-"SOLUTION"
+DEMO
+
+```{r, eval = FALSE}
+str(titanic_train)
+titanic <- data.table(titanic_train)
+
+titanic[, sum(Survived) / .N]
+titanic[, sum(Survived) / .N, by = "Sex"]
+titanic[, sum(Survived) / .N, by = "Pclass"]
+titanic[, sum(Survived) / .N, by = .(under_18 = Age < 18)]
+
+titanic[, age_under_18 := ifelse(is.na(Age), 'Unknown', Age < 18)]
+
+improved_model <- glm(
+    Survived ~ Sex + Fare + age_under_18 + Pclass,
+    data = titanic,
+    family = binomial
+)
+
+predicted_prob <- predict.glm(
+  improved_model,
+  newdata = titanic,
+  type = "response"
+)
+
+predicted_class <- ifelse(predicted_prob > 0.5, 1, 0)
+
+calculateAccuracy(titanic_train$Survived, predicted_class)
+table(
+  titanic_train$Survived,
+  predicted_class,
+  dnn = c("actual", "predicted")
+)
+```
 
 # Generalization performance
 
@@ -376,82 +475,50 @@ table(
 
 * What we are after is **out-of-sample** performance
 
-## Example
+## Example on the Bike Sharing dataset
 
-TODO
+```{r, echo = TRUE}
+simple_model <- glm(
+  count ~ hour + temp + workingday,
+  data = bike_sharing_train
+)
+```
 
-<!-- ## Example on the Bike Sharing dataset - simple vs overspecified model -->
+## Accuracy on our training data
 
-<!-- ```{r, echo = TRUE} -->
-<!-- simple_model <- glm(count ~ atemp, data = bike_sharing) -->
+```{r, echo = TRUE}
+simple_model_predictions <- predict.glm(
+  simple_model,
+  newdata = bike_sharing_train
+)
 
-<!-- overfit_model <- glm(count ~ poly(atemp, 20), data = bike_sharing) -->
-<!-- ``` -->
+calculateRMSE(bike_sharing_train$count, simple_model_predictions)
+```
 
-<!-- ## Simple model - Accuracy on our training data -->
+## Accuracy out-of-sample
 
-<!-- ```{r, echo = TRUE} -->
-<!-- simple_model_predictions <- predict.glm(simple_model, newdata = bike_sharing) -->
-<!-- calculateRMSE(bike_sharing$count, simple_model_predictions) -->
-<!-- ``` -->
+```{r, echo = TRUE}
+bike_sharing_test <- fread("bike_sharing_test.csv")
 
-<!-- ## Overspecified model - Accuracy on our training data -->
+simple_model_predictions <- predict.glm(
+  simple_model,
+  newdata = bike_sharing_test
+)
 
-<!-- ```{r, echo = TRUE} -->
-<!-- overfit_model_predictions <- predict.glm(overfit_model, newdata = bike_sharing) -->
-<!-- calculateRMSE(bike_sharing$count, overfit_model_predictions) -->
-<!-- ``` -->
-
-<!-- ## Simple model - Predictive fit on our training data -->
-
-<!-- ```{r} -->
-<!-- bike_sharing %>% -->
-<!--     as.data.table() %>% -->
-<!--     copy() %>% -->
-<!--     .[, predicted_prob := overfit_model_predictions] %>% -->
-<!--     ggplot(aes(x = atemp)) + -->
-<!--         geom_point(aes(y = count)) + -->
-<!--         geom_point(aes(y = predicted_prob), color = "red") + -->
-<!--         facet_wrap(.~Sex) + -->
-<!--         labs( -->
-<!--           title = "Model fit for Titanic survival", -->
-<!--           subtitle = "<span style = 'color: black;'>Actual</span> vs <span style = 'color: red;'>Predicted Probability</span>" -->
-<!--         ) + -->
-<!--         theme_classic() + -->
-<!--         theme(text = element_text(size = 20)) + -->
-<!--         theme(plot.subtitle = ggtext::element_markdown()) -->
-<!-- ``` -->
-
-<!-- ## Overspecified model - Predictive fit on our training data -->
-
-<!-- ```{r} -->
-<!-- titanic_train %>% -->
-<!--     as.data.table() %>% -->
-<!--     copy() %>% -->
-<!--     .[, predicted_prob := overfit_model_predicted_prob] %>% -->
-<!--     ggplot(aes(x = Fare)) + -->
-<!--         geom_point(aes(y = Survived)) + -->
-<!--         geom_point(aes(y = predicted_prob), color = "red") + -->
-<!--         facet_wrap(.~Sex) + -->
-<!--         labs( -->
-<!--           title = "Model fit for Titanic survival", -->
-<!--           subtitle = "<span style = 'color: black;'>Actual</span> vs <span style = 'color: red;'>Predicted Probability</span>" -->
-<!--         ) + -->
-<!--         theme_classic() + -->
-<!--         theme(text = element_text(size = 20)) + -->
-<!--         theme(plot.subtitle = ggtext::element_markdown()) -->
-<!-- ``` -->
-
-<!-- ## Out of sample accuracy -->
-<!-- ```{r} -->
-<!-- titanic_test -->
-<!-- ``` -->
+calculateRMSE(bike_sharing_test$count, simple_model_predictions)
+```
 
 # Homework
 
-## Homework
+## Homework - Final project
 
-* __Final project__: Have a high level outline of how you plan to answer your research question
+* __Have a high level outline of how you plan to answer your research question__
+* Should be around half a page
+* Can be in bullet point format: our goal is to make sure you have a question and some idea how to answer it
+* Please send it email to us - no need to present next week
+
+## Homework - prediction
+
 * If you haven't finished the binary classification practice, do so.
   * Create at least two models to predict Titanic Survival
   * Show your Logit formulas, and the achieved Accuracy & Confusion Matrix!
@@ -461,6 +528,3 @@ TODO
   * Alexandrov Dániel - Földesi Attila
   * Nguyen Thai Duong - Szentistványi János
   * Kovács Ádám - Nguyen Nam Son
-
-
-
