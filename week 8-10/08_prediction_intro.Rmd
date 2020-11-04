@@ -55,7 +55,7 @@ where:
 **Prediction is**:
 
 - estimating $f()$ based on the available observations ($X$) ...
-- **... to minimize the error $E(Y-\hat{Y})$**
+- **... to minimize the error of $Y$ vs $\hat{Y}$**
 
 ## Error metric: RMSE
 
