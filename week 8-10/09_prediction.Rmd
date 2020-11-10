@@ -71,7 +71,7 @@ f <- sin(2*pi*x_range)
 
 data <- data.table(x = x, y = y)
 
-train_proportion <- 0.7
+train_proportion <- 0.8
 train_index <- sample(1:n, floor(n*train_proportion))
 
 data_train <- data[train_index,]
@@ -82,7 +82,8 @@ p <- ggplot(data_train, aes(x, y)) +
     geom_point()  + 
     # geom_line(data = data_range, aes(x, y)) +
     theme_minimal() +
-    xlim(0, 1) + ylim(-1.4, 1.4)
+    # xlim(0, 1) + ylim(-1.4, 1.4)
+    coord_cartesian(xlim =c(0, 1), ylim = c(-1.4, 1.4))
 
 p
 ```
@@ -97,7 +98,7 @@ $$E[L(f)] = E[(f(x) - y)^2]$$
 
 ## The Empirical Loss Minimiser
 
-Assume you choose to approximate the relationship with a linear function with $k$ variables.
+Assume you choose to approximate the relationship with a linear function with $k$ variables ($f_k$).
 
 The **empirical loss** of the fitted model:
 $$\hat L(f_k) = \frac{1}{n} \sum (f_k(x) - y)^2$$
@@ -261,16 +262,18 @@ How should we incorporate the information on the time of the day?
 
 **Task:** Order the listed options by model complexity. Share your results in [Socrative](https://www.socrative.com/#login)!
 
-## Model complexity
+# Model Selection in Practice
 
-How to avoid overfitting?
+## Model Selection in Practice
+
+We want to find the model with the best generalisation properties but how to avoid overfitting?
 
 Find the ideal level of **model complexity** within a given model type (e.g.: choose k for linear regression) for a **given set of data**.
 
-$$ E[L(f_k)] - E[L(f^*)] = \underbrace{[E[L(f_k)] -  E[L(f_k^*)]]}_\text{estimation error} + \underbrace{[E[L(f_k^*)] -  E[L(f^*)]]}_\text{approximation error} $$
-where $f_k^*$ is the best estimator among models with complexity k.
+Note that we have two conflicting goals:
 
-# Model Selection in Practice
+  - have a larger set of models to choose from in order to find the best among all possible models -> increase complexity
+  - have a realistic estimate of the models' preformance so we find the best model out of the set of models we consider -> decrease complexity 
 
 ## Train vs. Test Error
 
@@ -302,7 +305,7 @@ $$ RMSE = \sqrt{\frac{1}{n} \sum (\hat f(x) - y)^2}$$
 
 ```{r echo=FALSE, warning=FALSE, results='asis'}
 MSE <- function(y, pred) {
-    sqrt(mean((y - pred)**2))
+    mean((y - pred)**2)
 }
 
 mse_train <- list()
@@ -443,7 +446,10 @@ Let's do cross-validation for our spam prediction models! **spam_pred_cv.R**
 ## Homework
 
 * If you haven't finished computing CV accuracies, do so.
-  * 
+* Choose and alternative measure to evaluate the performance of the spam analysis models (hint: think about the different types of errors summarised in the confusion matrix)
+* Compute the chosen measure for two alternative model versions for train, test and with CV
+* Discuss the results
+ 
 * Presenters:
   * Bakirov, Aslan - Yatsenko, Anzhelika
   * Both Márton - Kamenár Gyöngyvér
