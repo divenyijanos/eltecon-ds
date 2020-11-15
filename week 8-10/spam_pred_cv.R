@@ -18,7 +18,7 @@ n <- nrow(data)
 set.seed(2698)
 holdout <- split(sample(1:n), 1:folds)
 
-CV_ACC <- imap(holdout, ~{
+CV_ACC <- map(holdout, ~{
     model <- glm(
         is_spam ~ nchar + nwords + nwords/nchar,
         data =  data[-.x,],

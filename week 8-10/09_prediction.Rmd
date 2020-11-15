@@ -31,6 +31,7 @@ library(glue)
 library(purrr)
 library(caret)
 library(knitr)
+library(kableExtra)
 ```
 
 ## Homeworks
@@ -42,7 +43,7 @@ library(knitr)
 
 ## Goal of the lesson
 
-- Intro to the **theory of model selection**, model complexity, overfitting, etc.
+- Intro to the **theory of model selection**, model complexity and overfitting
 - Understand the concept through real life examples
 - Cover most commonly used **practical solutions** to the model selection problem
 - Get some hands-on experience
@@ -256,9 +257,10 @@ Take the bike rental example from last time.
 
 How should we incorporate the information on the time of the day?
 
- - include "hour" variable as it is
- - create a dummy variable for each value of hour
- - include "hour" as a third degree polynomial
+ 1. include "hour" variable as it is
+ 2. create a dummy variable for each value of hour
+ 3. include "hour" as a third degree polynomial
+ 4. include a dummy variable for morning/afternoon
 
 **Task:** Order the listed options by model complexity. Share your results in [Socrative](https://www.socrative.com/#login)!
 
@@ -266,14 +268,13 @@ How should we incorporate the information on the time of the day?
 
 ## Model Selection in Practice
 
-We want to find the model with the best generalisation properties but how to avoid overfitting?
-
 Find the ideal level of **model complexity** within a given model type (e.g.: choose k for linear regression) for a **given set of data**.
+
 
 Note that we have two conflicting goals:
 
-  - have a larger set of models to choose from in order to find the best among all possible models -> increase complexity
-  - have a realistic estimate of the models' preformance so we find the best model out of the set of models we consider -> decrease complexity 
+  - have a larger set of models to choose from in order to find the best among all possible models $\rightarrow$ increase complexity
+  - have a realistic estimate of the models' preformance so we find the best model out of the set of models we consider $\rightarrow$ decrease complexity 
 
 ## Train vs. Test Error
 
@@ -323,8 +324,12 @@ for (i in k) {
     mse_test[[colname]] <-  MSE(data_test[, y], data_test[, get(colname)])
 }
 
-evals <- cbind("train RMSE" = sqrt(unlist(mse_train)), "test RMSE" = sqrt(unlist(mse_test)))
-kable(evals, digits = 2)
+evals <- cbind("train RMSE" = round(sqrt(unlist(mse_train)),2), "test RMSE" = round(sqrt(unlist(mse_test)),2))
+evals[4, 1] <- cell_spec(evals[4, 1], bold = TRUE)
+evals[3, 2] <- cell_spec(evals[3, 2], bold = TRUE)
+
+kbl(evals, escape = FALSE, align = "c") %>%
+  kable_paper("striped", full_width = F)
 ```
 
 ## SMS Spam Prediction Dataset
@@ -339,7 +344,7 @@ Pre-cleaned the data (removed stopwords, special characters etc.) and created wo
 spam_data <- fread("spam_clean.csv")
 knitr::kable(head(
   spam_data[, .(is_spam, message, nchar, nwords)]
-))
+), "pipe") 
 ```
 \normalsize
 
@@ -392,7 +397,7 @@ knitr::include_graphics("./figures/k_fold.png")
 
 ## Cross validation
 
-$$ CV_k = \frac{1}{k} \sum MSE_i$$
+$$ CV_k = \sqrt{\frac{1}{k} \sum MSE_i}$$
 
 
 ```{r, warning = FALSE, echo=FALSE}
@@ -417,8 +422,14 @@ for (i in k) {
     mse_cross[[paste0("k_",i)]] <-  model$results$RMSE**2
 }
 
-evals <- cbind("train MSE" = unlist(mse_train), "test MSE" = unlist(mse_test), "CV MSE" = unlist(mse_cross))
-kable(evals, digits = 2)
+evals <- cbind("train RMSE" = round(sqrt(unlist(mse_train)),2), "test RMSE" = round(sqrt(unlist(mse_test)),2), "CV RMSE" = round(sqrt(unlist(mse_cross)),2))
+
+evals[4, 1] <- cell_spec(evals[4, 1], bold = TRUE)
+evals[3, 2] <- cell_spec(evals[3, 2], bold = TRUE)
+evals[3, 3] <- cell_spec(evals[3, 3], bold = TRUE)
+
+kbl(evals, escape = FALSE, align = "c") %>%
+  kable_paper("striped", full_width = F)
 ```
 
 ## SMS Spam Prediction
