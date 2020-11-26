@@ -1,0 +1,523 @@
+---
+title: Classification
+subtitle: Eltecon Data Science Course by Emarsys
+author: János Divényi
+date: November 25, 2020
+output:
+    beamer_presentation:
+        colortheme: dolphin
+        fonttheme: structurebold
+        theme: AnnArbor
+        # toc: true
+        slide_level: 2
+header-includes:
+   - \usepackage{animate}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+# knitr::opts_knit$set(root.dir = '..')
+knitr::opts_chunk$set(fig.height = 3, fig.width = 7)
+knitr::opts_chunk$set(fig.pos='H')
+
+library(data.table)
+library(ggplot2)
+library(magrittr)
+library(purrr)
+library(knitr)
+library(rpart)
+library(rpart.plot)
+```
+
+## Homeworks from last week
+
+* Presenters:
+  * Bat-Erdene, Boldmaa - Kashirin, Andrey
+  * Im Seongwon - Kim Yeonggyeong
+  * Szőnyi Máté - Tran, Dung
+
+## Goal of the lesson
+
+- introduce **decision trees** as nonlinear classifiers
+- measure the performance of classification models by the **ROC curve**
+
+# Classification
+
+## Recap: logistic regression to predict Titanic-survival
+
+```{r, eval = TRUE}
+library(titanic)
+```
+
+```{r, echo = TRUE}
+model <- glm(
+    Survived ~ Fare,
+    data = titanic_train,
+    family = binomial(link = "logit")
+)
+```
+
+```{r, echo = TRUE}
+predicted_prob <- predict.glm(
+  model,
+  newdata = titanic_train,
+  type = "response"
+)
+```
+
+## Predictive fit
+
+```{r}
+titanic_glm <- titanic_train %>%
+    as.data.table() %>%
+    copy() %>%
+    .[, predicted_prob := predicted_prob]
+ggplot(titanic_glm, aes(x = Fare)) +
+    geom_point(aes(y = Survived), alpha = 0.3) +
+    geom_point(aes(y = predicted_prob), color = "red", alpha = 0.3) +
+    labs(
+        title = "Model fit for Titanic survival",
+        subtitle = "<span style = 'color: black;'>Actual</span> vs <span style = 'color: red;'>Predicted Probability</span>"
+    ) +
+    theme_classic() +
+    theme(plot.subtitle = ggtext::element_markdown())
+```
+
+## Evaluating binary models - Accuracy
+
+```{r, echo = TRUE}
+calculateAccuracy <- function(actual, predicted) {
+    N <- length(actual)
+    accuracy <- sum(actual == predicted) / N
+
+    return(accuracy)
+}
+```
+
+```{r, echo = TRUE}
+predicted_class <- ifelse(predicted_prob > 0.5, 1, 0)
+calculateAccuracy(titanic_train$Survived, predicted_class)
+```
+
+## Evaluating binary models - Confusion Matrix
+
+```{r, echo = TRUE}
+table(
+  titanic_train$Survived,
+  predicted_class,
+  dnn = c("actual", "predicted")
+)
+```
+
+## Non-linear classification: Decision Tree
+
+[\textcolor{blue}{Visual explanation by r2d3}](http://www.r2d3.us/visual-intro-to-machine-learning-part-1/)
+
+## Quiz
+
+## Estimate a decision tree model
+```{r, echo = TRUE}
+tree_model <- rpart(
+    Survived ~ Fare, data = titanic_train
+)
+```
+\scriptsize
+```{r}
+tree_model
+```
+\normalsize
+
+## Visualize
+```{r, echo = TRUE}
+rpart.plot(tree_model)
+```
+
+## Evaluate
+\small
+```{r, echo = TRUE}
+predicted_prob_tree <- predict(tree_model, newdata = titanic_train)
+calculateAccuracy(titanic_train$Survived, predicted_prob_tree > 0.5)
+```
+
+```{r, echo = TRUE}
+table(
+  titanic_train$Survived,
+  predicted_prob_tree > 0.5,
+  dnn = c("actual", "predicted")
+)
+```
+
+
+## Include other variables
+
+```{r, echo = TRUE}
+extended_tree <- rpart(
+    Survived ~ Fare + Sex + Age + Pclass, data = titanic_train
+)
+rpart.plot(extended_tree)
+```
+\normalsize
+
+## Including more variable helps
+
+```{r, echo = TRUE}
+calculateAccuracy(
+    titanic_train$Survived,
+    predict(extended_tree) > 0.5
+)
+```
+
+## Including more variable helps
+
+```{r, echo = TRUE}
+calculateAccuracy(
+    titanic_train$Survived,
+    predict(extended_tree) > 0.5
+)
+```
+
+...or does it?
+
+
+## Including more variables helps
+
+```{r, echo = TRUE}
+calculateAccuracy(
+    titanic_train$Survived,
+    predict(extended_tree) > 0.5
+)
+```
+
+...or does it?
+
+*Recall:* we have to evaluate the performance on a **different set of data** to avoid overfitting
+
+## Classify spam by decision trees
+
+Recall from week 9
+
+\small
+```{r, echo = TRUE}
+data <- fread("../week 8-10/data/spam_clean.csv")
+
+# Seperate train-test set
+train_proportion <- 0.8
+n <- nrow(data)
+set.seed(1234)
+train_index <- sample(1:n, floor(n * train_proportion))
+
+data_to_use <- data[, -c(2, 50:400)]  # exclude columns to speed up
+data_train <- data_to_use[train_index,]
+data_test <- data_to_use[-train_index,]
+```
+\normalsize
+
+## Estimate logistic regression as benchmark
+
+```{r, echo = TRUE, warning = FALSE}
+spam_logit <- glm(
+    is_spam ~ .,
+    data = data_train,
+    family = binomial(link = "logit")
+)
+```
+Accuracy evaluated on a test set:
+```{r, echo = TRUE}
+predicted_probs <- predict(spam_logit, newdata = data_test, type = "response")
+calculateAccuracy(
+    data_test$is_spam,
+    predicted_probs > 0.5
+)
+```
+
+## Tree model
+
+```{r, echo = TRUE}
+spam_tree <- rpart(
+    is_spam ~ .,
+    data = data_train
+)
+```
+```{r, echo = TRUE}
+predicted_probs <- predict(spam_tree, newdata = data_test)
+calculateAccuracy(
+    data_test$is_spam,
+    predicted_probs > 0.5
+)
+```
+
+## Performs worse but is easier to interpret
+```{r, echo = TRUE}
+rpart.plot(spam_tree)
+```
+
+## Tree "pruning"
+The tree depth is controlled by the complexity parameter `cp`
+```{r, echo = TRUE}
+rpart.plot(prune(spam_tree, cp = 0.1))
+```
+
+## Overfitting
+Estimate a "full" tree
+
+```{r, echo = TRUE}
+spam_full_tree <- rpart(
+    is_spam ~ .,
+    data = data_train,
+    control = rpart.control(
+        minsplit = 2, minbucket = 1, cp = 0
+    )
+)
+```
+
+```{r, echo = TRUE}
+calculateAccuracy(
+    data_train$is_spam,
+    predict(spam_full_tree) > 0.5
+)
+```
+
+## Compare performance on train and test set
+
+\scriptsize
+```{r, echo = TRUE}
+accuracy_by_params <- map_df(seq(0, 0.1, 0.005), ~{
+    pruned_tree <- prune(spam_full_tree, cp = .x)
+    data.table(
+        cp = .x,
+        train = calculateAccuracy(data_train$is_spam, predict(pruned_tree, data_train) > 0.5),
+        test = calculateAccuracy(data_test$is_spam, predict(pruned_tree, data_test) > 0.5)
+    )
+})
+```
+\normalsize
+
+## Compare performance on train and test set
+
+```{r}
+ggplot(melt(accuracy_by_params, id.vars = "cp"), aes(cp, value, color = variable)) +
+    geom_line() +
+    labs(x = "Complexity parameter", y = "Accuracy", color = "") +
+    scale_color_manual(values = c("black", "red")) +
+    theme_classic()
+```
+
+
+
+# Evaluate binary classification performance
+
+## Accuracy might not be that informative
+
+> - *"PCR-tests have above 95% accuracy".* - What does that mean?
+
+> - I can always deliver a 99%+ accurate model to predict who will buy -- until the purchase rate remains below 1% as usual (predicting no one will buy)
+
+> - Confusion matrix provides more detailed information by comparing actual and predicted labels
+
+## Confusion matrix
+
+Recall the confusion matrix of the Titanic prediction task using the logistic regression model:
+
+```{r}
+table(
+  titanic_train$Survived,
+  predicted_prob > 0.5,
+  dnn = c("actual", "predicted")
+)
+```
+
+## True Positive and False Positive Rate
+```{r}
+knitr::include_graphics("fpr-tpr-illustration.pdf")
+```
+
+## True Positive and False Positive Rate
+
+Recall the confusion matrix of the Titanic prediction task using the glm:
+
+```{r}
+table(
+  titanic_train$Survived,
+  predicted_prob > 0.5,
+  dnn = c("actual", "predicted")
+)
+```
+
+* True Positive Rate: `82/(260 + 82) = 23.98%`
+* False Positive Rate: `38/(511 + 38) = 6.9%`
+
+
+## There is a trade-off between TPR and FPR
+
+* Getting easier&#42; about classifying someone as positive (or as a survivor) would definitely increase TPR - but also the FPR
+    * It is easy to reach 100% true positive rate: just predict positive for everyone
+* This trade-off is expressed by the ROC curve
+
+
+&#42; just decrease the probability cutoff that we defaulted to 0.5
+
+
+## ROC plot
+
+
+```{r}
+getConfusionMatrix <- function(predictions, data, label, cutoff = 0.5) {
+    table(
+        data[[label]],
+        factor(as.numeric(predictions > cutoff), levels = c(1, 0)),
+        dnn = c("actual", "predicted")
+    )
+}
+calculateFPRTPR <- function(confusion_matrix) {
+    fpr <- confusion_matrix[1, 1] / sum(confusion_matrix[1, ])
+    tpr <- confusion_matrix[2, 1] / sum(confusion_matrix[2, ])
+    data.table(FPR = fpr, TPR = tpr)
+}
+```
+
+```{r, fig.width = 5, fig.height = 5, fig.show = "hold", out.width  =  "48%"}
+cutoff <- 0.5
+ggplot(titanic_glm, aes(x = Fare, shape = predicted_prob > cutoff)) +
+    geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
+    geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
+    geom_hline(yintercept = cutoff, linetype = "dashed") +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
+    scale_shape_manual(values = c(1, 16), guide = FALSE) +
+    theme_classic()
+```
+
+## ROC plot
+
+
+```{r, fig.width = 5, fig.height = 5, fig.show = "hold", out.width  =  "48%"}
+cutoff <- 0.5
+ggplot(titanic_glm, aes(x = Fare, shape = predicted_prob > cutoff)) +
+    geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
+    geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
+    geom_hline(yintercept = cutoff, linetype = "dashed") +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
+    scale_shape_manual(values = c(1, 16), guide = FALSE) +
+    theme_classic()
+
+data_for_roc <- calculateFPRTPR(getConfusionMatrix(predicted_prob, titanic_train, "Survived", cutoff))
+
+ggplot(data_for_roc, aes(FPR, TPR)) +
+    geom_point() +
+    scale_x_continuous(limits = c(0, 1)) +
+    scale_y_continuous(limits = c(0, 1)) +
+    coord_fixed() +
+    theme_classic()
+```
+
+## ROC plot
+
+
+```{r, fig.width = 5, fig.height = 5, fig.show = "hold", out.width  =  "48%", warning = FALSE}
+cutoff <- 0.9
+ggplot(titanic_glm, aes(x = Fare, shape = predicted_prob > cutoff)) +
+    geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
+    geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
+    geom_hline(yintercept = cutoff, linetype = "dashed") +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
+    scale_shape_manual(values = c(1, 16), guide = FALSE) +
+    theme_classic()
+
+data_for_roc <- rbind(
+    data_for_roc,
+    calculateFPRTPR(getConfusionMatrix(predicted_prob, titanic_train, "Survived", cutoff))
+)
+ggplot(data_for_roc, aes(FPR, TPR)) +
+    geom_point() +
+    scale_x_continuous(limits = c(0, 1)) +
+    scale_y_continuous(limits = c(0, 1)) +
+    coord_fixed() +
+    theme_classic()
+```
+
+## ROC plot
+
+
+```{r, fig.width = 5, fig.height = 5, fig.show = "hold", out.width  =  "48%", warning = FALSE}
+cutoff <- 0.1
+ggplot(titanic_glm, aes(x = Fare)) +
+    geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
+    geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
+    geom_hline(yintercept = cutoff, linetype = "dashed") +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
+    theme_classic()
+
+data_for_roc <- rbind(
+    data_for_roc,
+    calculateFPRTPR(getConfusionMatrix(predicted_prob, titanic_train, "Survived", cutoff))
+)
+ggplot(data_for_roc, aes(FPR, TPR)) +
+    geom_point() +
+    scale_x_continuous(limits = c(0, 1)) +
+    scale_y_continuous(limits = c(0, 1)) +
+    coord_fixed() +
+    theme_classic()
+```
+
+## ROC plot
+
+
+```{r, fig.width = 5, fig.height = 5, fig.show = "hold", out.width  =  "48%", warning = FALSE}
+ggplot(titanic_glm, aes(x = Fare)) +
+    geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
+    geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
+    theme_classic()
+
+data_for_roc <- map_df(seq(0, 1, 0.01), ~{
+    calculateFPRTPR(getConfusionMatrix(predicted_prob, titanic_train, "Survived", .x)) %>%
+        .[, p := .x]
+})
+
+ggplot(data_for_roc, aes(FPR, TPR)) +
+    geom_path() +
+    geom_point(data = data_for_roc[p %in% c(0.1, 0.5, 0.9)]) +
+    scale_x_continuous(limits = c(0, 1)) +
+    scale_y_continuous(limits = c(0, 1)) +
+    coord_fixed() +
+    theme_classic()
+```
+
+## ROC plot
+
+```{r}
+knitr::include_graphics("roc1.pdf")
+```
+
+## ROC plot
+
+```{r}
+knitr::include_graphics("roc2.pdf")
+```
+
+## ROC plot
+
+```{r}
+knitr::include_graphics("roc3.pdf")
+```
+
+
+## Quiz
+
+## ROC plot - live coding
+
+
+
+## Homework
+
+* Work on your final project
+* Remember: the first version of your written project is due on **4th December**
+
+## Resources
+
+* Gareth J., Witten D., Hastie T. and Tibshirani R.: An Introduction to Statistical Learning Chapter 8.
+* Machine Learning meets economics: https://blog.mldb.ai/blog/posts/2016/01/ml-meets-economics/
+* FPR, TPR: https://www.youtube.com/watch?v=sunUKFXMHGk (StatQuest)
+* ROC curve: https://www.youtube.com/watch?v=4jRBRDbJemM (StatQuest)
+
+## Thank you & Feedback
