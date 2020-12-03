@@ -329,7 +329,7 @@ table(
 
 ## True Positive and False Positive Rate
 ```{r}
-knitr::include_graphics("fpr-tpr-illustration.pdf")
+knitr::include_graphics("figures/fpr-tpr-illustration.pdf")
 ```
 
 ## True Positive and False Positive Rate
@@ -486,19 +486,19 @@ ggplot(data_for_roc, aes(FPR, TPR)) +
 ## ROC plot
 
 ```{r}
-knitr::include_graphics("roc1.pdf")
+knitr::include_graphics("figures/roc1.pdf")
 ```
 
 ## ROC plot
 
 ```{r}
-knitr::include_graphics("roc2.pdf")
+knitr::include_graphics("figures/roc2.pdf")
 ```
 
 ## ROC plot
 
 ```{r}
-knitr::include_graphics("roc3.pdf")
+knitr::include_graphics("figures/roc3.pdf")
 ```
 
 
