@@ -25,7 +25,7 @@ You can get the material by clicking on the button `Code` and chosing the option
 
 # Evaluation
 
-The final grade consists of two parts: weekly homeworks (50%) and the final project (50%). The students work on the tasks in pairs. The homeworks aim to help the final project. The final project is to be presented in a separate session, held on the 15th of December. For more detail about the final project see its own description.
+The final grade consists of two parts: weekly homeworks (50%) and the final project (50%). The students work on the tasks in pairs. The homeworks aim to help the final project. The final project is to be presented in a separate session, held on the 15th of December. For more detail about the final project see its own [description](https://github.com/divenyijanos/eltecon-ds/blob/2021_autumn/final_project_description.md).
 
 # Useful materials
 
