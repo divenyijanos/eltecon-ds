@@ -13,6 +13,7 @@ The course consists of 13 weekly sessions of 2x90 minutes. Each session is going
 András Bérczi, János Divényi, Zsuzsa Holler, Tamás Koncz, Levente Otti and Sándor Sóvágó - members of the data science team of [Emarsys](https://www.emarsys.com/)
 
 Contact: eltecon.ds@gmail.com
+
 Office hours: every Friday (you should book a slot until the previous Wednesday [here](https://docs.google.com/spreadsheets/d/1yu6GqyeyuzwHlKFf8o-1Zi2VCxJiO5LHpzu8YMZhb4Q/edit?usp=sharing))
 
 # Prerequisite
