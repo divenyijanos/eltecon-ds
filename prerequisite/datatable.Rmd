@@ -1,8 +1,8 @@
 ---
-title: "Eltecon Data Science Course"
-subtitle: "Course Prerequisites - data.table"
-author: "Janos Divenyi"
-date: '2019-07-01'
+title: 'Eltecon Data Science Course'
+subtitle: 'Course Prerequisites - data.table'
+author: 'Janos Divenyi'
+date: '2021-09-01'
 output:
   html_document:
     df_print: paged
@@ -16,12 +16,11 @@ There are multiple ways to deal with `data.frames` in R. You can use base R synt
 
 RStudio guys prefer `dplyr` (as part of the so called `tidyverse`), which mainly explains why `dplyr` is more popular among R users. You can use whichever method you favor, we will understand it. But in our examples, we will stick to `data.table` and hope that we can demonstrate you why we love the package so much.
 
-To ensure that we are on the same page, make sure you use the latest (as of 2019-07-02) CRAN version (`1.12.2`) of data.table.
+To ensure that we are on the same page, make sure you use the latest (as of 2021-09-01) CRAN version (`1.14.0`) of data.table.
 
 ```{r, warning=FALSE}
 library(data.table)
 options(datatable.print.class = TRUE)
-options(max.print = 6)
 ```
 
 ## Sample data
@@ -51,24 +50,24 @@ knitr::include_graphics('figures/dt3.png')
 
 ```{r}
 sales[1:10]
-sales[customer_lifecycle_status == 'Lead']
+sales[status == 'lead']
 ```
 
-The environment is the `data.table` itself. In base R, you have to explicitly give the environment: `sales[sales$lifecycle_status == 'Lead']`.
+The environment is the `data.table` itself. In base R, you have to explicitly give the environment: `sales[sales$status == 'lead']`.
 
 
 ## ...then calculate j...
 ```{r}
-sales[, sum(sales_amount)]
+sales[, sum(spent)]
 sales[, list(min(purchase_date), max(purchase_date))]
 ```
 
 ## ...grouped by by
 ```{r}
-sales[, sum(sales_amount), by = purchase_date]
-sales[, sum(sales_amount), by = list(customer_lifecycle_status, purchase_date)]
-sales[, sum(sales_amount), by = (purchase_date > '2016-12-31')]
-sales[, sum(sales_amount), by = list(in_2017 = purchase_date > '2016-12-31')]
+sales[, sum(spent), by = purchase_date]
+sales[, sum(spent), by = list(status, purchase_date)]
+sales[, sum(spent), by = (purchase_date > '2016-12-31')]
+sales[, sum(spent), by = list(in_2017 = purchase_date > '2016-12-31')]
 ```
 
 
@@ -77,35 +76,35 @@ sales[, sum(sales_amount), by = list(in_2017 = purchase_date > '2016-12-31')]
 For columns:
 
 ```{r}
-sales[, sales_amount]  # returns vector
-sales[, list(sales_amount)]  # returns data.table
-sales[, .(sales_amount)]  # shortcut for list()
-sales[, .(money_spent = sales_amount)] # using another name
-sales[, c('sales_amount')]  # data.frame-way but returns data.table
-sales[, c('contact_id', 'sales_amount')]  # same as with data.frame
+sales[, spent]  # returns vector
+sales[, list(spent)]  # returns data.table
+sales[, .(spent)]  # shortcut for list()
+sales[, .(money_spent = spent)] # using another name
+sales[, 'spent']  # data.frame-way but returns data.table
+sales[, c('contact_id', 'spent')]  # same as with data.frame
 ```
 
 For aggregates:
 
 ```{r}
-sales[, .(sum(sales_amount), sd(sales_amount))]
-sales[, .(sum_sales_amount = sum(sales_amount), sd_sales_amount = sd(sales_amount))]
-sales[, .(mean_sales = mean(sales_amount)), by = customer_lifecycle_status]
+sales[, .(sum(spent), sd(spent))]
+sales[, .(spent = sum(spent), spent = sd(spent))]
+sales[, .(avg_sales = mean(spent)), by = status]
 ```
 
 ## Efficient `data.table` functions
 
 ```{r}
-sales[, .N, by = customer_lifecycle_status]
-sales[, uniqueN(contact_id), by = customer_lifecycle_status]
+sales[, .N, by = status]
+sales[, uniqueN(customer_id), by = status]
 ```
 
 ## You can really do whatever calculation in j
 
 ```{r}
-sales[, table(customer_lifecycle_status)]
-sales[, hist(sales_amount)]
-sales[, lm(sales_amount ~ customer_lifecycle_status)]
+sales[, table(status)]
+sales[, hist(spent)]
+sales[, lm(spent ~ status)]
 ```
 
 # The power of data.table
@@ -114,14 +113,14 @@ sales[, lm(sales_amount ~ customer_lifecycle_status)]
 ```{r}
 library(magrittr)
 library(ggplot2)
-sales[, .(mean_sales = mean(sales_amount)), by = customer_lifecycle_status] %>%
-    ggplot(aes(customer_lifecycle_status, mean_sales)) + geom_col()
+sales[, .(avg_sales = mean(spent)), by = status] %>%
+    ggplot(aes(status, avg_sales)) + geom_col()
 ```
 
 ## Chain operations
 ```{r}
-sales[, .(daily_sales = sum(sales_amount)), by = purchase_date][daily_sales > 400000]
-sales[, .(daily_sales = sum(sales_amount)), by = purchase_date] %>%
+sales[, .(daily_sales = sum(spent)), by = purchase_date][daily_sales > 400000]
+sales[, .(daily_sales = sum(spent)), by = purchase_date] %>%
     .[daily_sales > 400000]
 ```
 
@@ -137,29 +136,18 @@ sales[, a := NULL]
 sales
 ```
 
-**Detour:** You have to be careful if you work with dates. They are read as characters, and converting them to `Date` object can be very time-consuming.
-
-```{r, eval=FALSE}
-sales[, purchase_date := as.Date(purchase_date)]  # DON'T DO! very very slow
-```
-Parse the character date with `fasttime:fastPOSIXct()` first:
-
-```{r}
-require(fasttime)
-sales[, purchase_date := as.Date(fastPOSIXct(purchase_date))]
-```
 
 In-place modification comes handy if you want to create new variables. Let's add an aggregated number next to each purchase (without aggregating the whole table):
 
 ```{r}
-sales[, daily_sum := sum(sales_amount), by = purchase_date]
+sales[, daily_sum := sum(spent), by = purchase_date]
 sales
 ```
 
 You can also use `i` to filter where you want to create the new variable. For sales before the given date, the created new variable will be missing.
 
 ```{r}
-sales[purchase_date > '2016-12-31', daily_sum_in_2017 := sum(sales_amount), by = purchase_date]
+sales[purchase_date > '2016-12-31', daily_sum_in_2017 := sum(spent), by = purchase_date]
 ```
 
 You can also add multiple variables at once (using one of the following methods):
@@ -187,7 +175,7 @@ sales[, lapply(.SD, uniqueN)]
 If you really want just a subset of the data, you can specify the relevant columns using the `.SDcols` parameter:
 
 ```{r}
-sales[, lapply(.SD, median), .SDcols = c('quantity', 'sales_amount')]
+sales[, lapply(.SD, median), .SDcols = c('n_units', 'spent')]
 ```
 
 If you want to run a more complicated calculation, simply use the `function()` syntax of `lapply()`:
@@ -195,8 +183,8 @@ If you want to run a more complicated calculation, simply use the `function()` s
 ```{r}
 sales[,
     lapply(.SD, function(x) quantile(x, p = 0.75)),
-    by = customer_lifecycle_status,
-    .SDcols = c('quantity', 'sales_amount')
+    by = status,
+    .SDcols = c('n_units', 'spent')
 ]
 ```
 
@@ -205,8 +193,8 @@ Let's say we want to find the orders with the maximum spending for each year. Un
 
 ```{r}
 sales[
-    sales_amount == max(sales_amount),
-    .(contact_id, sales_amount),
+    spent == max(spent),
+    .(customer_id, spent),
     by = year  # by only applies to calculation in j!
 ]
 ```
@@ -214,10 +202,14 @@ sales[
 You can combine ordering in `i` and use `.SD` to choose from each group. You can also use the fact, that `.SD` is itself a `data.table` so you can just filter it in the standard way. Both of the following methods will work:
 
 ```{r}
-sales[order(-sales_amount), lapply(.SD, head, n = 1), by = year]
-sales[order(-sales_amount), .SD[1], by = year]
+sales[order(-spent), lapply(.SD, head, n = 1), by = year]
+sales[order(-spent), .SD[1], by = year]
 ```
 
+If you just want to return the relevant columns, you can use `.SD` as a normal `data.table`:
+```{r}
+sales[order(-spent), .SD[1, .(spent)], by = year]
+```
 
 ## Select within function: `get()`
 
@@ -228,7 +220,7 @@ returnMax <- function(dt, column) {
     dt[, max(get(column))]
 }
 returnMax(sales, 'purchase_date')
-returnMax(sales, 'quantity')
+returnMax(sales, 'n_units')
 ```
 
 
@@ -236,17 +228,17 @@ returnMax(sales, 'quantity')
 
 Sometimes, we want to reshape our data. You can use `dcast` to go from wide to long, and `melt` to go from wide to long (ie. to "melt down" the data). You can read more about efficient reshaping with `data.table` [here](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html).
 
-We can easily calculate sales by `year` and `customer_lifecycle_status` in a nice table with `dcast`>
+We can easily calculate sales by `year` and `status` in a nice table with `dcast`>
 
 ```{r}
-sales[, max(sales_amount), by = .(customer_lifecycle_status, year)] %>%
-    dcast(customer_lifecycle_status ~ year)
+sales[, max(spent), by = .(status, year)] %>%
+    dcast(status ~ year)
 ```
 
 For plots, we usually want long data, where `melt` is at hand. Let's plot daily sales and quantity at once using facets. (Note that the aggregated sales is of class `double` whereas the aggregated quantity is integer which results in a warning.)
 
 ```{r}
-sales[, lapply(.SD, sum), by = purchase_date, .SDcols = c('sales_amount', 'quantity')] %>%
+sales[, lapply(.SD, sum), by = purchase_date, .SDcols = c('spent', 'n_units')] %>%
     melt(id.vars = 'purchase_date') %>%
     ggplot(aes(purchase_date, value)) +
         geom_line() +
@@ -260,40 +252,40 @@ sales[, lapply(.SD, sum), by = purchase_date, .SDcols = c('sales_amount', 'quant
 
 
 ```{r}
-sales[, .(yearly_sales = sum(sales_amount)), by = year]
-sales[, .(yearly_sales = sum(sales_amount)), keyby = year]  # sorts by year
+sales[, .(yearly_sales = sum(spent)), by = year]
+sales[, .(yearly_sales = sum(spent)), keyby = year]  # sorts by year
 ```
 
 If the key is set, you can more easily filter by the key:
 
 ```{r}
-setkey(sales, customer_lifecycle_status)
-sales['Lead']
+setkey(sales, status)
+sales['lead']
 ```
 
 You can also use the key to join datasets.
 
 ```{r}
 status_sales <- sales[,
-    .(sum_sales_by_status = sum(sales_amount)),
-    keyby = customer_lifecycle_status
+    .(sum_sales_by_status = sum(spent)),
+    keyby = status
 ]
 status_sales[sales] # merge by key
 
-merge(sales, status_sales, by = 'customer_lifecycle_status')  # works as well
+merge(sales, status_sales, by = 'status')  # works as well
 ```
 
 
-# Example tasks
+# Tasks
 
-1. Calculate the mean sales by customer lifecycle status
+1. Calculate the mean sales by customer status
 2. Create a table that contains each buyer with the number of orders they made
 3. Create a table that contains each buyer of 2017 with the number of orders they made
-4. Create a summary table by customer_lifecycle_status: number of purchases, sum of sales, number of buyers
+4. Create a summary table by status: number of purchases, total revenue generated, number of buyers
 5. Select days when someone spent more than 10k
-6. Create a new 'year' and 'month' variable
-7. Count the number of orders by customer lifecycle status and year
-8. Add the lifecycle-specific average sales amount to each purchase
+6. Create a new "season" variable (winter, spring, summer, autumn)
+7. Count the number of orders by status and year
+8. Add the status-specific average sales amount to each purchase
 9. Find the maximum quantity and spending for each year
 
 # Additional resources

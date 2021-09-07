@@ -6,13 +6,14 @@ The course materials can be accessed in the [course's GitHub page](https://githu
 
 # Format
 
-The course consists of 13 weekly sessions of 2x90 minutes. Each session is going to be on-line (via Zoom), and include a shorter theoretical part and a longer practice-oriented part. The sessions are going to be held by an instructor and a co-instructor to better assist students with individual problems.
+The course consists of 13 weekly sessions of 2x90 minutes. Each session is going to include a shorter theoretical part and a longer practice-oriented part. Each session is held by an instructor while a co-instructor assists students in case of individual problems.
 
 # Instructors
 
-András Bérczi, János Divényi, Zsuzsa Holler, Gábor Kocsis, Tamás Koncz and Péter Lukács - members of the data science team of [Emarsys](https://www.emarsys.com/)
+András Bérczi, János Divényi, Zsuzsa Holler, Tamás Koncz, Levente Otti and Sándor Sóvágó - members of the data science team of [Emarsys](https://www.emarsys.com/)
 
 Contact: eltecon.ds@gmail.com
+Office hours: every Friday (you should book a slot until the previous Wednesday [here](https://docs.google.com/spreadsheets/d/1yu6GqyeyuzwHlKFf8o-1Zi2VCxJiO5LHpzu8YMZhb4Q/edit?usp=sharing))
 
 # Prerequisite
 
@@ -24,7 +25,7 @@ You can get the material by clicking on the button `Code` and chosing the option
 
 # Evaluation
 
-The final grade consists of two parts: weekly homeworks (50%) and the final project (50%). The students work on the tasks in pairs. The homeworks aim to help the final project, and each homework is going to be presented by some pairs at the beginning of the sessions. The final project is to be presented in a separate session, held on the 16th of December.
+The final grade consists of two parts: weekly homeworks (50%) and the final project (50%). The students work on the tasks in pairs. The homeworks aim to help the final project. The final project is to be presented in a separate session, held on the 15th of December. For more detail about the final project see its own description.
 
 # Useful materials
 
@@ -35,17 +36,17 @@ The final grade consists of two parts: weekly homeworks (50%) and the final proj
 
 # Schedule
 
-1. **9 September** Introduction: R and RStudio (project setup, directory structure, relative paths), data types in R (vectors, factors, lists, data frames), R packages, functions, loops, error handling. (*Gábor Kocsis*)
-2. **16 September**  Data manipulation with data.table. Exploratory data analysis and data cleaning. (*Gábor Kocsis*)
-3. **23 September**  Data visualization with ggplot2: how to make plots. (*Péter Lukács*)
-4. **30 September** Data visualization principles: how to make plots that make sense. (*Péter Lukács*)
-5. **7 October** Effect measurement with experiments (RCT, AB test): issues in practice.  (*András Bérczi*)
-6. **14 October** Measuring uncertainty, simulation methods: Monte-Carlo. (*András Bérczi*)
-7. **21 October** Simulation methods: bootstrap. (*Tamás Koncz*)
-8. **28 October** Fall Break
-9. **4 November** Machine learning introduction. Supervised learning basics: regression and binary prediction. Prediction versus causality. (*Tamás Koncz*)
-10. **11 November** Model Selection. Overfitting and prediction accuracy. Training, test error and cross-validation. (*Zsuzsa Holler*)
-11. **18 November** Regularisation. Lasso and Ridge Regression. (*Zsuzsa Holler*)
-12. **25 November** Supervised learning beyond linearity: decision tree. (*János Divényi*)
-13. **2 December** Unsupervised learning: clustering (K-means), dimensionality reduction (PCA). (*János Divényi*)
-14. **9 December** Project consultation (*with all instructors*)
+1. **8 September** Introduction, R recap, Rstudio, packages, RMarkdown. Data manipulation with data.table. (*János Divényi*)
+2. **15 September**  Data visualization with ggplot2. Exploratory data analysis and data cleaning. Coding guidelines. (*András Bérczi*)
+3. **22 September**  Machine learning introduction. Supervised learning basics: regression and binary prediction. Prediction versus causality.  (*Levente Otti*)
+4. **29 September** Model Selection. Overfitting and prediction accuracy. Training, test error and cross-validation. (*Zsuzsa Holler*)
+5. **6 October** Regularisation and the Bias-Variance tradeüoff. Lasso and Ridge Regression. (*Zsuzsa Holler*)
+6. **13 October** Sample project for a continuous prediction problem. (*András Bérczi*)
+7. **20 October** Classification on binary problems: decision tree, ROC curve. (*János Divényi*)
+8. **27 October** Fall Break
+9. **3 November** Advanced prediction: random forest and boosting. (*Levente Otti*)
+10. **10 November** Feature engineering with textual data. (*Tamás Koncz*)
+11. **17 November** Sample project for a classification problem. (*Tamás Koncz*)
+12. **24 November** Effect measurement with experiments (RCT, AB test). Measuring uncertainty. (*Sándor Sóvágó*)
+13. **1 December** Simulation methods: Monte Carlo, bootstrap. (*Sándor Sóvágó*)
+14. **8 December** Project consultation (*with all instructors*)

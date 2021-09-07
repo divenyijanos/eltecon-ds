@@ -2,12 +2,14 @@
 
 <br>
 
-**Come up with and answer a research question (or hypothesis) related to the dataset that you've picked and worked with throughout the course.**
+**Come up with and answer a research question (or hypothesis) related to a dataset that you've picked and worked with throughout the course.**
 
 You can answer the research question using any method you seem fit, but usually we expect students to work with what we taught them and either use
 
 -  descriptive analysis
 -  and/or predictive analysis.
+
+You can collect your own data or use one of the sample datasets we provide [here](https://docs.google.com/spreadsheets/d/1Ss0i6bdGeJJOmqVCZRsYUevh7gk5G9YZBClmviHUfPk/edit?usp=sharing).
 
 **The ultimate goal of the final project is to assess how well you can combine and use the tools for data analysis that you've learned this semester.**
 
@@ -41,19 +43,16 @@ Consult with us regularly! We will have dedicated sessions and homeworks for tha
 
 We will help you by consulting about your project's status at these milestones:
 
-1. You figure out your research question / hypothesis (will be part of the **October 14th** class' homework)
-2. You have a high level outline of how you mean to answer the question (will be part of the **November 4th** class' homework)
+1. You get to know your data via exploratory data analysis (**October 13th** class' homework)
+2. You figure out your research question / hypothesis (will be part of the **October 20th** class' homework)
+3. You have a high level outline of how you mean to answer the question (will be part of the **November 17th** class' homework)
 
-### Timeline for consultations
+### Timeline
 
-- 3 consultations (you can book a 15 min slot later for the last 30 minutes of each class). On these dates you can consult about anything related to your final project, may that be the research question, methods, structure or anything else.
-    + **November 18th** *(Wednesday)*
-    + **November 25th** *(Wednesday)*
-    + **December 2nd** *(Wednesday)*
-- **December 4th** *(Friday)*: You will hand in your your written project.
-- **December 9th** *(Wednesday)*: This class will be mostly about giving you feedback on your written projects.
-- **December 11th** *(Friday)*: You can re-submit your written project based on our feedback. Note, that this is not compulsory and you can only get 15% (out of the total) additional points.
-- **December 16th** *(Wednesday)*: Final project's live presentation. Even if you decided not to re-submit your the written part, you'll need to address our feedback/questions during your presentation.
+- During the whole course you can subscribe to weekly online consultations on Fridays
+- **December 3rd** *(Friday)*: You will hand in the first version of your written project.
+- **December 8th** *(Wednesday)*: This class will be a consultation session for your projects. We'll provide you feedback based on your first version.
+- **December 15th** *(Wednesday)*: Final project's live presentation and deadline for the re-submission of the written project.
 
 ## What are we looking for in your project?
 
@@ -67,29 +66,23 @@ A thorough research paper could be very-very long if it tries to cover each and 
 
 Also, it's OK not dealing with certain edge cases, saying they are out of scope as long as you mention them and we know that you thought about them. For example if you'd try to predict whether a football player will score during a game you could take out self-goals from the equation for simplification as long as you mention that.
 
-We don't expect your answer to the research question to be ground breaking. Stating a hypothesis and finding out that it's wrong is equally good as finding it's opposite as long as your methods are correct.
+We don't expect your answer to the research question to be ground breaking. Stating a hypothesis and finding out that it's wrong is equally good as finding its opposite as long as your methods are correct.
 
 ## Technical requirements
 
 ### Written part
 
-**Length**: Not limited but usually between 3-5 pages   
-**Output**:
-
-- PDF, 12p font size, 1.5 line spacing
-- You should also attach any code that you used to produce your document
+- PDF, 12p font size, 1.5 line spacing, usually between 3-5 pages
+- You should also attach any code that you used to produce your document (using .Rmd is preferred)
 
 ### Presentation
 
-**Length**: Maximum 5 minutes + 2 minutes will be provided for questions   
-**Output**:
+- Maximum 5 minutes
+- 2 minutes will be provided for questions
+- Any presentation format is acceptable
 
-- Any presentation format that you are able to run on your computer while sharing your screen with the rest of us
+## Grading of the final project (sums up to 50% of the whole)
 
-## Final grading
-
-- 25% homeworks
-- 25% homework presentations
-- 25% final project (written)
+- 25% written document
 - 20% presentation
-- 5% code for the final project (we grade readability and structure)
+- 5% code (readability and structure)
