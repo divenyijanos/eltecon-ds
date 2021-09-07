@@ -1,11 +1,12 @@
 ---
-title: 'Eltecon Data Science Course'
-subtitle: 'Course Prerequisites - data.table'
-author: 'Janos Divenyi'
+title: "Eltecon Data Science Course"
+author: "Janos Divenyi"
 date: '2021-09-01'
 output:
   html_document:
     df_print: paged
+  pdf_document: default
+subtitle: Course Prerequisites - data.table
 ---
 
 # Introduction
@@ -21,6 +22,7 @@ To ensure that we are on the same page, make sure you use the latest (as of 2021
 ```{r, warning=FALSE}
 library(data.table)
 options(datatable.print.class = TRUE)
+options(max.print = 6)
 ```
 
 ## Sample data
@@ -41,7 +43,7 @@ sales  # classes are printed because of the option set
 
 ## Syntax
 
-```{r, echo=FALSE, eval=TRUE, out.width='100%'}
+```{r, echo=FALSE, out.width='100%'}
 knitr::include_graphics('figures/dt3.png')
 ```
 
@@ -81,7 +83,7 @@ sales[, list(spent)]  # returns data.table
 sales[, .(spent)]  # shortcut for list()
 sales[, .(money_spent = spent)] # using another name
 sales[, 'spent']  # data.frame-way but returns data.table
-sales[, c('contact_id', 'spent')]  # same as with data.frame
+sales[, c('customer_id', 'spent')]  # same as with data.frame
 ```
 
 For aggregates:
