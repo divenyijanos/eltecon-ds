@@ -204,13 +204,19 @@ sales[
 You can combine ordering in `i` and use `.SD` to choose from each group. You can also use the fact, that `.SD` is itself a `data.table` so you can just filter it in the standard way. Both of the following methods will work:
 
 ```{r}
-sales[order(-spent), lapply(.SD, head, n = 1), by = year]
+sales[order(-spent), head(.SD, n = 1), by = year]
 sales[order(-spent), .SD[1], by = year]
 ```
 
 If you just want to return the relevant columns, you can use `.SD` as a normal `data.table`:
 ```{r}
 sales[order(-spent), .SD[1, .(spent)], by = year]
+```
+
+or
+
+```{r}
+sales[order(-spent), head(spent, 1), by = year]
 ```
 
 ## Select within function: `get()`

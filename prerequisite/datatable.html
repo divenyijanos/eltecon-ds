@@ -469,7 +469,7 @@ sales[, `:=`(year = year(purchase_date), month = month(purchase_date))]</code></
   </script>
 </div>
 <p>You can combine ordering in <code>i</code> and use <code>.SD</code> to choose from each group. You can also use the fact, that <code>.SD</code> is itself a <code>data.table</code> so you can just filter it in the standard way. Both of the following methods will work:</p>
-<pre class="r"><code>sales[order(-spent), lapply(.SD, head, n = 1), by = year]</code></pre>
+<pre class="r"><code>sales[order(-spent), head(.SD, n = 1), by = year]</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["year"],"name":[1],"type":["int"],"align":["right"]},{"label":["customer_id"],"name":[2],"type":["int"],"align":["right"]},{"label":["order_id"],"name":[3],"type":["int"],"align":["right"]},{"label":["purchase_date"],"name":[4],"type":["date"],"align":["right"]},{"label":["n_units"],"name":[5],"type":["int"],"align":["right"]},{"label":["spent"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["status"],"name":[7],"type":["chr"],"align":["left"]},{"label":["month"],"name":[8],"type":["int"],"align":["right"]}],"data":[{"1":"2017","2":"1518196","3":"2331335","4":"2017-12-28","5":"205","6":"42975.00","7":"new","8":"12"},{"1":"2015","2":"1016633","3":"1611165","4":"2015-06-03","5":"684","6":"21176.16","7":"new","8":"6"},{"1":"2016","2":"167785","3":"265853","4":"2016-07-10","5":"21","6":"4273.29","7":"lead","8":"7"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -486,6 +486,13 @@ sales[, `:=`(year = year(purchase_date), month = month(purchase_date))]</code></
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["year"],"name":[1],"type":["int"],"align":["right"]},{"label":["spent"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"2017","2":"42975.00"},{"1":"2015","2":"21176.16"},{"1":"2016","2":"4273.29"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>or</p>
+<pre class="r"><code>sales[order(-spent), head(spent, 1), by = year]</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["int"],"align":["right"]},{"label":["V1"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"2017","2":"42975.00"},{"1":"2015","2":"21176.16"},{"1":"2016","2":"4273.29"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
