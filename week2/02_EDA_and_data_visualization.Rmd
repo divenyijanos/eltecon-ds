@@ -21,6 +21,7 @@ library(knitr)
 library(data.table)
 library(magrittr)
 library(ggplot2)
+library(readxl)
 ```
 
 ## About me
@@ -39,7 +40,7 @@ library(ggplot2)
 ## Why writing good code is important?
 
 ```{r, out.width='60%', fig.cap='https://www.inf.elte.hu/en/content/data-science-in-computer-science-msc.t.1732?m=361', fig.align='center'}
-include_graphics(rep("./figures/data-science.png", 1))
+include_graphics(rep("./figures/data_science.png", 1))
 ```
 
 ## Try to make your code 'clean'!
@@ -182,4 +183,111 @@ You can check the code later at `week2/EDA.R`
 
 # Data visualization with ggplot2 (and plotly)
 
+## "Warning"
+
+- I'm not a 'data visualization expert'
+- But I did make a lot of visualizations for different kinds of audiences
+
+## What to look out for when creating visualizations?
+
+- Should be easy to read - easy to understand the message
+- Know your audience
+- Keep it simple
+- Add only relevant information
+
+## Visualization examples
+
+```{r, out.width='90%'}
+manhattan <- data.table(read_excel("./data/rollingsales_manhattan.xlsx", skip = 4))
+names(manhattan) <- tolower(gsub(" ", "_", names(manhattan)))
+
+manhattan_sales_by_tax_class <- manhattan[,
+    .(avg_sale_price = mean(sale_price), n = .N),
+    tax_class_at_present
+]
+
+ggplot(
+    manhattan_sales_by_tax_class,
+    aes(x = tax_class_at_present, y = avg_sale_price)
+) +
+    geom_col()
+```
+
+## Change theme
+
+```{r, out.width='90%'}
+ggplot(
+    manhattan_sales_by_tax_class,
+    aes(x = tax_class_at_present, y = avg_sale_price)
+) +
+    geom_col() +
+    theme_minimal()
+```
+
+## Axis labels should be easy to read and understand
+
+```{r, out.width='90%'}
+ggplot(
+    manhattan_sales_by_tax_class,
+    aes(x = tax_class_at_present, y = avg_sale_price)
+) +
+    geom_col() +
+    scale_y_continuous(labels = scales::comma, breaks = c(seq(0, 1.5*10^7, 0.25*10^7))) +
+    theme_minimal() +
+    theme(text = element_text(size=20))
+```
+
+## Change axis titles
+
+```{r, out.width='90%'}
+ggplot(
+    manhattan_sales_by_tax_class,
+    aes(x = tax_class_at_present, y = avg_sale_price)
+) +
+    geom_col() +
+    scale_y_continuous(labels = scales::dollar, breaks = c(seq(0, 1.5*10^7, 0.25*10^7))) +
+    labs(x = "Tax class", y = "Avg. sale price (USD)") +
+    theme_minimal() +
+    theme(text = element_text(size=20))
+```
+
+## Add title to your plot
+
+```{r, out.width='90%'}
+ggplot(
+    manhattan_sales_by_tax_class,
+    aes(x = tax_class_at_present, y = avg_sale_price)
+) +
+    geom_col() +
+    scale_y_continuous(labels = scales::dollar, breaks = c(seq(0, 1.5*10^7, 0.25*10^7))) +
+    labs(title = "Avg. sale price in different tax classes", x = "Tax class", y = "") +
+    theme_minimal() +
+    theme(text = element_text(size=20))
+```
+
+
+
+## How ggplot looks like
+
+```r
+ggplot(data = <DATA>) +
+  <GEOM_FUNCTION>(
+     mapping = aes(<MAPPINGS>),
+     stat = <STAT>,
+     position = <POSITION>
+  ) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION>
+```
+source: https://r4ds.had.co.nz/data-visualisation.html#the-layered-grammar-of-graphics
+
+## How it works in the background
+
+```{r, out.width='100%', fig.align='center'}
+include_graphics("./figures/how_geom_bar_works.png")
+```
+
+## How to put plots together
+
+You can check the code later at `week2/ggplot.R`
 
