@@ -265,7 +265,11 @@ ggplot(
     theme(text = element_text(size=20))
 ```
 
+## Visualizing with ggplot
 
+- 'gg' = grammar of graphics
+- we map data frame columns to different parts (aestethics) of the plot (color, shape, size, etc.)
+- you can add layers to improve your plot
 
 ## How ggplot looks like
 
@@ -287,7 +291,19 @@ source: https://r4ds.had.co.nz/data-visualisation.html#the-layered-grammar-of-gr
 include_graphics("./figures/how_geom_bar_works.png")
 ```
 
-## How to put plots together
+## Why plot things?
+
+- Understand how features are distributed
+- Helps to spot outliers / mistakes in data
+- Easier to present results (than in tabular format)
+
+## Let's check our your data by visualizing it!
 
 You can check the code later at `week2/ggplot.R`
+
+## Homework for next week
+
+Create 2 plots from a dataset of your choice! One should include a categorical and the other should have a continuous variable.
+
+Points will be given based on how understandable the plot is and also based on how 'nice' it is.
 
