@@ -1,0 +1,77 @@
+---
+title: "Homework 1"
+author: "Janos Divenyi"
+date: '2021-09-21'
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+subtitle: Solutions
+---
+
+
+```{r, warning=FALSE}
+library(magrittr)
+library(data.table)
+```
+
+The data can be downloaded from [here](https://drive.google.com/drive/folders/1HmCp1pTpEaqta7z0p1fnCas1dN6myVxg?usp=sharing). I put that into the `data` folder within my working directory.
+
+
+```{r}
+data_file <- 'data/sales_sample.csv'
+sales <- fread(data_file)
+```
+
+### Task #1: Calculate the mean sales by customer status
+```{r}
+sales[, .(avg_sales = mean(spent)), status]
+```
+
+### Task #2: Create a table that contains each buyer with the number of orders they made
+```{r}
+sales[, .N, customer_id]
+```
+
+### Task #3: Create a table that contains each buyer of 2017 with the number of orders they made
+```{r}
+sales[year(purchase_date) == 2017, .N, customer_id]
+```
+
+### Task #4: Create a summary table by status: number of purchases, total revenue generated, number of buyers
+```{r}
+sales[, .(n_purchases = .N, revenue = sum(spent), n_buyers = uniqueN(customer_id)), status]
+```
+
+### Task #5: Select days when someone spent more than 10k
+```{r}
+sales[spent > 10000, unique(purchase_date)]
+```
+
+### Task #6: Create a new "season" variable (winter, spring, summer, autumn)
+```{r}
+defineSeason <- function(date) {
+  seasons <- c(rep("winter", 2), rep("spring", 3), rep("summer", 3), rep("autumn", 3), "winter")
+  seasons[month(date)]
+}
+sales[, season := defineSeason(purchase_date)][]
+```
+
+### Task #7: Count the number of orders by status and year
+```{r}
+sales[, year := year(purchase_date)]
+sales[, .N, .(status, year)] %>%
+  dcast(status ~ year)
+```
+
+### Task #8: Add the status-specific average sales amount to each purchase
+```{r}
+sales[, avg_spent_by_status := mean(spent), status][]
+```
+
+### Task #9: Find the maximum quantity and spending for each year
+```{r}
+sales[, lapply(.SD, max), year, .SDcols = c("n_units", "spent")]
+```
+
+

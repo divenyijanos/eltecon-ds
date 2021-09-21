@@ -5,3 +5,6 @@
 .DS_Store
 *.pptx
 course_material
+homeworks/**
+data
+week1/data
