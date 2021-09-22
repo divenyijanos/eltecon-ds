@@ -41,7 +41,7 @@ The final grade consists of two parts: weekly homeworks (50%) and the final proj
 2. **15 September**  Data visualization with ggplot2. Exploratory data analysis and data cleaning. Coding guidelines. (*András Bérczi*)
 3. **22 September**  Machine learning introduction. Supervised learning basics: regression and binary prediction. Prediction versus causality.  (*Levente Otti*)
 4. **29 September** Model Selection. Overfitting and prediction accuracy. Training, test error and cross-validation. (*Zsuzsa Holler*)
-5. **6 October** Regularisation and the Bias-Variance tradeüoff. Lasso and Ridge Regression. (*Zsuzsa Holler*)
+5. **6 October** Regularisation and the Bias-Variance trade-off. Lasso and Ridge Regression. (*Zsuzsa Holler*)
 6. **13 October** Sample project for a continuous prediction problem. (*András Bérczi*)
 7. **20 October** Classification on binary problems: decision tree, ROC curve. (*János Divényi*)
 8. **27 October** Fall Break
