@@ -1,0 +1,13 @@
+field;description
+datetime;hourly date + timestamp
+season;1 = spring, 2 = summer, 3 = fall, 4 = winter
+holiday;whether the day is considered a holiday
+workingday;whether the day is neither a weekend nor holiday
+weather;1 ~ Clear, 2 ~ Cloudy, 3 ~ Light Rain, 4 ~ Heavy Rain
+temp;temperature in Celsius
+atemp;feels like temperature in Celsius
+humidity;relative humidity
+windspeed;wind speed
+casual;number of non-registered user rentals initiated
+registered;number of registered user rentals initiated
+count;number of total rentals
