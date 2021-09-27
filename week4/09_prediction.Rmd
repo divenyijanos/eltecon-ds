@@ -2,7 +2,7 @@
 title: Model Selection and Prediction Accuracy
 subtitle: Eltecon Data Science Course by Emarsys
 author: Holler Zsuzsa
-date: November 11, 2020
+date: September 29, 2021
 output:
     beamer_presentation:
         colortheme: dolphin
@@ -33,13 +33,6 @@ library(caret)
 library(knitr)
 library(kableExtra)
 ```
-
-## Homeworks
-
-* Presenters:
-  * Alexandrov Dániel - Földesi Attila
-  * Nguyen Thai Duong - Szentistványi János
-  * Kovács Ádám - Nguyen Nam Son
 
 ## Goal of the lesson
 
@@ -341,7 +334,7 @@ Pre-cleaned the data (removed stopwords, special characters etc.) and created wo
 
 \tiny
 ```{r echo=FALSE}
-spam_data <- fread("spam_clean.csv")
+spam_data <- fread("data/spam_clean.csv")
 knitr::kable(head(
   spam_data[, .(is_spam, message, nchar, nwords)]
 ), "pipe") 
@@ -460,11 +453,6 @@ Let's do cross-validation for our spam prediction models! **spam_pred_cv.R**
 * Choose and alternative measure to evaluate the performance of the spam analysis models (hint: think about the different types of errors summarised in the confusion matrix)
 * Compute the chosen measure for two alternative model versions for train, test and with CV
 * Discuss the results
- 
-* Presenters:
-  * Bakirov, Aslan - Yatsenko, Anzhelika
-  * Both Márton - Kamenár Gyöngyvér
-  * Emerson, Ian - Ralbovszki Judit
 
 ## Resources
 

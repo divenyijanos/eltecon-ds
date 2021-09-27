@@ -1,7 +1,7 @@
 library(data.table)
 library(purrr)
 
-data <- fread("spam_clean.csv")
+data <- fread("data/spam_clean.csv")
 
 # Define measure of interest
 calculateAccuracy <- function(actual, predicted) {

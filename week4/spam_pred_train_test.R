@@ -1,7 +1,7 @@
 library(data.table)
 library(purrr)
 
-data <- fread("spam_clean.csv")
+data <- fread("data/spam_clean.csv")
 
 # Seperate train-test set
 train_proportion <- 0.7
