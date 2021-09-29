@@ -21,7 +21,7 @@ calculateAccuracy <- function(actual, predicted) {
 
 # baseline prediction
 table(data_train$is_spam)
-1-sum(data_test$is_spam)/length(data_test$is_spam)
+calculateAccuracy(data_test$is_spam, 0)
 
 # model 1
 model1 <- glm(

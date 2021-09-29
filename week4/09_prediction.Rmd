@@ -275,7 +275,7 @@ Note that we have two conflicting goals:
 
 **Training set:** $N$ observations of labeled data used to tune the parameters of the model (e.g.: estimate coefficients of linear regression)
 
-**Validation set/Test set:** $M$ observations of data used to optimize model complexity and/or choose between different types of models
+**Validation set/Test set:** $M$ observations of labeled data used to estimate the performance of the fitted model and possibly optimize model complexity and/or choose between different types of models
 
 Watch out for use-cases where random assignment does not work!
 
@@ -349,9 +349,9 @@ Let's see some prediction models! **spam_pred_train_test.R**
 
 ## Practice Time
 
-* Task: include all the available variables and compute train and test accuracy!
+* Task: estimate at least two more models with different complexity, compute their train and test accuracy and conclude which one to use to spot spam messages!
 * Share your results in [Socrative](https://www.socrative.com/#login)!
-* You have 15 minutes - feel free to take a break if needed.
+* You have 20 minutes - feel free to take a break if needed.
 
 ## Train vs. Test Error
 
@@ -431,9 +431,9 @@ Let's do cross-validation for our spam prediction models! **spam_pred_cv.R**
 
 ## Practice Time
 
-* Task: Compute CV accuracy for all models we tested and compare their performance!
+* Task: Compute leave-one-out CV accuracy for all models you fitted in the previous exercise and compare their performance!
 * Share your results in [Socrative](https://www.socrative.com/#login)!
-* You have 10 minutes - feel free to take a break if needed.
+* You have 20 minutes - feel free to take a break if needed.
 
 ## Cross validation
 
@@ -449,10 +449,9 @@ Let's do cross-validation for our spam prediction models! **spam_pred_cv.R**
 
 ## Homework
 
-* If you haven't finished computing CV accuracies, do so.
-* Choose and alternative measure to evaluate the performance of the spam analysis models (hint: think about the different types of errors summarised in the confusion matrix)
-* Compute the chosen measure for two alternative model versions for train, test and with CV
-* Discuss the results
+* Take a deeper look at the spam dataset and extract at least two more variables from the message text that you think could help the prediction. Describe your new variables. 
+* Include the new variables in your model and evaluate the model performance using CV.
+* Summarise your results in a few sentence.
 
 ## Resources
 
