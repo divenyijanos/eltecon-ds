@@ -4,7 +4,7 @@ library(caret)
 library(glmnet)
 
 #Read in data
-data <- fread('week 8-10/data/OnlineNewsPopularity_mod.csv')
+data <- fread('week5/data/OnlineNewsPopularity_mod.csv')
 
 # The target variable
 summary(data$shares)

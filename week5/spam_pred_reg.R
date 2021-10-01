@@ -2,7 +2,7 @@ library(data.table)
 library(glmnet)
 library(purrr)
 
-data <- fread("week 8-10/data/spam_clean.csv")
+data <- fread("week4/data/spam_clean.csv")
 
 # Define measure of interest
 calculateAccuracy <- function(actual, predicted) {

@@ -15,6 +15,8 @@ output:
 header-includes:
 - \usefonttheme[onlymath]{serif}
 - \usepackage{float}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -131,11 +133,36 @@ Share your results in [Socrative](https://www.socrative.com/#login)!
 
 ## What is Regularisation
 
-**Idea:** Use a different estimator to estimate the linear regression model. Add a **penalty term** to the error function to discourage the coefficients from reaching large values. 
+**Idea:** Use a different estimator to estimate the linear regression model. Add a **penalty term** to the error function to discourage the coefficients from reaching large values and to prevent overfitting.
 
 $$E(w) = E_D(w) + \lambda E_W(w) $$
 
 where $E_D(w)$ is the **data-dependent error**, $E_W(w)$ **regularisation term** and $\lambda$ is the **regularisation parameter** that controls the relative importance of these two terms. 
+
+## The Bias-Variance trade-off
+
+$$MSE(\hat w) = E[(\hat w - w)^2] = \underbrace{E[(\hat w - w)]^2}_\text{bias} + \underbrace{E[(\hat w - E \hat w)^2]}_\text{variance} $$
+
+- OLS is unbiased estimator
+- ridge and LASSO are **biased but have a smaller variance** than least squares
+- by optimally choosing $\lambda$ it is possible to obtain an estimator with smaller MSE
+
+## Parameter vs. Hyperparameter
+
+**Parameter:**
+
+- learned from the data during model training process
+- required to make predictions from the model
+
+**Hyperparameter:**
+
+- need to be set before model training
+- define specific properties of the model training process 
+
+**How to set hyperparameters?**
+
+1. rule of thumb
+2. grid search  - Use cross-validation!
 
 ## The Ridge
 
@@ -153,6 +180,7 @@ lambda <- c(1,0.1,0.001)
 
 model_formula <- as.formula("y ~ poly(x, 30, raw = TRUE)")
 X <- model.matrix(model_formula, data = data_train)[,-1]
+X_test <- model.matrix(model_formula, data = data_test)[,-1]
 X_range <- model.matrix(model_formula, data = data_range)[,-1]
 
 ridge.mod <- glmnet(X, data_train$y, alpha = 0, lambda = lambda)
@@ -173,7 +201,6 @@ p +
     facet_wrap(~variable)
 
 ```
-
 
 ## The LASSO
 
@@ -209,19 +236,18 @@ p +
 
 ```
 
-## The Bias-Variance trade-off
-
-$$MSE(\hat w) = E[(\hat w - w)^2] = \underbrace{E[(\hat w - w)]^2}_\text{bias} + \underbrace{E[(\hat w - E \hat w)^2]}_\text{variance} $$
-
-- OLS is unbiased estimator
-- ridge and LASSO are **biased but have a smaller variance** than least squares
-- by optimally choosing $\lambda$ it is possible to obtain an estimator with smaller MSE
-
 ## Ridge vs. Lasso
 
 ```{r, out.height = "200px", echo = FALSE}
 knitr::include_graphics("./figures/lasso_ridge.png")
 ```
+
+## Ridge vs. Lasso
+
+- both are useful when $k$ is large relative to $N$
+- ridge is useful when regressors are highly collinear
+- LASSO when true regression parameter vector is sparse and regressors are not highly collinear
+- one can use LASSO as variable selection method
 
 ## SMS Spam Prediction
 
@@ -230,7 +256,6 @@ Let's see how it works in practice! **spam_pred_reg.R**
 ## Practice Time
 
 * Task: Implement the same model with Lasso penalty! Use the function documentation!
-* Share your results in [Socrative](https://www.socrative.com/#login)!
 * You have 10 minutes.
 
 ## How to choose lambda?
@@ -245,7 +270,6 @@ bestlam <- ridge_best$lambda.min
 data_range <- data.table(x = x_range, y = f)
 data_range <- data_range[, "ridge_best":=predict(ridge_best, s = bestlam, newx =  X_range)]
 data_train <- data_train[, "ridge_best":=predict(ridge_best, s = bestlam, newx =  X)]
-X_test <- model.matrix(model_formula, data = data_test)[,-1]
 data_test <- data_test[, "ridge_best":=predict(ridge_best, s = bestlam, newx =  X_test)]
 
 lasso_best <- cv.glmnet(X, data_train$y, alpha = 1, lambda = seq(0.0005,0.1,by = 0.0005))
@@ -286,15 +310,7 @@ Let's see how it works in practice! **spam_pred_reg.R**
 ## Practice Time
 
 * Task: Find the optimal lambda value with Lasso penalty!
-* Share your results in [Socrative](https://www.socrative.com/#login)!
 * You have 10 minutes.
-
-## Ridge vs. Lasso
-
-- both are useful when $k$ is large relative to $N$
-- ridge is useful when regressors are highly collinear
-- LASSO when true regression parameter vector is sparse and regressors are not highly collinear
-- one can use LASSO as variable selection method
 
 ## Regularisation
 
