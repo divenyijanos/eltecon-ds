@@ -76,9 +76,13 @@ Use `data/laptop_price.csv`
 ## Homework
 
 - Homework:
-    - Choose a data, which you will use for your final project!
-    - Explore the data, what kind of features/variables you have. Is it good for you final project?
-    - Based on this you will have to decide on your research question for your final project!
-    - Eg.: I will be predicting XY, this and that feature will probably be helpful as features in my model (proved by plots or some statistics).
+    1. Choose a data, which you will use for your final project!
+    2. Explore the data, what kind of features/variables you have. Is it good/usable for your final project?
 - You have 3 weeks for this homework (until 3rd of November)!
-- (There will be another homework for that week as well, so make sure you start in time!)
+- Since this is a bigger homework, you will receive more points for it!
+
+The aim is to help you with your final project!
+
+- Based on this you will have to decide on your research question for your final project! (This will be a homework later.)
+  - Eg.: I will be predicting XY, this and that feature will probably be helpful as features in my model (proved by plots or some statistics).
+- (Probably there will be another homework for that week as well, so make sure you start in time!)
