@@ -3,7 +3,7 @@ library(ggplot2)
 library(stringr)
 library(glmnet)
 
-dt <- fread("week6/data/laptop_price.csv")
+laptop <- fread("week6/data/laptop_price.csv")
 
 # 0. Setup the project!
 # 1. Is the data in the right format? Does it need cleaning?
@@ -65,9 +65,36 @@ laptop_test[, prediction_lm := predict(linear_model, laptop_test)]
 
 laptop_test[, sqrt(sum((Price_euros - prediction_lm)**2) / .N)]
 
-ggplot(dt_test, aes(x = Price_euros, y = prediction)) + geom_line()
-ggplot(dt_test, aes(x = Price_euros, y = prediction)) +
+# (NOTE: The following two plots were not covered in class!)
+ggplot(laptop_test, aes(x = Price_euros, y = prediction_lm)) +
     geom_point() +
     geom_abline(slope = 1) +
     coord_fixed(xlim = c(0, 5000), ylim = c(0, 5000))
-ggplot(dt_test, aes(x = Price_euros, y = Price_euros - prediction)) + geom_line()
+ggplot(laptop_test, aes(x = Price_euros, y = Price_euros - prediction_lm)) + geom_line()
+
+# 5. Train a model using Ridge or Lasso regression (cross-validation)! Evaluate the models!
+X <- model.matrix(Price_euros ~ Cpu_type + Cpu_frequency + Ram_numeric, data = laptop_train)[,-1]
+
+set.seed(82394)
+ridge <- cv.glmnet(X, laptop_train$Price_euros, alpha = 0, nfolds = 5)
+coef(ridge_best)
+
+X_test <- model.matrix(Price_euros ~ Cpu_type + Cpu_frequency + Ram_numeric, data = laptop_test)[,-1]
+# This one didn't work, because CPU type "Samsung" was not in the test set, only in the train set.
+# This is because there is only 1 observation with Samsung CPU.
+# We have an error, because when predicting from LASSO model, the function needs to have the same number of dimensions as an input.
+laptop_test[, "prediction_ridge":=predict(ridge, s = "lambda.min", newx =  X_test)]
+
+str(X)
+str(X_test)
+
+# To solve this, we have 'cheated' during class, so I can show you the result of the model. 
+# This isn't the good solution for this kind of problem!
+
+laptop_test_extended <- rbind(laptop_test, laptop[Cpu_type == "Samsung"], fill = TRUE)
+
+X_test <- model.matrix(Price_euros ~ Cpu_type + Cpu_frequency + Ram_numeric, data = laptop_test_extended)[,-1]
+laptop_test_extended[, "prediction_ridge":=predict(ridge, s = "lambda.min", newx =  X_test)]
+
+laptop_test_extended[, sqrt(sum((Price_euros - prediction_ridge)**2) / .N)]
+
