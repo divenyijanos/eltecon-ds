@@ -253,12 +253,12 @@ rpart.plot(spam_tree)
 ```
 
 ## Tree "pruning"
-Additional leaves *always* improve the accuracy on the test set.
+Additional leaves *always* improve the accuracy on the *train* set.
 
 How to avoid overfitting?
 
 ## Tree "pruning"
-Additional leaves *always* improve the accuracy on the test set.
+Additional leaves *always* improve the accuracy on the *train* set.
 
 How to avoid overfitting? **Regularisation**
 
@@ -393,8 +393,8 @@ ggplot(titanic_glm, aes(x = Fare, shape = predicted_prob > cutoff)) +
     geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
     geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
     geom_hline(yintercept = cutoff, linetype = "dashed") +
-    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
-    scale_shape_manual(values = c(1, 16), guide = FALSE) +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = "none") +
+    scale_shape_manual(values = c(1, 16), guide = "none") +
     theme_classic()
 ```
 
@@ -407,8 +407,8 @@ ggplot(titanic_glm, aes(x = Fare, shape = predicted_prob > cutoff)) +
     geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
     geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
     geom_hline(yintercept = cutoff, linetype = "dashed") +
-    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
-    scale_shape_manual(values = c(1, 16), guide = FALSE) +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = "none") +
+    scale_shape_manual(values = c(1, 16), guide = "none") +
     theme_classic()
 
 data_for_roc <- calculateFPRTPR(getConfusionMatrix(predicted_prob, titanic_train, "Survived", cutoff))
@@ -430,8 +430,8 @@ ggplot(titanic_glm, aes(x = Fare, shape = predicted_prob > cutoff)) +
     geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
     geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
     geom_hline(yintercept = cutoff, linetype = "dashed") +
-    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
-    scale_shape_manual(values = c(1, 16), guide = FALSE) +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = "none") +
+    scale_shape_manual(values = c(1, 16), guide = "none") +
     theme_classic()
 
 data_for_roc <- rbind(
@@ -455,7 +455,7 @@ ggplot(titanic_glm, aes(x = Fare)) +
     geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
     geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
     geom_hline(yintercept = cutoff, linetype = "dashed") +
-    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = "none") +
     theme_classic()
 
 data_for_roc <- rbind(
@@ -477,7 +477,7 @@ ggplot(data_for_roc, aes(FPR, TPR)) +
 ggplot(titanic_glm, aes(x = Fare)) +
     geom_point(aes(y = Survived, color = factor(Survived)), alpha = 0.3, size = 2) +
     geom_point(aes(y = predicted_prob), alpha = 0.3, size = 2) +
-    scale_color_manual(values = c("firebrick", "forestgreen"), guide = FALSE) +
+    scale_color_manual(values = c("firebrick", "forestgreen"), guide = "none") +
     theme_classic()
 
 data_for_roc <- map_df(seq(0, 1, 0.01), ~{
@@ -521,7 +521,7 @@ knitr::include_graphics("figures/roc3.pdf")
 
 ## Homework
 
-*
+* Figure out a research question based on the EDA that you are doing for Nov 3
 
 ## Resources
 
