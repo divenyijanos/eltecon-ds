@@ -1,0 +1,15 @@
+---
+title: Bagging, Random Forests, Boosting
+subtitle: Eltecon Data Science Course by Emarsys
+author: Sándor Sóvágó
+date: November 10, 2021
+output:
+    beamer_presentation:
+        colortheme: dolphin
+        fonttheme: structurebold
+        theme: AnnArbor
+        # toc: true
+        slide_level: 2
+header-includes:
+   - \usepackage{animate}
+---
