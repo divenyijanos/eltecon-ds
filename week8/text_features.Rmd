@@ -1,0 +1,611 @@
+---
+title: Working with text features in prediction tasks
+subtitle: Eltecon Data Science Course by Emarsys
+author: Tamás Koncz
+date: November 3, 2021
+output:
+    beamer_presentation:
+        colortheme: dolphin
+        fonttheme: structurebold
+        theme: AnnArbor
+        # toc: true
+        slide_level: 2
+header-includes:
+   - \usepackage{animate}
+urlcolor: blue
+classoption: aspectratio=169
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+# knitr::opts_knit$set(root.dir = '..')
+knitr::opts_chunk$set(fig.height = 3, fig.width = 7)
+knitr::opts_chunk$set(fig.pos='H')
+
+library(data.table)
+library(ggplot2)
+library(magrittr)
+library(purrr)
+library(knitr)
+library(tidytext)
+library(wordcloud)
+```
+
+## About me
+
+- Lead Data Scientist @ Emarsys AI Labs
+- (Previous: employer: Morgan Stanley)
+- Worked in data for ~10 years
+- Edu. background in Finance / Business IT
+- CEU MSc in Business Analytics graduate
+
+
+## Goal of the lesson
+
+- introduce basic methods to work with text data:
+    - regular expressions
+    - tokenization and bag-of-words
+    - sentiment analysis
+- use these methods to create useful features for prediction models
+
+# Regular expressions
+
+## Regular expressions
+
+- Regular expressions (regex) are basically *smart keyword matching*
+- More precisely: ["a sequence of characters that specifies a search pattern"](https://en.wikipedia.org/wiki/Regular_expression)
+- Regex allows us to capture important patterns in our data
+
+## Basic regex example
+
+```{r, echo = TRUE}
+bad_review <- "This movie was terrible."
+
+good_review <- "I loved every minute of it!"
+```
+
+## Basic regex example
+
+```{r, echo = TRUE}
+good_words <- c("good", "superb", "love", "like")
+
+bad_words <- c("bad", "terrible", "hate")
+```
+
+```{r, echo = TRUE}
+good_regex <- paste(good_words, collapse = "|")
+
+bad_regex <- paste(bad_words, collapse = "|")
+
+# note: "|" is "OR" in regex
+```
+
+## Basic regex example
+
+```{r, echo = TRUE}
+grepl(good_regex, good_review)
+grepl(bad_regex, good_review)
+```
+
+```{r, echo = TRUE}
+grepl(bad_regex, bad_review)
+grepl(good_regex, bad_review)
+```
+
+## Literals, special characters and escaping
+
+- Literals are what you write in normal language:
+    - E.g. "." means "dot" in English
+- In regex, there are certain special characters that make it powerful
+    - E.g. in regex, "." means "match **ANY** character"
+- So how do you match a literal "."? With escaping! "\."
+    - (Due to string escaping, you'll have to use `\\.` in R... I'm sorry)
+
+## Examples I.
+
+```{r, echo = TRUE}
+media_scores <- c("65%", "33%", "20%")
+```
+
+How to capture the numeric value of these scores?
+
+```{r, echo = TRUE}
+gsub(pattern = "%", replacement = "", media_scores) %>%
+    as.integer()
+```
+
+## Examples II.
+
+```{r, echo = TRUE}
+year <- c("(2002)", "(1990)")
+```
+
+How to capture the year as a number?
+
+```{r, echo = TRUE}
+gsub(pattern = "(\\(|\\))", replacement = "", year) %>%
+    as.integer()
+```
+
+Note: "(" and ")" are special characters, that's why we need escaping.
+
+## Exercise
+
+Capture the movie id in the following string!
+
+```{r, echo = TRUE}
+movie_url <- "https://www.rt.com/m/1003722-casino_royale"
+```
+
+## Solution
+
+```{r, echo = TRUE}
+gsub("https://www.rt.com/m/", "", movie_url)
+```
+
+More precisely:
+```{r, echo = TRUE}
+gsub("https://www\\.rt\\.com/m/", "", movie_url)
+```
+
+## Exercise II.
+
+Let's say our task is a bit more complex:
+
+```{r, echo = TRUE}
+movie_urls <- c(
+    "https://www.rt.com/m/1003722-casino_royale",
+    "https://www.rt.com/m/1003722-casino_royale/reviews",
+    "https://www.rt.com/m/1003722-casino_royale/reviews?type=top_critics",
+    "https://www.rt.com/m/1003722-casino_royale/pictures"
+)
+```
+
+## `gsub()` is not going to "scale"...
+
+```{r, echo = TRUE}
+gsub("https://www.rt.com/m/", "", movie_urls)
+
+gsub(
+    "/reviews", "",
+    gsub("https://www.rt.com/m/", "", movie_urls)
+)
+```
+
+## Capturing groups
+
+```{r, echo = TRUE}
+stringr::str_match(
+    string = movie_urls,
+    pattern = ".*/m/(.+?)(/.*)?$"
+)[, 2]
+```
+
+Special characters:
+
+* "\*" - match any number of the preceding character
+* "+" - match one or more of the preceding character
+* "+?" - same as above, but non-greedy
+* "?" - optional
+* "()" - group of characters
+* "$" - end of line
+
+## Exercise
+
+TODO figure out how to print
+
+```{r}
+img_url <- "https://resizing.flixster.com/R1dBRE4KaDM5WfvLIS7-0aSZMIo=/206x305/v2/https://flxt.tmsimg.com/assets/p4248_p_v8_ad.jpg"
+```
+
+```{r, echo = TRUE}
+img_url
+```
+
+## Solution
+
+```{r, echo = TRUE}
+stringr::str_match(
+    string = img_url,
+    pattern = ".+/(https://.+\\.jpg)"
+)[, 2]
+```
+
+## More on regex
+
+- [R4DS](https://r4ds.had.co.nz/strings.html#matching-patterns-with-regular-expressions)
+- [A Gentle Introduction to Regular Expressions with R](https://towardsdatascience.com/a-gentle-introduction-to-regular-expressions-with-r-df5e897ca432)
+- [A Complete Beginners Guide to Regular Expressions in R](https://regenerativetoday.com/a-complete-beginners-guide-to-regular-expressions-in-r/)
+- If you want to make a living out of regex: [Mastering Regular Expressions](https://www.oreilly.com/library/view/mastering-regular-expressions/0596528124/)
+
+# Tidytext
+
+## Text Mining with R
+
+[![Text Mining with R](imgs/cover.png)](https://www.tidytextmining.com/index.html)
+
+## Tokenization
+
+**A token is a meaningful unit of text, most often a word,
+that we are interested in using for further analysis,
+and tokenization is the process of splitting text into tokens.** - [tidytextmining](https://www.tidytextmining.com/tidytext.html)
+
+## Why we need tokenization?
+
+```{r, echo = TRUE}
+review <- data.table(review = "
+    A few innovative sets,
+    a wealth of eye-popping colors,
+    and oodles of bared midriffs
+    can't redeem this juvenile experiment 
+    in adolescent fantasy.
+")
+```
+
+We understand this sentence, but computers can't.
+
+## Why we need tokenization?
+
+```{r, echo = TRUE}
+review %>%
+    unnest_tokens(output = "word", input = "review") %>%
+    .[, .N, by = "word"] %>%
+    .[order(-N)] %>%
+    .[1:5]
+```
+
+While words are still not meaningful for computers,
+by transforming text into a structured format (1 word / row),
+we can process it further for analysis.
+
+## Movie review data
+
+```{r, echo = TRUE}
+reviews <- fread("data/james_bond_007_franchise_short_reviews.csv") %>%
+    .[, .(movie_title, media_score, short_review)]
+str(reviews, nchar.max = 55)
+```
+
+## Exercise
+
+Tokenize reviews & count the 10 most frequent words!
+
+## Solution
+
+```{r, echo = TRUE}
+review_words_by_movie <- reviews %>% 
+    .[, .(movie_title, short_review)] %>%
+    unnest_tokens(output = word, input = short_review)
+
+review_words_by_movie[, .N, by = "word"] %>%
+    .[order(-N)] %>%
+    head(10)
+```
+
+Not to useful, right? Do not worry...
+
+## Stop words
+
+**"... stop words are words that are not useful for an analysis,
+typically extremely common words
+such as “the”, “of”, “to”,
+and so forth in English."** - [tidytextmining](https://www.tidytextmining.com/tidytext.html)
+
+## Stop words
+
+```{r, echo = TRUE}
+stop_words <- tidytext::stop_words %>%
+    data.table() %>%
+    .[lexicon == "onix"]
+
+stop_words[, word] %>% head(10)
+```
+
+## Stop words
+
+You can remove stop words from your data by an "anti join"
+to the original dataset:
+
+```{r, echo = TRUE}
+review_words_by_movie <- review_words_by_movie %>%
+    .[!stop_words, on = "word"]
+```
+
+## Most frequent words
+
+```{r, echo = TRUE}
+word_freq <- review_words_by_movie %>%
+    .[, .(num_occurance = .N), by = "word"] %>%
+    .[order(-num_occurance)]
+
+word_freq %>% head(10)
+```
+
+## Something fancy - wordclouds
+
+```{r, echo = TRUE, eval = FALSE}
+wordcloud::wordcloud(
+    words = word_freq[num_occurance > 5, word],
+    freq = word_freq[num_occurance > 5, num_occurance]
+)
+```
+
+## Something fancy - wordclouds
+
+```{r}
+suppressWarnings(
+    wordcloud::wordcloud(
+        words = word_freq[num_occurance > 5, word],
+        freq = word_freq[num_occurance > 5, num_occurance]
+    )
+)
+```
+
+## Domain specific stop words
+
+```{r, echo = TRUE, eval = FALSE}
+movie_stop_words <- data.table(
+    word = c("james", "bond", "007",
+             "film", "series", "movie",
+             "films", "franchise",
+             "it's", "so")
+)
+
+review_words_by_movie %>%
+    .[!movie_stop_words, on = "word"] %>%
+    .[, .(num_occurance = .N), by = "word"] %>%
+    .[order(-num_occurance)] %>%
+    head(10)
+```
+
+## Domain specific stop words
+
+```{r}
+movie_stop_words <- data.table(
+    word = c("james", "bond", "007",
+             "film", "series", "movie",
+             "films", "franchise",
+             "it's", "so")
+)
+
+review_words_by_movie %>%
+    .[!movie_stop_words, on = "word"] %>%
+    .[, .(num_occurance = .N), by = "word"] %>%
+    .[order(-num_occurance)] %>%
+    head(10)
+```
+
+## N-grams
+
+**"... we can also use the function to tokenize
+into consecutive sequences of words, called n-grams.
+By seeing how often word X is followed by word Y,
+we can then build a model of the relationships between them."** - [tidytextmining](https://www.tidytextmining.com/tidytext.html)
+
+## Bigram example
+
+```{r, echo = TRUE, eval = FALSE}
+review_bigrams_by_movie <- reviews %>%
+    .[, .(movie_id, short_review)] %>%
+    unnest_tokens(
+        output = bigram,
+        input = short_review,
+        token = "ngrams", n = 2
+    )
+
+review_bigrams_by_movie[, .N, bigram][order(-N)] %>%
+    head(10)
+```
+
+## Bigram example
+
+```{r}
+review_bigrams_by_movie <- reviews %>%
+    .[, .(title, short_review)] %>%
+    unnest_tokens(
+        output = bigram,
+        input = short_review,
+        token = "ngrams", n = 2
+    )
+
+review_bigrams_by_movie[, .N, bigram][order(-N)] %>% head(10)
+```
+
+## Exercise
+
+Remove bigrams that have the first or second word on the stopword list!
+
+## Stop words and bigrams
+
+```{r, echo = TRUE}
+stopwords <- stop_words[, word]
+```
+
+Regex should be as precise as possible. Example: "on" vs "bond"
+```{r, echo = TRUE}
+grep(
+    pattern = paste0(stopwords, collapse = "|"),
+    "bond",
+    value = TRUE
+)
+```
+
+## Demo: "^" and "$"
+
+```{r, echo = TRUE}
+test <- c("i am", "james", "ma'am")
+grepl("am", test)
+grepl("^am|am$", test)
+grepl("^am|am$", test)
+grepl("^am[[:space:]]|[[:space:]]am$", test)
+```
+
+## Solution
+
+```{r, echo = TRUE, eval = FALSE}
+stopwords_regex <- paste(
+    paste(paste0("^", stopwords, "[[:space:]]"), collapse = "|"),
+    paste(paste0("[[:space:]]", stopwords, "$"), collapse = "|"),
+    collapse = "|"
+)
+
+review_bigrams_by_movie <- review_bigrams_by_movie %>%
+    .[!grepl(stopwords_regex, bigram)]
+
+review_bigrams_by_movie[, .N, bigram][order(-N)] %>%
+    head(10)
+```
+
+## Solution
+
+```{r}
+stopwords_regex <- paste(
+    paste(paste0("^", stopwords, "[[:space:]]"), collapse = "|"),
+    paste(paste0("[[:space:]]", stopwords, "$"), collapse = "|"),
+    collapse = "|"
+)
+
+review_bigrams_by_movie <- review_bigrams_by_movie %>%
+    .[!grepl(stopwords_regex, bigram)]
+
+review_bigrams_by_movie[, .N, bigram][order(-N)] %>%
+    head(10)
+```
+
+# Sentiment analysis
+
+## Sentiment analysis
+
+TODO add definition
+
+## Sentiment lexicons
+
+```{r, echo = TRUE}
+tidytext::get_sentiments() %>% head()
+```
+
+## Sentiment lexicons - afinn
+
+```{r, echo = TRUE}
+get_sentiments(lexicon = "afinn") %>% head(6)
+```
+
+## Sentiment lexicons - bing
+
+```{r, echo = TRUE}
+get_sentiments(lexicon = "bing") %>% head(6)
+```
+
+## Sentiment lexicons - nrc
+
+```{r, echo = TRUE}
+get_sentiments(lexicon = "nrc") %>% head(6)
+```
+
+## Sentiment lexicons - loughran
+
+```{r, echo = TRUE}
+get_sentiments(lexicon = "loughran") %>% head(6)
+```
+
+## Example
+
+```{r, echo = TRUE}
+sentiment_scores <- get_sentiments(lexicon = "afinn") %>%
+    data.table()
+sentiment_scores[, .N, keyby = "value"]
+```
+
+## Example
+```{r, echo = TRUE}
+sentiment_scores[value == -5] %>% head(3)
+```
+
+## Example
+```{r, echo = TRUE}
+sentiment_scores[value == 0] %>% head(3)
+```
+
+## Example
+```{r, echo = TRUE}
+sentiment_scores[value == 5] %>% head(3)
+```
+
+## Example
+
+```{r, echo = TRUE}
+review_sentiment_scores <- reviews[, .(short_review)] %>%
+    unnest_tokens(output = word, input = short_review, drop = FALSE) %>%
+    merge(sentiment_scores, by = "word") %>%
+    .[, .(sentiment_score = sum(value)), by = c("short_review")]
+```
+_note: be careful with merging! not all words have sentiment scores_
+
+## Example
+
+TODO: this is probably not visible... Move to R script?
+
+```{r, echo = TRUE}
+review_sentiment_scores[order(-sentiment_score)] %>% head(3)
+review_sentiment_scores[order(-sentiment_score)] %>% tail(3)
+```
+
+## Example
+
+```{r, echo = TRUE}
+movies_w_sentiments <- reviews %>%
+    merge(review_sentiment_scores, by = "short_review") %>%
+    .[,
+        .(movie_sentiment_score = sum(sentiment_score)),
+        by = c("movie_title", "media_score")
+    ]
+```
+
+_note: normally pls don't join on text fields..._
+
+## Example
+
+```{r}
+ggplot(
+    movies_w_sentiments,
+    aes(x = movie_sentiment_score, y = media_score)
+) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE) +
+    labs(
+        title = "Correlation between review sentiments and review scores",
+        subtitle = "On the 27 movies in the James Bond franchise",
+        caption = paste(
+            "Data gathered from rottentomatoes.com",
+            "Sentiment lexicon used: 'afinn'",
+            sep = "\n"
+        ),
+        y = "Media Score on RT",
+        x = "Sum of review word sentiment scores"
+    ) +
+    scale_y_continuous(limits = c(0, 125)) +
+    theme_minimal()
+```
+
+# Homework
+
+## Homework
+
+* Work on the `data/marvel_reviews_raw.csv` file!
+
+* Clean data: media scores should be an integer.
+* Get the "main" (first in order of appearance) actor for each movie
+    * Hint: remember capturing groups!
+    * (But you can choose any method you prefer)
+* Based on the "bing" lexicon (!), calculate the some type of sentiment score for each movie
+* By actor, plot avg sentiment score against their avg media score
+* Deadline: start of next class, November 10th
+
+## For 2 bonus points
+
+* Repeat the previous exercise with the following modifications:
+* Instead of using just the main actor, you should capture the whole cast
+* For each cast member, take the movie's sentiment score (calculated as before)
+* Calculate the avg. sentiment score by actor
+* Visualize from best to worst the sentiment the actors' movies got on average
