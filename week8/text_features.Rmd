@@ -492,7 +492,9 @@ review_bigrams_by_movie[, .N, bigram][order(-N)] %>%
 
 ## Sentiment analysis
 
-TODO add definition
+... is computationally identifying and categorizing opinions and attitude in text.
+Typically, we are interested in negative-neutral-positive sentiments,
+but other scales are possible well.
 
 ## Sentiment lexicons
 
