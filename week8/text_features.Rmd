@@ -37,8 +37,9 @@ library(wordcloud)
 - Lead Data Scientist @ Emarsys AI Labs
 - (Previous: employer: Morgan Stanley)
 - Worked in data for ~10 years
-- Edu. background in Finance / Business IT
+- Educational background in Finance / Business IT
 - CEU MSc in Business Analytics graduate
+- Contact: _t.koncz@gmail.com_
 
 
 ## Goal of the lesson
