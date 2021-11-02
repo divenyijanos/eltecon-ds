@@ -112,7 +112,7 @@ grepl(good_regex, bad_review)
 - So how do you match a literal "."? With escaping! "\."
     - (Due to string escaping, you'll have to use `\\.` in R... I'm sorry)
 
-## Examples I.
+## `gsub()` example I.
 
 ```{r, echo = TRUE}
 media_scores <- c("65%", "33%", "20%")
@@ -125,7 +125,7 @@ gsub(pattern = "%", replacement = "", media_scores) %>%
     as.integer()
 ```
 
-## Examples II.
+## `gsub()` example II.
 
 ```{r, echo = TRUE}
 year <- c("(2002)", "(1990)")
@@ -143,10 +143,13 @@ Note: "(" and ")" are special characters, that's why we need escaping.
 ## Exercise
 
 Capture the movie id in the following string!
+Use the `text_features.R` file.
 
 ```{r, echo = TRUE}
 movie_url <- "https://www.rt.com/m/1003722-casino_royale"
 ```
+
+(Expected answer: "1003722-casino_royale")
 
 ## Solution
 
