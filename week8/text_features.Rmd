@@ -55,7 +55,7 @@ library(wordcloud)
 ## Regular expressions
 
 - Regular expressions (regex) are basically *smart keyword matching*
-- More precisely: ["a sequence of characters that specifies a search pattern"](https://en.wikipedia.org/wiki/Regular_expression)
+- Formally: ["a sequence of characters that specifies a search pattern"](https://en.wikipedia.org/wiki/Regular_expression)
 - Regex allows us to capture important patterns in our data
 
 ## Basic regex example
@@ -78,6 +78,15 @@ bad_words <- c("bad", "terrible", "hate")
 good_regex <- paste(good_words, collapse = "|")
 
 bad_regex <- paste(bad_words, collapse = "|")
+
+# note: "|" is "OR" in regex
+```
+
+## Basic regex example
+
+```{r, echo = TRUE}
+print(good_regex)
+print(bad_regex)
 
 # note: "|" is "OR" in regex
 ```
@@ -166,11 +175,15 @@ movie_urls <- c(
 ## `gsub()` is not going to "scale"...
 
 ```{r, echo = TRUE}
-gsub("https://www.rt.com/m/", "", movie_urls)
+gsub("https://www\\.rt\\.com/m/", "", movie_urls)
+```
 
+## `gsub()` is not going to "scale"...
+
+```{r, echo = TRUE}
 gsub(
     "/reviews", "",
-    gsub("https://www.rt.com/m/", "", movie_urls)
+    gsub("https://www\\.rt\\.com/m/", "", movie_urls)
 )
 ```
 
@@ -178,8 +191,7 @@ gsub(
 
 ```{r, echo = TRUE}
 stringr::str_match(
-    string = movie_urls,
-    pattern = ".*/m/(.+?)(/.*)?$"
+    string = movie_urls, pattern = ".*/m/(.+?)(/.*)?$"
 )[, 2]
 ```
 
@@ -194,14 +206,20 @@ Special characters:
 
 ## Exercise
 
-TODO figure out how to print
-
 ```{r}
-img_url <- "https://resizing.flixster.com/R1dBRE4KaDM5WfvLIS7-0aSZMIo=/206x305/v2/https://flxt.tmsimg.com/assets/p4248_p_v8_ad.jpg"
+img_url <- "https://resizing.flixster.com/
+R1dBRE4KaDM5WfvLIS7-0aSZMIo=/206x305/v2/
+https://flxt.tmsimg.com/assets/p4248_p_v8_ad.jpg"
 ```
 
 ```{r, echo = TRUE}
-img_url
+cat(img_url)
+```
+
+[Resized image](https://resizing.flixster.com/R1dBRE4KaDM5WfvLIS7-0aSZMIo=/206x305/v2/https://flxt.tmsimg.com/assets/p4248_p_v8_ad.jpg)
+
+```{r}
+img_url <- gsub("\n", "", img_url)
 ```
 
 ## Solution
@@ -212,6 +230,9 @@ stringr::str_match(
     pattern = ".+/(https://.+\\.jpg)"
 )[, 2]
 ```
+
+[Original image](https://flxt.tmsimg.com/assets/p4248_p_v8_ad.jpg)
+
 
 ## More on regex
 
@@ -275,13 +296,11 @@ Tokenize reviews & count the 10 most frequent words!
 ## Solution
 
 ```{r, echo = TRUE}
-review_words_by_movie <- reviews %>% 
-    .[, .(movie_title, short_review)] %>%
+review_words_by_movie <- reviews[, .(short_review)] %>%
     unnest_tokens(output = word, input = short_review)
 
-review_words_by_movie[, .N, by = "word"] %>%
-    .[order(-N)] %>%
-    head(10)
+review_words_by_movie[, .N, by = "word"][order(-N)] %>%
+    head(6)
 ```
 
 Not to useful, right? Do not worry...
@@ -318,9 +337,8 @@ review_words_by_movie <- review_words_by_movie %>%
 ```{r, echo = TRUE}
 word_freq <- review_words_by_movie %>%
     .[, .(num_occurance = .N), by = "word"] %>%
-    .[order(-num_occurance)]
-
-word_freq %>% head(10)
+    .[order(-num_occurance)] %T>%
+    head(10)
 ```
 
 ## Something fancy - wordclouds
@@ -387,11 +405,9 @@ we can then build a model of the relationships between them."** - [tidytextminin
 ## Bigram example
 
 ```{r, echo = TRUE, eval = FALSE}
-review_bigrams_by_movie <- reviews %>%
-    .[, .(movie_id, short_review)] %>%
+review_bigrams_by_movie <- reviews[, .(short_review)] %>%
     unnest_tokens(
-        output = bigram,
-        input = short_review,
+        output = bigram, input = short_review,
         token = "ngrams", n = 2
     )
 
@@ -402,11 +418,9 @@ review_bigrams_by_movie[, .N, bigram][order(-N)] %>%
 ## Bigram example
 
 ```{r}
-review_bigrams_by_movie <- reviews %>%
-    .[, .(title, short_review)] %>%
+review_bigrams_by_movie <- reviews[, .(short_review)] %>%
     unnest_tokens(
-        output = bigram,
-        input = short_review,
+        output = bigram, input = short_review,
         token = "ngrams", n = 2
     )
 
@@ -513,8 +527,7 @@ get_sentiments(lexicon = "loughran") %>% head(6)
 ## Example
 
 ```{r, echo = TRUE}
-sentiment_scores <- get_sentiments(lexicon = "afinn") %>%
-    data.table()
+sentiment_scores <- get_sentiments(lexicon = "afinn") %>% data.table()
 sentiment_scores[, .N, keyby = "value"]
 ```
 
