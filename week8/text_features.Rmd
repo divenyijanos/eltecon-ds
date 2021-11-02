@@ -364,40 +364,6 @@ suppressWarnings(
 )
 ```
 
-## Domain specific stop words
-
-```{r, echo = TRUE, eval = FALSE}
-movie_stop_words <- data.table(
-    word = c("james", "bond", "007",
-             "film", "series", "movie",
-             "films", "franchise",
-             "it's", "so")
-)
-
-review_words_by_movie %>%
-    .[!movie_stop_words, on = "word"] %>%
-    .[, .(num_occurance = .N), by = "word"] %>%
-    .[order(-num_occurance)] %>%
-    head(10)
-```
-
-## Domain specific stop words
-
-```{r}
-movie_stop_words <- data.table(
-    word = c("james", "bond", "007",
-             "film", "series", "movie",
-             "films", "franchise",
-             "it's", "so")
-)
-
-review_words_by_movie %>%
-    .[!movie_stop_words, on = "word"] %>%
-    .[, .(num_occurance = .N), by = "word"] %>%
-    .[order(-num_occurance)] %>%
-    head(10)
-```
-
 ## N-grams
 
 **"... we can also use the function to tokenize
