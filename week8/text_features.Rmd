@@ -527,14 +527,6 @@ review_sentiment_scores <- reviews[, .(short_review)] %>%
 ```
 _note: be careful with merging! not all words have sentiment scores_
 
-## Example
-
-TODO: this is probably not visible... Move to R script?
-
-```{r, echo = TRUE}
-review_sentiment_scores[order(-sentiment_score)] %>% head(3)
-review_sentiment_scores[order(-sentiment_score)] %>% tail(3)
-```
 
 ## Example
 
