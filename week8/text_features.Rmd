@@ -42,13 +42,27 @@ library(wordcloud)
 - Contact: _t.koncz@gmail.com_
 
 
-## Goal of the lesson
+## NLP
 
-- introduce basic methods to work with text data:
-    - regular expressions
-    - tokenization and bag-of-words
-    - sentiment analysis
-- use these methods to create useful features for prediction models
+- NLP: Natural Language Processing
+- Industry hot topic: [replacing computer vision](https://about.fb.com/news/2021/11/update-on-use-of-face-recognition/)
+- Deep Learning dominates: [word2vec](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/), [transformers](https://arxiv.org/abs/1706.03762), [BERT](https://arxiv.org/abs/1810.04805), [DALLE](https://openai.com/blog/dall-e/)...
+- Some partical applications:
+    - Chatbots...
+    - Search
+    - Translations
+    - Text Classification
+- These methods still don't understand language!
+
+## About today
+
+- Not going to be about those mentioned before :)
+- (But all of them are built on what we'll cover)
+- Introduce basic methods to work with text data:
+    - Regular expressions
+    - Tokenization
+    - Sentiment analysis
+- Using these for prediction: two weeks from now
 
 # Regular expressions
 
@@ -586,3 +600,4 @@ ggplot(
 * For each cast member, take the movie's sentiment score (calculated as before)
 * Calculate the avg. sentiment score by actor
 * Visualize from best to worst the sentiment the actors' movies got on average
+
