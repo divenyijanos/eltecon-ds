@@ -10,6 +10,7 @@ movie_url <- "https://www.rt.com/m/1003722-casino_royale"
 # Expected answer: "1003722-casino_royale"
 
 
+
 ## W/ capturing groups
 
 movie_urls <- c(
@@ -23,6 +24,8 @@ stringr::str_match(
     string = movie_urls, pattern = ".*/m/(.+?)(/.*)?$"
 )
 
+
+# Hint: use https://regex101.com/ if needed!
 
 img_url <- "https://resizing.flixster.com/R1dBRE4KaDM5WfvLIS7-0aSZMIo=/206x305/v2/https://flxt.tmsimg.com/assets/p4248_p_v8_ad.jpg"
 
