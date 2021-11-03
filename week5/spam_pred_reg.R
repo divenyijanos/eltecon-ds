@@ -44,6 +44,10 @@ data_test <- data_test %>%
 
 calculateAccuracy(data_test$is_spam, data_test$predicted_class_ridge)
 
+#LASSO
+lasso <- glmnet(X, y, family = "binomial", alpha = 1, type.measure="class", lambda = 0.2)
+coef(lasso)
+
 # Cross-validated ridge
 set.seed(2698)
 ridge_cv <- cv.glmnet(X, y, family = "binomial", alpha = 0, type.measure="class", nfolds=5)

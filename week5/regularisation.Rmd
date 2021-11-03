@@ -144,7 +144,7 @@ where $E_D(w)$ is the **data-dependent error**, $E_W(w)$ **regularisation term**
 $$MSE(\hat w) = E[(\hat w - w)^2] = \underbrace{E[(\hat w - w)]^2}_\text{bias} + \underbrace{E[(\hat w - E \hat w)^2]}_\text{variance} $$
 
 - OLS is unbiased estimator
-- ridge and LASSO are **biased but have a smaller variance** than least squares
+- regularised estimators are **biased but have a smaller variance** than least squares
 - by optimally choosing $\lambda$ it is possible to obtain an estimator with smaller MSE
 
 ## Parameter vs. Hyperparameter
