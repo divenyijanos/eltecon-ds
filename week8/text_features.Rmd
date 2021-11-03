@@ -123,7 +123,7 @@ grepl(good_regex, bad_review)
     - E.g. "." means "dot" in English
 - In regex, there are certain special characters that make it powerful
     - E.g. in regex, "." means "match **ANY** character"
-- So how do you match a literal "."? With escaping! "\."
+- So how do you match a literal "."? With escaping! `\. = "dot"`
     - (Due to string escaping, you'll have to use `\\.` in R... I'm sorry)
 
 ## `gsub()` example I.
