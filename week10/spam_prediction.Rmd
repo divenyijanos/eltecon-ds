@@ -8,14 +8,15 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(fig.height = 3, fig.width = 7)
-knitr::opts_chunk$set(fig.pos='center')
+knitr::opts_chunk$set(fig.height = 4.5, fig.width = 9)
+knitr::opts_chunk$set(fig.align='center')
 
 library(knitr)
 library(data.table)
 library(ggplot2)
 library(magrittr)
 library(tidytext)
+library(glue)
 ```
 
 ## Exploratory analysis
@@ -48,3 +49,36 @@ sms %>%
 
 Our dataset is quite imbalanced. We'll have to pay attention to this when modeling.
 
+### Message length
+
+```{r}
+sms[, sms_length := nchar(sms_text)]
+```
+
+```{r}
+sms[, .(avg_sms_length = mean(sms_length)), by = "is_spam"]
+```
+
+Okay, this is interesting... let's dive deeper:
+
+```{r, echo = FALSE}
+spam_length     <- sms[is_spam == 1, .(median_sms_length = median(sms_length))]
+non_spam_length <- sms[is_spam == 0, .(median_sms_length = median(sms_length))]
+
+ggplot(
+    sms,
+    aes(x = sms_length, fill = as.factor(is_spam), color = as.factor(is_spam))
+) +
+    geom_density(alpha = 0.5) +
+    labs(
+        title = "Densities number of characters by sms type",
+        subtitle = glue(
+            "Median sms lengths: spam = {spam_length}",
+            ", non-spam: {non_spam_length}"
+        )
+    ) +
+    theme_minimal() +
+    theme(legend.position = "top")
+```
+
+We might have just found our baseline model!
