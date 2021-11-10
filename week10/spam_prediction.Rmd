@@ -1,0 +1,37 @@
+---
+title: "Spam classification case study"
+author: "Tamas Koncz"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(fig.height = 3, fig.width = 7)
+knitr::opts_chunk$set(fig.pos='center')
+
+library(knitr)
+library(data.table)
+library(ggplot2)
+library(magrittr)
+library(tidytext)
+```
+
+## Exploratory analysis
+
+We are going to work on the [sms-spam-or-ham](https://www.kaggle.com/dejavu23/sms-spam-or-ham-beginner/data) dataset from Kaggle:
+
+_"The files contain one message per line. Each line is composed by two columns: v1 contains the label (ham or spam) and v2 contains the raw text."_
+
+I recommend to take a look at the raw `.csv` first. Then, we can import it properly to R:
+
+```{r}
+sms <- fread(
+    "week10/data/spam.csv",
+    header = TRUE,
+    select = c("v1", "v2"),
+    col.names = c("is_spam", "sms_text")
+) %>%
+    .[, is_spam := ifelse(is_spam == "spam", 1, 0)]
+```

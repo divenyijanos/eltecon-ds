@@ -148,7 +148,7 @@ year <- c("(2002)", "(1990)")
 How to capture the year as a number?
 
 ```{r, echo = TRUE}
-gsub(pattern = "(\\(|\\))", replacement = "", year) %>%
+gsub(pattern = "\\(|\\)", replacement = "", year) %>%
     as.integer()
 ```
 
