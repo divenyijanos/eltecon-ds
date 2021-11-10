@@ -36,3 +36,15 @@ sms <- fread(
 ) %>%
     .[, is_spam := ifelse(is_spam == "spam", 1, 0)]
 ```
+
+Let's see the frequency of spam messages in the dataset:
+
+```{r}
+sms %>%
+    .[, .N, by = "is_spam"] %>%
+    .[, share := scales::percent(N / sum(N), accuracy = 0.01)] %>%
+    .[]
+```
+
+Our dataset is quite imbalanced. We'll have to pay attention to this when modeling.
+
