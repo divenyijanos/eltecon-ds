@@ -28,7 +28,7 @@ I recommend to take a look at the raw `.csv` first. Then, we can import it prope
 
 ```{r}
 sms <- fread(
-    "week10/data/spam.csv",
+    "data/spam.csv",
     header = TRUE,
     select = c("v1", "v2"),
     col.names = c("is_spam", "sms_text")
