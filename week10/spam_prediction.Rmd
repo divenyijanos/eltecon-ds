@@ -31,7 +31,8 @@ sms <- fread(
     "data/spam.csv",
     header = TRUE,
     select = c("v1", "v2"),
-    col.names = c("is_spam", "sms_text")
+    col.names = c("is_spam", "sms_text"),
+    encoding = 'Latin-1'
 ) %>%
     .[, is_spam := ifelse(is_spam == "spam", 1, 0)]
 ```
