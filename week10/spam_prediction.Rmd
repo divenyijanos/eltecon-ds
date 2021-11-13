@@ -53,29 +53,29 @@ Our dataset is quite imbalanced. We'll have to pay attention to this when modeli
 ### Message length
 
 ```{r}
-sms[, sms_length := nchar(sms_text)]
+sms[, sms_chr_length := nchar(sms_text)]
 ```
 
 ```{r}
-sms[, .(avg_sms_length = mean(sms_length)), by = "is_spam"]
+sms[, .(avg_sms_chr_length = mean(sms_chr_length)), by = "is_spam"]
 ```
 
 Okay, this is interesting... let's dive deeper:
 
 ```{r, echo = FALSE}
-spam_length     <- sms[is_spam == 1, .(median_sms_length = median(sms_length))]
-non_spam_length <- sms[is_spam == 0, .(median_sms_length = median(sms_length))]
+spam_chr_length     <- sms[is_spam == 1, .(median_sms_chr_length = median(sms_chr_length))]
+non_spam_chr_length <- sms[is_spam == 0, .(median_sms_chr_length = median(sms_chr_length))]
 
 ggplot(
     sms,
-    aes(x = sms_length, fill = as.factor(is_spam), color = as.factor(is_spam))
+    aes(x = sms_chr_length, fill = as.factor(is_spam), color = as.factor(is_spam))
 ) +
     geom_density(alpha = 0.5) +
     labs(
         title = "Densities number of characters by sms type",
         subtitle = glue(
-            "Median sms lengths: spam = {spam_length}",
-            ", non-spam: {non_spam_length}"
+            "Median sms char. lengths: spam = {spam_chr_length}",
+            ", non-spam: {non_spam_chr_length}"
         )
     ) +
     theme_minimal() +
