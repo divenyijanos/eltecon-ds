@@ -17,6 +17,7 @@ library(ggplot2)
 library(magrittr)
 library(tidytext)
 library(glue)
+library(here)
 ```
 
 ## Exploratory analysis
@@ -29,7 +30,7 @@ I recommend to take a look at the raw `.csv` first. Then, we can import it prope
 
 ```{r}
 sms <- fread(
-    "data/spam.csv",
+    here::here("week10", "data", "spam.csv"),
     header = TRUE,
     select = c("v1", "v2"),
     col.names = c("is_spam", "sms_text"),
