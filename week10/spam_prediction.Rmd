@@ -83,3 +83,96 @@ ggplot(
 ```
 
 We might have just found our baseline model!
+
+### Tokenization
+
+
+Add a unique id to each message:
+
+```{r}
+sms[, message_id := 1:.N]
+```
+
+Tokenization:
+
+```{r}
+sms_words <- sms %>%
+    .[, .(message_id, sms_text)] %>%
+    tidytext::unnest_tokens(output = "word", input = "sms_text") %>%
+    data.table()
+```
+
+**EXERCISE** let's flag stopwords:
+```{r}
+stop_words <- tidytext::get_stopwords() %>%
+    data.table() %>%
+    .[lexicon == "snowball", -c("lexicon")] %>%
+    .[, is_stopword := TRUE]
+
+sms_words <- sms_words %>%
+    merge(stop_words, by = "word", all.x = TRUE) %>%
+    .[, is_stopword := dplyr::coalesce(is_stopword, FALSE)]
+```
+
+First, let's see sms length by words!
+
+```{r}
+sms_word_lengths <- merge(
+    sms_words[, .(num_words = .N), by = "message_id"],
+    sms_words[is_stopword == FALSE, .(num_non_stopwords = .N), by = "message_id"],
+    by = "message_id",
+    all.x = TRUE
+) %>%
+    .[, num_non_stopwords := dplyr::coalesce(num_non_stopwords, 0)]
+```
+
+```{r}
+sms <- merge(
+    sms, sms_word_lengths, by = "message_id"
+)
+```
+
+**EXERCISE** plot the distribution of `num_words` by `is_spam`!
+```{r, echo = FALSE}
+spam_num_words     <- sms[is_spam == 1, .(median_num_words = median(num_words))]
+non_spam_num_words <- sms[is_spam == 0, .(median_num_words = median(num_words))]
+
+ggplot(
+    sms,
+    aes(x = num_words, fill = as.factor(is_spam), color = as.factor(is_spam))
+) +
+    geom_histogram(alpha = 0.25, position = "identity") +
+    labs(
+        title = "Distribution of number of words by sms type",
+        subtitle = glue(
+            "Median sms word count: spam = {spam_num_words}",
+            ", non-spam: {non_spam_num_words}"
+        )
+    ) +
+    theme_minimal() +
+    theme(legend.position = "top")
+```
+
+```{r, echo = FALSE}
+spam_num_non_stopwords     <- sms[
+    is_spam == 1, .(median_num_non_stopwords = median(num_non_stopwords))
+]
+non_spam_num_non_stopwords <- sms[
+    is_spam == 0, .(median_num_non_stopwords = median(num_non_stopwords))
+]
+
+ggplot(
+    sms,
+    aes(x = num_non_stopwords, fill = as.factor(is_spam), color = as.factor(is_spam))
+) +
+    geom_histogram(alpha = 0.25, position = "identity") +
+    labs(
+        title = "Distribution of number of non-stopwords by sms type",
+        subtitle = glue(
+            "Median sms word count: spam = {spam_num_non_stopwords}",
+            ", non-spam: {non_spam_num_non_stopwords}"
+        )
+    ) +
+    theme_minimal() +
+    theme(legend.position = "top")
+```
