@@ -23,7 +23,7 @@ movie_review_sentiments <- marvel_reviews %>%
     merge(sentiment_scores, by = "word") %>%
     .[, .(movie_review_sentiment_score = sum(sentiment)), by = c("title")]
 
-actor_scores <- marvel_reviews %>%
+main_actor_scores <- marvel_reviews %>%
     .[, .(main_actor, title, media_score)] %>%
     unique() %>%
     merge(movie_review_sentiments, by = c("title")) %>%
@@ -35,13 +35,13 @@ actor_scores <- marvel_reviews %>%
     ]
 
 plot <- ggplot(
-    actor_scores,
+    main_actor_scores,
     aes(x = avg_review_sentiment, y = avg_media_score, label = main_actor)
 ) +
     geom_smooth(method = "lm", se = FALSE) +
     geom_point() +
     labs(
-        title = "Actors' movie review sentiments and media scores",
+        title = "Main actors' movie review sentiments and media scores",
         subtitle = "Based on the MCU movies as of 2021-11-14",
         caption = paste(
             "Data gathered from rottentomatoes.com",
@@ -55,3 +55,41 @@ plot <- ggplot(
 plot
 
 plot + ggrepel::geom_text_repel()
+
+## Task 2 - For 2 bonus points
+movie_actors <- marvel_reviews_raw %>%
+    .[, .(title, cast)] %>%
+    unique() %>%
+    .[, (c("actor1", "actor2", "actor3")) := as.data.table(
+        stringr::str_match(cast, "^(.+), (.+), (.+)$")[, 2:4]
+    )] %>%
+    .[, -c("cast")] %>%
+    melt(id.vars = "title", value.name = "actor") %>%
+    .[, -c("variable")]
+
+actor_scores <- marvel_reviews %>%
+    .[, .(title, media_score)] %>%
+    unique() %>%
+    merge(movie_actors, by = "title") %>%
+    merge(movie_review_sentiments, by = c("title")) %>%
+    .[, .(avg_review_sentiment = mean(movie_review_sentiment_score)),
+        by = "actor"
+    ]
+
+ggplot(
+    actor_scores,
+    aes(x = reorder(actor, avg_review_sentiment), y = avg_review_sentiment)
+) +
+    geom_col() +
+    coord_flip() +
+    labs(
+        title = "Actors' movie review sentiments",
+        subtitle = "Based on the MCU movies as of 2021-11-14",
+        caption = paste(
+            "Data gathered from rottentomatoes.com",
+            "Sentiment lexicon used: 'bing'",
+            sep = "\n"
+        ),
+        x = ""
+    ) +
+    theme_minimal()
