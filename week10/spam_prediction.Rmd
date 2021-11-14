@@ -18,6 +18,7 @@ library(magrittr)
 library(tidytext)
 library(glue)
 library(here)
+library(patchwork)
 ```
 
 ## Exploratory analysis
@@ -114,6 +115,8 @@ sms_words <- sms_words %>%
     .[, is_stopword := dplyr::coalesce(is_stopword, FALSE)]
 ```
 
+#### Number of words
+
 First, let's see sms length by words!
 
 ```{r}
@@ -175,4 +178,90 @@ ggplot(
     ) +
     theme_minimal() +
     theme(legend.position = "top")
+```
+
+## Most frequent words
+
+```{r}
+sms_words <- merge(
+    sms_words, sms[, .(message_id, is_spam)], by = "message_id"
+)
+```
+
+```{r}
+num_spam_msgs <- sms_words[is_spam == 1, uniqueN(message_id)]
+word_occurrences_in_spam <- sms_words[
+    is_spam == 1,
+    .(prevalence_in_spam = uniqueN(message_id) / num_spam_msgs),
+    by = c("word", "is_stopword")
+]
+
+num_non_spam_msgs <- sms_words[is_spam == 0, uniqueN(message_id)]
+word_occurrences_in_non_spam <- sms_words[
+    is_spam == 0,
+    .(prevalence_in_non_spam = uniqueN(message_id) / num_non_spam_msgs),
+    by = c("word", "is_stopword")
+]
+
+word_occurrences <- merge(
+    word_occurrences_in_spam, word_occurrences_in_non_spam,
+    by = c("word", "is_stopword"), all = TRUE
+) %>%
+    .[, `:=`(
+        prevalence_in_spam = dplyr::coalesce(prevalence_in_spam, 0),
+        prevalence_in_non_spam = dplyr::coalesce(prevalence_in_non_spam, 0)
+    )] %>%
+    .[, avg_prevalence := (prevalence_in_spam + prevalence_in_non_spam) / 2]
+```
+
+```{r}
+p1 <- word_occurrences[order(-avg_prevalence)][1:20] %>%
+    ggplot(aes(x = reorder(word, avg_prevalence))) +
+        geom_col(aes(y = prevalence_in_spam), fill = "red") +
+        labs(x = "avg_prevalence", title = "Spam") +
+        ylim(c(0, 0.65)) +
+        coord_flip() +
+        theme_minimal() +
+        theme(legend.position = "top")
+
+p2 <- word_occurrences[order(-avg_prevalence)][1:20] %>%
+    ggplot(aes(x = reorder(word, avg_prevalence))) +
+        geom_col(aes(y = prevalence_in_non_spam), fill = "blue") +
+        labs(x = "avg_prevalence", title = "Non-spam") +
+        ylim(c(0, 0.65)) +
+        coord_flip() +
+        theme_minimal() +
+        theme(legend.position = "top")
+
+patchwork::wrap_plots(p1, p2) +
+    patchwork::plot_annotation(
+          title = "Prevalence of most frequent words",
+          subtitle = "Includes stopwords",
+    )
+```
+
+```{r}
+p1 <- word_occurrences[is_stopword == FALSE][order(-avg_prevalence)][1:20] %>%
+    ggplot(aes(x = reorder(word, avg_prevalence))) +
+        geom_col(aes(y = prevalence_in_spam), fill = "red") +
+        labs(x = "avg_prevalence", title = "Spam") +
+        ylim(c(0, 0.65)) +
+        coord_flip() +
+        theme_minimal() +
+        theme(legend.position = "top")
+
+p2 <- word_occurrences[is_stopword == FALSE][order(-avg_prevalence)][1:20] %>%
+    ggplot(aes(x = reorder(word, avg_prevalence))) +
+        geom_col(aes(y = prevalence_in_non_spam), fill = "blue") +
+        labs(x = "avg_prevalence", title = "Non-spam") +
+        ylim(c(0, 0.65)) +
+        coord_flip() +
+        theme_minimal() +
+        theme(legend.position = "top")
+
+patchwork::wrap_plots(p1, p2) +
+    patchwork::plot_annotation(
+          title = "Prevalence of most frequent words",
+          subtitle = "Excludes stopwords",
+    )
 ```
