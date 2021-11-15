@@ -19,6 +19,9 @@ library(tidytext)
 library(glue)
 library(here)
 library(patchwork)
+library(rpart)
+
+source(here::here("week10", "eval_utils.R"))
 ```
 
 ## Exploratory analysis
@@ -265,3 +268,71 @@ patchwork::wrap_plots(p1, p2) +
           subtitle = "Excludes stopwords",
     )
 ```
+
+## Predictive modeling
+
+
+### Train / test split
+
+First, we have to separate a portion of our dataset for testing the models we create:
+```{r}
+train_proportion <- 0.8
+
+num_rows <- sms[, .N]
+
+set.seed(20211015)
+train_index <- sample(1:num_rows, floor(num_rows * train_proportion))
+
+train <- sms[train_index]
+test  <- sms[-train_index]
+```
+
+### Baseline model
+
+Most ML project should start by establishing a useful baseline.
+Automatically assigning the most frequent class could be a good performance benchmark, but it is rarely useful in practice.
+
+Rather, we will build a single-split tree model to form our baseline:
+
+```{r}
+tree_model <- rpart(
+    is_spam ~ sms_chr_length,
+    data = train,
+    control = rpart.control(maxdepth = 1)
+)
+tree_model
+```
+
+### Evaluation of baseline model
+
+```{r}
+tree_predictions <- predict(tree_model, newdata = test)
+```
+
+Predictions will only take on two values (due to the single-split control), so we can take their avg. as our cutoff to assign classes to predicted probabilities:
+```{r}
+baseline_cutoff <- mean(unique(tree_predictions))
+```
+
+Accuracy (remember, this is a imbalanced dataset):
+
+```{r}
+calculateAccuracy(test[["is_spam"]], tree_predictions, cutoff = baseline_cutoff)
+```
+
+Confusion matrix to visualize the TPR / FPR balance:
+
+```{r}
+confusion_matrix <- getConfusionMatrix(
+    actual = test[["is_spam"]],
+    predictions = tree_predictions,
+    cutoff = baseline_cutoff
+)
+```
+
+```{r}
+calculateFPRTPR(confusion_matrix)
+```
+
+We are trading in a lot of false positives for our true positives.
+Hopefully, we can do better with our next models.
