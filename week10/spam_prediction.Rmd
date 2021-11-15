@@ -295,43 +295,43 @@ Automatically assigning the most frequent class could be a good performance benc
 Rather, we will build a single-split tree model to form our baseline:
 
 ```{r}
-tree_model <- rpart(
+baseline_model <- rpart(
     is_spam ~ sms_chr_length,
     data = train,
     control = rpart.control(maxdepth = 1)
 )
-tree_model
+baseline_model
 ```
 
 ### Evaluation of baseline model
 
 ```{r}
-tree_predictions <- predict(tree_model, newdata = test)
+baseline_predictions <- predict(baseline_model, newdata = test)
 ```
 
 Predictions will only take on two values (due to the single-split control), so we can take their avg. as our cutoff to assign classes to predicted probabilities:
 ```{r}
-baseline_cutoff <- mean(unique(tree_predictions))
+baseline_cutoff <- mean(unique(baseline_predictions))
 ```
 
 Accuracy (remember, this is a imbalanced dataset):
 
 ```{r}
-calculateAccuracy(test[["is_spam"]], tree_predictions, cutoff = baseline_cutoff)
+calculateAccuracy(test[["is_spam"]], baseline_predictions, cutoff = baseline_cutoff)
 ```
 
 Confusion matrix to visualize the TPR / FPR balance:
 
 ```{r}
-confusion_matrix <- getConfusionMatrix(
+baseline_confusion_matrix <- getConfusionMatrix(
     actual = test[["is_spam"]],
-    predictions = tree_predictions,
+    predictions = baseline_predictions,
     cutoff = baseline_cutoff
 )
 ```
 
 ```{r}
-calculateFPRTPR(confusion_matrix)
+calculateFPRTPR(baseline_confusion_matrix)
 ```
 
 We are trading in a lot of false positives for our true positives.
