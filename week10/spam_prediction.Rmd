@@ -336,3 +336,45 @@ calculateFPRTPR(confusion_matrix)
 
 We are trading in a lot of false positives for our true positives.
 Hopefully, we can do better with our next models.
+
+### Logit using all features
+
+```{r}
+logit_model <- glm(
+    is_spam ~ .,
+    family = binomial(link = "logit"),
+    data = train[, -c("message_id", "sms_text")]
+)
+
+summary(logit_model)
+```
+
+```{r}
+logit_predictions <- predict(logit_model, newdata = test, type = "response")
+```
+
+```{r}
+logit_fpr_tpr <- purrr::map(seq(0, 1, 0.05), ~{
+    calculateFPRTPR(getConfusionMatrix(
+        actual = test[["is_spam"]],
+        predictions = logit_predictions,
+        cutoff = .x
+    )) %>%
+        .[, p := .x]
+}) %>%
+    rbindlist()
+```
+
+```{r}
+plotRoc(logit_fpr_tpr, model_name = "full logit model")
+```
+
+```{r}
+logit_confusion_matrix <- getConfusionMatrix(
+    actual = test[["is_spam"]], predictions = logit_predictions, cutoff = 0.2
+)
+```
+
+```{r}
+calculateFPRTPR(logit_confusion_matrix)
+```
