@@ -20,6 +20,7 @@ library(glue)
 library(here)
 library(patchwork)
 library(rpart)
+library(pROC)
 
 source(here::here("week10", "eval_utils.R"))
 ```
@@ -382,6 +383,11 @@ Accuracy (remember, this is a imbalanced dataset):
 calculateAccuracy(test[["is_spam"]], baseline_predictions, cutoff = baseline_cutoff)
 ```
 
+Better model performance metric would be AU(RO)C:
+```{r}
+pROC::auc(response = test[["is_spam"]], predictor = baseline_predictions)
+```
+
 Confusion matrix to visualize the TPR / FPR balance:
 
 ```{r}
@@ -432,11 +438,5 @@ plotRoc(logit_fpr_tpr, model_name = "full logit model")
 ```
 
 ```{r}
-logit_confusion_matrix <- getConfusionMatrix(
-    actual = test[["is_spam"]], predictions = logit_predictions, cutoff = 0.2
-)
-```
-
-```{r}
-calculateFPRTPR(logit_confusion_matrix)
+pROC::auc(response = test[["is_spam"]], predictor = logit_predictions)
 ```
