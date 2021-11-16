@@ -422,21 +422,11 @@ logit_predictions <- predict(logit_model, newdata = test, type = "response")
 ```
 
 ```{r}
-logit_fpr_tpr <- purrr::map(seq(0, 1, 0.05), ~{
-    calculateFPRTPR(getConfusionMatrix(
-        actual = test[["is_spam"]],
-        predictions = logit_predictions,
-        cutoff = .x
-    )) %>%
-        .[, p := .x]
-}) %>%
-    rbindlist()
-```
-
-```{r}
-plotRoc(logit_fpr_tpr, model_name = "full logit model")
-```
-
-```{r}
 pROC::auc(response = test[["is_spam"]], predictor = logit_predictions)
 ```
+
+```{r}
+calculateROC(actual = test[["is_spam"]], predictions = logit_predictions) %>%
+    plotROC(model_name = "full logit model")
+```
+

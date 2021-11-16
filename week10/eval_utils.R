@@ -18,7 +18,7 @@ calculateFPRTPR <- function(confusion_matrix) {
     data.table(FPR = fpr, TPR = tpr)
 }
 
-plotRoc <- function(fpr_tpr, model_name) {
+plotROC <- function(fpr_tpr, model_name) {
     ggplot(fpr_tpr, aes(x = FPR, y = TPR)) +
         geom_path() +
         geom_point(data = fpr_tpr[p %in% seq(0, 1, 0.2)]) +
@@ -34,3 +34,14 @@ plotRoc <- function(fpr_tpr, model_name) {
         ) +
         theme_minimal()
 }
+
+calculateROC <- function(actual, predictions) {
+    purrr::map(seq(0, 1, 0.05), ~{
+        calculateFPRTPR(getConfusionMatrix(
+            actual = actual, predictions = predictions, cutoff = .x
+        )) %>%
+            .[, p := .x]
+    }) %>%
+        rbindlist()
+}
+
