@@ -18,7 +18,7 @@ calculateFPRTPR <- function(confusion_matrix) {
     data.table(FPR = fpr, TPR = tpr)
 }
 
-plotROC <- function(fpr_tpr, model_name) {
+plotROC <- function(fpr_tpr, model_name, auc) {
     ggplot(fpr_tpr, aes(x = FPR, y = TPR)) +
         geom_path() +
         geom_point(data = fpr_tpr[p %in% seq(0, 1, 0.2)]) +
@@ -29,7 +29,7 @@ plotROC <- function(fpr_tpr, model_name) {
         scale_x_continuous(limits = c(0, 1)) +
         scale_y_continuous(limits = c(0, 1)) +
         labs(
-            title = glue("ROC for {model_name}"),
+            title = glue("ROC for {model_name}. AUC: {round(auc, 4)}"),
             subtitle = "Point labels represent probability cutoffs"
         ) +
         theme_minimal()

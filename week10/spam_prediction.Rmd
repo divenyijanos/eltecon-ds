@@ -431,6 +431,6 @@ logit_auc <- calculateAUC(
 
 ```{r}
 calculateROC(actual = test[["is_spam"]], predictions = logit_predictions) %>%
-    plotROC(model_name = "logit model using all features")
+    plotROC(model_name = "logit model using all features", auc = logit_auc)
 ```
 
