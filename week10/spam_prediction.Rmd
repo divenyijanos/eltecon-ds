@@ -407,30 +407,74 @@ calculateFPRTPR(baseline_confusion_matrix)
 We are trading in a lot of false positives for our true positives.
 Hopefully, we can do better with our next models.
 
-### Logit using all features
+### Logit using only numeric features
 
 ```{r}
-logit_model <- glm(
+logit_only_num_feat_model <- glm(
+    is_spam ~ sms_chr_length + num_words + num_non_stopwords,
+    family = binomial(link = "logit"),
+    data = train[, -c("message_id", "sms_text")]
+)
+
+summary(logit_only_num_feat_model)
+```
+
+```{r}
+logit_only_num_feat_predictions <- predict(
+    logit_only_num_feat_model, newdata = test, type = "response"
+)
+```
+
+```{r}
+logit_only_num_feat_auc <- calculateAUC(
+    actual = test[["is_spam"]], predictions = logit_only_num_feat_predictions
+)
+```
+
+```{r}
+calculateROC(
+    actual = test[["is_spam"]], predictions = logit_only_num_feat_predictions
+) %>%
+    plotROC(
+        model_name = "logit model using only numeric features",
+        auc = logit_only_num_feat_auc
+    )
+```
+
+### Logit using all features
+
+
+**EXERCISE** repeat the above logit model, but now use all features (incl. the one hot encodings!)
+```{r}
+full_logit_model <- glm(
     is_spam ~ .,
     family = binomial(link = "logit"),
     data = train[, -c("message_id", "sms_text")]
 )
 
-summary(logit_model)
+summary(full_logit_model)
 ```
 
 ```{r}
-logit_predictions <- predict(logit_model, newdata = test, type = "response")
-```
-
-```{r}
-logit_auc <- calculateAUC(
-    actual = test[["is_spam"]], predictions = logit_predictions
+full_logit_predictions <- predict(
+    full_logit_model, newdata = test, type = "response"
 )
 ```
 
 ```{r}
-calculateROC(actual = test[["is_spam"]], predictions = logit_predictions) %>%
-    plotROC(model_name = "logit model using all features", auc = logit_auc)
+full_logit_auc <- calculateAUC(
+    actual = test[["is_spam"]], predictions = full_logit_predictions
+)
+```
+
+```{r}
+calculateROC(
+    actual = test[["is_spam"]],
+    predictions = full_logit_predictions
+) %>%
+    plotROC(
+        model_name = "logit model using all features",
+        auc = full_logit_auc
+    )
 ```
 
