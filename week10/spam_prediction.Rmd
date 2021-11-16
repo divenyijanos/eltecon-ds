@@ -21,6 +21,7 @@ library(here)
 library(patchwork)
 library(rpart)
 library(pROC)
+library(ranger)
 
 source(here::here("week10", "eval_utils.R"))
 ```
@@ -477,4 +478,10 @@ calculateROC(
         auc = full_logit_auc
     )
 ```
+
+### Random Forest
+
+**EXERCISE** for 2 bonus points:
++ repeat the full model with RF!
++ Also plot variable importance.
 
