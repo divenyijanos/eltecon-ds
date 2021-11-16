@@ -32,6 +32,8 @@ We are going to work on the [sms-spam-or-ham](https://www.kaggle.com/dejavu23/sm
 
 _"The files contain one message per line. Each line is composed by two columns: v1 contains the label (ham or spam) and v2 contains the raw text."_
 
+The goal is to create the most accurate predictions whether an sms is spam or ham based on the message text.
+
 I recommend to take a look at the raw `.csv` first. Then, we can import it properly to R:
 
 ```{r}
@@ -54,7 +56,7 @@ sms %>%
     .[]
 ```
 
-Our dataset is quite imbalanced. We'll have to pay attention to this when modeling.
+Our dataset is quite imbalanced. We'll have to pay attention to this when evaluating our models.
 
 ### Message length
 
@@ -192,6 +194,8 @@ ggplot(
     theme(legend.position = "top")
 ```
 
+We see similar patterns like we did with length in characters: spam messages tend to be longer on average.
+
 ## Most frequent words
 
 ```{r}
@@ -234,7 +238,7 @@ word_occurrences <- merge(
     .[, num_occurance := num_occurence_in_spam + num_occurence_in_non_spam]
 ```
 
-```{r}
+```{r, echo = FALSE}
 p1 <- word_occurrences[order(-num_occurance)][1:20] %>%
     ggplot(aes(x = reorder(word, num_occurance))) +
         geom_col(aes(y = prevalence_in_spam), fill = "red") +
@@ -260,7 +264,7 @@ patchwork::wrap_plots(p1, p2) +
     )
 ```
 
-```{r}
+```{r, echo = FALSE}
 p1 <- word_occurrences[is_stopword == FALSE][order(-num_occurance)][1:20] %>%
     ggplot(aes(x = reorder(word, num_occurance))) +
         geom_col(aes(y = prevalence_in_spam), fill = "red") +
@@ -285,6 +289,8 @@ patchwork::wrap_plots(p1, p2) +
           subtitle = "Excludes stopwords",
     )
 ```
+
+We can see that certain words (e.g. 'free' or 'now', or call-to-actions, like 'call' and 'send') appear with a much higher relative frequency is spam than in non-spam.
 
 ### Words with biggest descrepancy in their frequency
 
@@ -384,11 +390,15 @@ Accuracy (remember, this is a imbalanced dataset):
 calculateAccuracy(test[["is_spam"]], baseline_predictions, cutoff = baseline_cutoff)
 ```
 
+_Note: you will find the user defined functions in `week10/eval_utils.R`._
+
 Better model performance metric would be AU(RO)C:
 ```{r}
 baseline_auc <- calculateAUC(
     actual = test[["is_spam"]], predictions = baseline_predictions
 )
+
+baseline_auc
 ```
 
 Confusion matrix to visualize the TPR / FPR balance:
@@ -416,8 +426,6 @@ logit_only_num_feat_model <- glm(
     family = binomial(link = "logit"),
     data = train[, -c("message_id", "sms_text")]
 )
-
-summary(logit_only_num_feat_model)
 ```
 
 ```{r}
@@ -452,8 +460,6 @@ full_logit_model <- glm(
     family = binomial(link = "logit"),
     data = train[, -c("message_id", "sms_text")]
 )
-
-summary(full_logit_model)
 ```
 
 ```{r}
