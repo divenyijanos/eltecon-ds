@@ -202,14 +202,20 @@ sms_words <- merge(
 num_spam_msgs <- sms_words[is_spam == 1, uniqueN(message_id)]
 word_occurrences_in_spam <- sms_words[
     is_spam == 1,
-    .(prevalence_in_spam = uniqueN(message_id) / num_spam_msgs),
+    .(
+        num_occurence_in_spam = uniqueN(message_id),
+        prevalence_in_spam = uniqueN(message_id) / num_spam_msgs
+    ),
     by = c("word", "is_stopword")
 ]
 
 num_non_spam_msgs <- sms_words[is_spam == 0, uniqueN(message_id)]
 word_occurrences_in_non_spam <- sms_words[
     is_spam == 0,
-    .(prevalence_in_non_spam = uniqueN(message_id) / num_non_spam_msgs),
+    .(
+        num_occurence_in_non_spam = uniqueN(message_id),
+        prevalence_in_non_spam = uniqueN(message_id) / num_non_spam_msgs
+    ),
     by = c("word", "is_stopword")
 ]
 
@@ -219,14 +225,16 @@ word_occurrences <- merge(
 ) %>%
     .[, `:=`(
         prevalence_in_spam = dplyr::coalesce(prevalence_in_spam, 0),
-        prevalence_in_non_spam = dplyr::coalesce(prevalence_in_non_spam, 0)
+        prevalence_in_non_spam = dplyr::coalesce(prevalence_in_non_spam, 0),
+        num_occurence_in_spam = dplyr::coalesce(num_occurence_in_spam, 0),
+        num_occurence_in_non_spam = dplyr::coalesce(num_occurence_in_non_spam, 0)
     )] %>%
-    .[, avg_prevalence := (prevalence_in_spam + prevalence_in_non_spam) / 2]
+    .[, num_occurance := num_occurence_in_spam + num_occurence_in_non_spam]
 ```
 
 ```{r}
-p1 <- word_occurrences[order(-avg_prevalence)][1:20] %>%
-    ggplot(aes(x = reorder(word, avg_prevalence))) +
+p1 <- word_occurrences[order(-num_occurance)][1:20] %>%
+    ggplot(aes(x = reorder(word, num_occurance))) +
         geom_col(aes(y = prevalence_in_spam), fill = "red") +
         labs(x = "avg_prevalence", title = "Spam") +
         ylim(c(0, 0.65)) +
@@ -234,8 +242,8 @@ p1 <- word_occurrences[order(-avg_prevalence)][1:20] %>%
         theme_minimal() +
         theme(legend.position = "top")
 
-p2 <- word_occurrences[order(-avg_prevalence)][1:20] %>%
-    ggplot(aes(x = reorder(word, avg_prevalence))) +
+p2 <- word_occurrences[order(-num_occurance)][1:20] %>%
+    ggplot(aes(x = reorder(word, num_occurance))) +
         geom_col(aes(y = prevalence_in_non_spam), fill = "blue") +
         labs(x = "avg_prevalence", title = "Non-spam") +
         ylim(c(0, 0.65)) +
@@ -245,14 +253,14 @@ p2 <- word_occurrences[order(-avg_prevalence)][1:20] %>%
 
 patchwork::wrap_plots(p1, p2) +
     patchwork::plot_annotation(
-          title = "Prevalence of most frequent words",
+          title = "Prevalence of top 20 words by frequency in messages",
           subtitle = "Includes stopwords",
     )
 ```
 
 ```{r}
-p1 <- word_occurrences[is_stopword == FALSE][order(-avg_prevalence)][1:20] %>%
-    ggplot(aes(x = reorder(word, avg_prevalence))) +
+p1 <- word_occurrences[is_stopword == FALSE][order(-num_occurance)][1:20] %>%
+    ggplot(aes(x = reorder(word, num_occurance))) +
         geom_col(aes(y = prevalence_in_spam), fill = "red") +
         labs(x = "avg_prevalence", title = "Spam") +
         ylim(c(0, 0.65)) +
@@ -260,8 +268,8 @@ p1 <- word_occurrences[is_stopword == FALSE][order(-avg_prevalence)][1:20] %>%
         theme_minimal() +
         theme(legend.position = "top")
 
-p2 <- word_occurrences[is_stopword == FALSE][order(-avg_prevalence)][1:20] %>%
-    ggplot(aes(x = reorder(word, avg_prevalence))) +
+p2 <- word_occurrences[is_stopword == FALSE][order(-num_occurance)][1:20] %>%
+    ggplot(aes(x = reorder(word, num_occurance))) +
         geom_col(aes(y = prevalence_in_non_spam), fill = "blue") +
         labs(x = "avg_prevalence", title = "Non-spam") +
         ylim(c(0, 0.65)) +
@@ -271,9 +279,56 @@ p2 <- word_occurrences[is_stopword == FALSE][order(-avg_prevalence)][1:20] %>%
 
 patchwork::wrap_plots(p1, p2) +
     patchwork::plot_annotation(
-          title = "Prevalence of most frequent words",
+          title = "Prevalence of top 20 words by frequency in messages",
           subtitle = "Excludes stopwords",
     )
+```
+
+### Words with biggest descrepancy in their frequency
+
+First, we'll create a list of words which have the biggest difference in their relative frequency in spam vs non-spam sms messages:
+```{r}
+top20_diff_words <- word_occurrences %>%
+    .[is_stopword == FALSE] %>%
+    .[num_occurance >= 5] %>%
+    .[, prevalence_diff := abs(prevalence_in_spam - prevalence_in_non_spam)] %>%
+    .[order(-prevalence_diff)] %>%
+    .[1:20] %>%
+    .[, word]
+```
+
+Then, we'll want to flag messages that contain those words, and do it in a format that we can feed to predictive models.
+
+```{r}
+all_msg_ids_w_top20_diff_words <- CJ(
+    sms[, unique(message_id)], top20_diff_words
+) %>%
+    setnames(c("message_id", "word"))
+```
+
+This is a process we call "one-hot encoding".
+For each message, we are adding a feature variable for each of the target words, which takes:
+    + on a value of `1` if the message contains it
+    + `0` otherwise
+
+```{r}
+top20_diff_words_one_hot <- merge(
+    all_msg_ids_w_top20_diff_words,
+    sms_words[, .(message_id, word, contains_word = 1)],
+    by = c("message_id", "word"),
+    all.x = TRUE
+) %>%
+    .[, contains_word := dplyr::coalesce(contains_word, 0)] %>%
+    dcast(message_id ~ word, value.var = 'contains_word', fun.aggregate = max)
+```
+
+```{r}
+top20_diff_words_one_hot
+```
+
+And now we add the new features to the `sms` dataset:
+```{r}
+sms <- merge(sms, top20_diff_words_one_hot, by = "message_id")
 ```
 
 ## Predictive modeling
