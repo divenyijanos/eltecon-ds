@@ -385,7 +385,9 @@ calculateAccuracy(test[["is_spam"]], baseline_predictions, cutoff = baseline_cut
 
 Better model performance metric would be AU(RO)C:
 ```{r}
-pROC::auc(response = test[["is_spam"]], predictor = baseline_predictions)
+baseline_auc <- calculateAUC(
+    actual = test[["is_spam"]], predictions = baseline_predictions
+)
 ```
 
 Confusion matrix to visualize the TPR / FPR balance:
@@ -422,7 +424,9 @@ logit_predictions <- predict(logit_model, newdata = test, type = "response")
 ```
 
 ```{r}
-pROC::auc(response = test[["is_spam"]], predictor = logit_predictions)
+logit_auc <- calculateAUC(
+    actual = test[["is_spam"]], predictions = logit_predictions
+)
 ```
 
 ```{r}

@@ -45,3 +45,13 @@ calculateROC <- function(actual, predictions) {
         rbindlist()
 }
 
+calculateAUC <- function(actual, predictions) {
+    suppressMessages({
+        auc <- pROC::auc(response = actual, predictor = predictions) %>%
+            attr("roc") %>%
+            .[["auc"]] %>%
+            as.numeric()
+
+        return(auc)
+    })
+}
