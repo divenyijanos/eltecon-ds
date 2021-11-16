@@ -29,7 +29,7 @@ plotROC <- function(fpr_tpr, model_name) {
         scale_x_continuous(limits = c(0, 1)) +
         scale_y_continuous(limits = c(0, 1)) +
         labs(
-            title = glue("ROC for {model_name} using all features"),
+            title = glue("ROC for {model_name}"),
             subtitle = "Point labels represent probability cutoffs"
         ) +
         theme_minimal()
