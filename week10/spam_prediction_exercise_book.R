@@ -1,16 +1,3 @@
----
-title: "Spam classification case study"
-author: "Tamas Koncz"
-date: "11/17/2021"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(fig.height = 4.5, fig.width = 9)
-knitr::opts_chunk$set(fig.align='center')
-
 library(knitr)
 library(data.table)
 library(ggplot2)
@@ -24,19 +11,9 @@ library(pROC)
 library(ranger)
 
 source(here::here("week10", "eval_utils.R"))
-```
 
 ## Exploratory analysis
 
-We are going to work on the [sms-spam-or-ham](https://www.kaggle.com/dejavu23/sms-spam-or-ham-beginner/data) dataset from Kaggle:
-
-_"The files contain one message per line. Each line is composed by two columns: v1 contains the label (ham or spam) and v2 contains the raw text."_
-
-The goal is to create the most accurate predictions whether an sms is spam or ham based on the message text.
-
-I recommend to take a look at the raw `.csv` first. Then, we can import it properly to R:
-
-```{r}
 sms <- fread(
     here::here("week10", "data", "spam.csv"),
     header = TRUE,
@@ -45,32 +22,20 @@ sms <- fread(
     encoding = 'Latin-1'
 ) %>%
     .[, is_spam := ifelse(is_spam == "spam", 1, 0)]
-```
 
-Let's see the frequency of spam messages in the dataset:
 
-```{r}
 sms %>%
     .[, .N, by = "is_spam"] %>%
     .[, share := scales::percent(N / sum(N), accuracy = 0.01)] %>%
     .[]
-```
-
-Our dataset is quite imbalanced. We'll have to pay attention to this when evaluating our models.
 
 ### Message length
 
-```{r}
 sms[, sms_chr_length := nchar(sms_text)]
-```
 
-```{r}
 sms[, .(avg_sms_chr_length = mean(sms_chr_length)), by = "is_spam"]
-```
 
-Okay, this is interesting... let's dive deeper:
 
-```{r, echo = FALSE}
 spam_chr_length     <- sms[is_spam == 1, .(median_sms_chr_length = median(sms_chr_length))]
 non_spam_chr_length <- sms[is_spam == 0, .(median_sms_chr_length = median(sms_chr_length))]
 
@@ -88,52 +53,27 @@ ggplot(
     ) +
     theme_minimal() +
     theme(legend.position = "top")
-```
 
-We might have just found our baseline model!
 
 ### Tokenization
 
 
-Add a unique id to each message:
-
-```{r}
 sms[, message_id := 1:.N]
-```
 
-Tokenization:
-
-```{r}
 sms_words <- sms %>%
     .[, .(message_id, sms_text)] %>%
     tidytext::unnest_tokens(output = "word", input = "sms_text") %>%
     data.table()
-```
 
-**EXERCISE** let's flag stopwords:
-```{r}
-stop_words <- tidytext::get_stopwords() %>%
-    data.table() %>%
-    .[lexicon == "snowball", -c("lexicon")] %>%
-    .[, is_stopword := TRUE]
+# EXERCISE: flag stopwords:
+# TODO add solution
 
-sms_words <- sms_words %>%
-    merge(stop_words, by = "word", all.x = TRUE) %>%
-    .[, is_stopword := dplyr::coalesce(is_stopword, FALSE)]
-```
-
-Let's flag other "stopwords" manually: only digits and single letters.
-```{r}
 sms_words %>%
     .[, is_stopword := ifelse(nchar(word) == 1, TRUE, is_stopword)] %>%
     .[, is_stopword := ifelse(grepl("^\\d+$", word), TRUE, is_stopword)]
-```
 
 #### Number of words
 
-First, let's see sms length by words!
-
-```{r}
 sms_word_lengths <- merge(
     sms_words[, .(num_words = .N), by = "message_id"],
     sms_words[is_stopword == FALSE, .(num_non_stopwords = .N), by = "message_id"],
@@ -141,70 +81,20 @@ sms_word_lengths <- merge(
     all.x = TRUE
 ) %>%
     .[, num_non_stopwords := dplyr::coalesce(num_non_stopwords, 0)]
-```
 
-```{r}
 sms <- merge(
     sms, sms_word_lengths, by = "message_id"
 )
-```
 
-**EXERCISE** plot the distribution of `num_words` by `is_spam`!
-```{r, echo = FALSE}
-spam_num_words     <- sms[is_spam == 1, .(median_num_words = median(num_words))]
-non_spam_num_words <- sms[is_spam == 0, .(median_num_words = median(num_words))]
-
-ggplot(
-    sms,
-    aes(x = num_words, fill = as.factor(is_spam), color = as.factor(is_spam))
-) +
-    geom_histogram(alpha = 0.25, position = "identity") +
-    labs(
-        title = "Distribution of number of words by sms type",
-        subtitle = glue(
-            "Median sms word count: spam = {spam_num_words}",
-            ", non-spam: {non_spam_num_words}"
-        )
-    ) +
-    theme_minimal() +
-    theme(legend.position = "top")
-```
-
-```{r, echo = FALSE}
-spam_num_non_stopwords     <- sms[
-    is_spam == 1, .(median_num_non_stopwords = median(num_non_stopwords))
-]
-non_spam_num_non_stopwords <- sms[
-    is_spam == 0, .(median_num_non_stopwords = median(num_non_stopwords))
-]
-
-ggplot(
-    sms,
-    aes(x = num_non_stopwords, fill = as.factor(is_spam), color = as.factor(is_spam))
-) +
-    geom_histogram(alpha = 0.25, position = "identity") +
-    labs(
-        title = "Distribution of number of non-stopwords by sms type",
-        subtitle = glue(
-            "Median sms word count: spam = {spam_num_non_stopwords}",
-            ", non-spam: {non_spam_num_non_stopwords}"
-        )
-    ) +
-    theme_minimal() +
-    theme(legend.position = "top")
-```
-
-We see similar patterns like we did with length in characters: spam messages tend to be longer on average.
+## EXERCISE: plot the distribution of `num_words` by `is_spam`!
+# TODO add solution
 
 ## Most frequent words
 
-```{r}
 sms_words <- merge(
     sms_words, sms[, .(message_id, is_spam)], by = "message_id"
 )
-```
 
-```{r}
 num_spam_msgs <- sms_words[is_spam == 1, uniqueN(message_id)]
 word_occurrences_in_spam <- sms_words[
     is_spam == 1,
@@ -236,9 +126,7 @@ word_occurrences <- merge(
         num_occurence_in_non_spam = dplyr::coalesce(num_occurence_in_non_spam, 0)
     )] %>%
     .[, num_occurance := num_occurence_in_spam + num_occurence_in_non_spam]
-```
 
-```{r, echo = FALSE}
 p1 <- word_occurrences[order(-num_occurance)][1:20] %>%
     ggplot(aes(x = reorder(word, num_occurance))) +
         geom_col(aes(y = prevalence_in_spam), fill = "red") +
@@ -262,9 +150,7 @@ patchwork::wrap_plots(p1, p2) +
           title = "Prevalence of top 20 words by frequency in messages",
           subtitle = "Includes stopwords",
     )
-```
 
-```{r, echo = FALSE}
 p1 <- word_occurrences[is_stopword == FALSE][order(-num_occurance)][1:20] %>%
     ggplot(aes(x = reorder(word, num_occurance))) +
         geom_col(aes(y = prevalence_in_spam), fill = "red") +
@@ -288,14 +174,10 @@ patchwork::wrap_plots(p1, p2) +
           title = "Prevalence of top 20 words by frequency in messages",
           subtitle = "Excludes stopwords",
     )
-```
 
-We can see that certain words (e.g. 'free' or 'now', or call-to-actions, like 'call' and 'send') appear with a much higher relative frequency is spam than in non-spam.
 
 ### Words with biggest descrepancy in their frequency
 
-First, we'll create a list of words which have the biggest difference in their relative frequency in spam vs non-spam sms messages:
-```{r}
 top20_diff_words <- word_occurrences %>%
     .[is_stopword == FALSE] %>%
     .[num_occurance >= 5] %>%
@@ -303,23 +185,14 @@ top20_diff_words <- word_occurrences %>%
     .[order(-prevalence_diff)] %>%
     .[1:20] %>%
     .[, word]
-```
 
-Then, we'll want to flag messages that contain those words, and do it in a format that we can feed to predictive models.
 
-```{r}
 all_msg_ids_w_top20_diff_words <- CJ(
     sms[, unique(message_id)], top20_diff_words
 ) %>%
     setnames(c("message_id", "word"))
-```
 
-This is a process we call "one-hot encoding".
-For each message, we are adding a feature variable for each of the target words, which takes:
-    + on a value of `1` if the message contains it
-    + `0` otherwise
 
-```{r}
 top20_diff_words_one_hot <- merge(
     all_msg_ids_w_top20_diff_words,
     sms_words[, .(message_id, word, contains_word = 1)],
@@ -328,122 +201,72 @@ top20_diff_words_one_hot <- merge(
 ) %>%
     .[, contains_word := dplyr::coalesce(contains_word, 0)] %>%
     dcast(message_id ~ word, value.var = 'contains_word', fun.aggregate = max)
-```
 
-```{r}
 top20_diff_words_one_hot
-```
 
-And now we add the new features to the `sms` dataset:
-```{r}
 sms <- merge(sms, top20_diff_words_one_hot, by = "message_id")
-```
 
 ## Predictive modeling
 
 
 ### Train / test split
 
-First, we have to separate a portion of our dataset for testing the models we create.
-
-**EXERCISE** create an 80% train/test split!
-
-```{r}
-train_proportion <- 0.8
-
-num_rows <- sms[, .N]
-
-set.seed(20211015)
-train_index <- sample(1:num_rows, floor(num_rows * train_proportion))
-
-train <- sms[train_index]
-test  <- sms[-train_index]
-```
+## Exercise: create an 80% train/test split!
+# TODO add solution
 
 ### Baseline model
 
-Most ML project should start by establishing a useful baseline.
-Automatically assigning the most frequent class could be a good performance benchmark, but it is rarely useful in practice.
-
-Rather, we will build a single-split tree model to form our baseline:
-
-```{r}
 baseline_model <- rpart(
     is_spam ~ sms_chr_length,
     data = train,
     control = rpart.control(maxdepth = 1)
 )
 baseline_model
-```
 
 ### Evaluation of baseline model
 
-```{r}
 baseline_predictions <- predict(baseline_model, newdata = test)
-```
 
 Predictions will only take on two values (due to the single-split control), so we can take their avg. as our cutoff to assign classes to predicted probabilities:
-```{r}
 baseline_cutoff <- mean(unique(baseline_predictions))
-```
 
-Accuracy (remember, this is a imbalanced dataset):
 
-```{r}
+
 calculateAccuracy(test[["is_spam"]], baseline_predictions, cutoff = baseline_cutoff)
-```
 
-_Note: you will find the user defined functions in `week10/eval_utils.R`._
+## _Note: you will find the user defined functions in `week10/eval_utils.R`._
 
 Better model performance metric would be AU(RO)C:
-```{r}
 baseline_auc <- calculateAUC(
     actual = test[["is_spam"]], predictions = baseline_predictions
 )
 
 baseline_auc
-```
 
-Confusion matrix to visualize the TPR / FPR balance:
-
-```{r}
 baseline_confusion_matrix <- getConfusionMatrix(
     actual = test[["is_spam"]],
     predictions = baseline_predictions,
     cutoff = baseline_cutoff
 )
-```
 
-```{r}
 calculateFPRTPR(baseline_confusion_matrix)
-```
-
-We are trading in a lot of false positives for our true positives.
-Hopefully, we can do better with our next models.
 
 ### Logit using only numeric features
 
-```{r}
 logit_only_num_feat_model <- glm(
     is_spam ~ sms_chr_length + num_words + num_non_stopwords,
     family = binomial(link = "logit"),
     data = train[, -c("message_id", "sms_text")]
 )
-```
 
-```{r}
 logit_only_num_feat_predictions <- predict(
     logit_only_num_feat_model, newdata = test, type = "response"
 )
-```
 
-```{r}
 logit_only_num_feat_auc <- calculateAUC(
     actual = test[["is_spam"]], predictions = logit_only_num_feat_predictions
 )
-```
 
-```{r}
 calculateROC(
     actual = test[["is_spam"]], predictions = logit_only_num_feat_predictions
 ) %>%
@@ -451,46 +274,17 @@ calculateROC(
         model_name = "logit model using only numeric features",
         auc = logit_only_num_feat_auc
     )
-```
 
 ### Logit using all features
 
 
-**EXERCISE** repeat the above logit model, but now use all features (incl. the one hot encodings!)
-```{r}
-full_logit_model <- glm(
-    is_spam ~ .,
-    family = binomial(link = "logit"),
-    data = train[, -c("message_id", "sms_text")]
-)
-```
+## EXERCISE: repeat the above logit model, but now use all features (incl. the one hot encodings!)
+# TODO add solution
 
-```{r}
-full_logit_predictions <- predict(
-    full_logit_model, newdata = test, type = "response"
-)
-```
-
-```{r}
-full_logit_auc <- calculateAUC(
-    actual = test[["is_spam"]], predictions = full_logit_predictions
-)
-```
-
-```{r}
-calculateROC(
-    actual = test[["is_spam"]],
-    predictions = full_logit_predictions
-) %>%
-    plotROC(
-        model_name = "logit model using all features",
-        auc = full_logit_auc
-    )
-```
 
 ### Random Forest
 
-**EXERCISE** for 2 bonus points:
-+ repeat the full model with RF!
-+ Also plot variable importance.
-
+## EXERCISE: for 2 bonus points:
+## + repeat the full model with RF!
+## + Also plot variable importance.
+# TODO add solution
