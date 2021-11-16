@@ -118,6 +118,13 @@ sms_words <- sms_words %>%
     .[, is_stopword := dplyr::coalesce(is_stopword, FALSE)]
 ```
 
+Let's flag other "stopwords" manually: only digits and single letters.
+```{r}
+sms_words %>%
+    .[, is_stopword := ifelse(nchar(word) == 1, TRUE, is_stopword)] %>%
+    .[, is_stopword := ifelse(grepl("^\\d+$", word), TRUE, is_stopword)]
+```
+
 #### Number of words
 
 First, let's see sms length by words!
