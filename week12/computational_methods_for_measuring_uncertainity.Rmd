@@ -1,0 +1,608 @@
+---
+title: "Eltecon Data Science Course by Emarsys"
+subtitle: "Computational methods for measuring uncertainity"
+author: "Tamás Koncz"
+date: "October 21, 2020"
+output:
+  beamer_presentation:
+    colortheme: dolphin
+    fonttheme: structurebold
+    theme: AnnArbor
+    # toc: true
+    slide_level: 2
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(out.width = '65%')
+knitr::opts_chunk$set(fig.align = 'center')
+# knitr::opts_knit$set(root.dir = '..')
+
+library(knitr)
+library(data.table)
+library(magrittr)
+library(ggplot2)
+library(purrr)
+library(boot)
+library(ggtext)
+```
+
+
+## Why we do statistical inference?
+
+* General goal: learn from (a limited) experience
+* In statistical lingo: Observing a random sample, we wish to infer properties of the population it was drawn from
+* In business: "If released, would our new product produce similar results than we observed in our experiment?"
+
+## Standard statistical methods
+
+Calculate the 95% confidence interval as
+
+$$\bar x \pm 1.96 * \frac{s}{\sqrt{n}}$$
+
+where:
+
+* $\bar x$ is the sample mean,
+* $s$ is the standard deviation of the sample distribution,
+* $n$ is the sample size
+
+## Drawbacks of standard statistical tests
+
+* Parametric tests rely on certain assumptions, e.g. that sampling distribution is normal (which needs large n to be true)
+* SE formula might not exists for other statistical estimators than the mean
+
+# Bootstrapping
+
+## What is bootstrapping?
+
+*"The bootstrap is a data-based simulation method for statistical inference"*
+  - [An Introduction to the Bootstrap](https://www.amazon.com/Introduction-Bootstrap-Monographs-Statistics-Probability-dp-B00N4FIV22/dp/B00N4FIV22/ref=mt_other?_encoding=UTF8&me=&qid=)
+
+## What is (non-parametric) bootstrapping?
+
+* __data-based__
+    * Gather a random sample from the population (assumed to be representative, e.g. [iid](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables))
+* __simulation__
+    * Re-sample with __replacement__ to create another sample
+    * One data point can appear 0, 1, or multiple times in a re-sample
+    * Repeat this B times --> min. 10,000x
+* __statistical inference__
+    * Calculate the mean of each "new" sample
+    * You can use the distribution of sample means to estimate the standard error, or to calculate confidence intervals
+
+## Example from last class
+
+```{r}
+sample_size <- 500
+mean_height = 178
+sd_height = 7.5
+
+set.seed(1111)
+height_sample <- data.table(
+    x = rnorm(sample_size, mean = mean_height, sd = sd_height)
+)
+sample_mean <- height_sample[, mean(x)]
+sample_sd <- height_sample[, sd(x)]
+
+ggplot(height_sample, aes(x)) +
+    geom_histogram(aes(y = ..density..), fill = "darkgreen") +
+    geom_vline(aes(xintercept = sample_mean)) +
+    labs(
+      x = "Height (in cm)", y = NULL,
+      title = "Distribution of heights in sample",
+      subtitle = paste0("n = ", sample_size, ", sample mean = ", round(sample_mean, 2))
+    ) +
+    theme_classic() +
+    theme(text = element_text(size=20))
+```
+
+## CI of sample means based on Student's t-distribution
+
+```{r}
+ggplot() +
+    xlim(
+        sample_mean - 3 * (sample_sd / sqrt(sample_size)),
+        sample_mean + 3 * (sample_sd / sqrt(sample_size))
+    ) +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = sample_mean, sd = sample_sd / sqrt(sample_size)),
+        color = "red"
+    ) +
+    geom_vline(
+        xintercept = sample_mean - 1.96 * (sample_sd / sqrt(sample_size)),
+        color = "red"
+    ) +
+    geom_vline(
+        xintercept = sample_mean + 1.96 * (sample_sd / sqrt(sample_size)),
+        color = "red"
+    ) +
+    geom_vline(xintercept = sample_mean, color = "black") +
+    labs(
+        x = "Height (in cm)", y = NULL,
+        title = "Estimated distribution of sample means"
+    ) +
+    theme_classic() +
+    theme(text = element_text(size=20))
+```
+
+## Estimating the distribution of sample means with bootstrapping {.smaller}
+
+```{r}
+# it will be easier to work with a vector rather than a dt
+height_sample <- height_sample[, x]
+```
+
+```{r, echo = TRUE}
+height_sample[1:5]
+```
+
+## Estimating the distribution of sample means with bootstrapping {.smaller}
+
+```{r, echo = TRUE}
+B = 10000
+sample_size <- length(height_sample)
+bs_sample_means <- data.table(
+  sample_id = integer(), bs_sample_mean = numeric()
+)
+
+set.seed(1021)
+for (i in 1:B) {
+  bs_sample = sample(height_sample, sample_size, replace = TRUE)
+  bs_sample_means <- rbind(
+    bs_sample_means,
+    data.table(sample_id = i, bs_sample_mean = mean(bs_sample))
+  )
+}
+```
+
+## Estimating the distribution of sample means with bootstrapping
+
+```{r, echo = TRUE}
+head(bs_sample_means)
+```
+
+## Estimating the distribution of sample means with bootstrapping
+
+```{r}
+ggplot(bs_sample_means, aes(x = bs_sample_mean)) +
+    geom_density(color = "blue") +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = sample_mean, sd = sample_sd / sqrt(sample_size)),
+        color = "darkgreen"
+    ) +
+    geom_vline(xintercept = sample_mean, color = "black") +
+    xlim(
+        sample_mean - 3.5 * (sample_sd / sqrt(sample_size)),
+        sample_mean + 3.5 * (sample_sd / sqrt(sample_size))
+    ) +
+    labs(
+        x = "Height (in cm)", y = NULL,
+        title = "Estimated distribution of sample means",
+        subtitle = "<span style = 'color: blue;'>non-param. bootstrapping</span> vs <span style = 'color: darkgreen;'>t-distribution</span>"
+    ) +
+    theme_classic() +
+    theme(text = element_text(size = 20)) +
+    theme(plot.subtitle = ggtext::element_markdown())
+```
+
+## Let's have a break!
+
+**Please be back in 15 minutes.**
+
+## What is parametric bootstrapping?
+
+* Falls under the broader class of resampling methods
+* Based on your observed sample, you create a parametric model to fit the data
+* With this model, you generate many new datasets
+* Using these new datasets, you estimate the variation of your test statistic
+
+## Recap: Why bootstrap?
+
+* You do not make any assumptions about how your test statistic distribution
+* ... while results should be very similar to what you get from statistical tests - unless the underlaying distribution doesn't fit to the the supposed distribution
+* ("Fairly" recent development that we can do bootstrapping easily on our laptops)
+
+## Confidence intervals: the percentile method
+
+**lower bound:**
+\small
+```{r, echo = TRUE}
+bs_sample_means[, quantile(bs_sample_mean, 0.025, names = FALSE)]
+sample_mean - 1.96 * (sample_sd / sqrt(sample_size))
+```
+\normalsize
+
+**upper bound:**
+\small
+```{r, echo = TRUE}
+bs_sample_means[, quantile(bs_sample_mean, 0.975, names = FALSE)]
+sample_mean + 1.96 * (sample_sd / sqrt(sample_size))
+```
+\normalsize
+
+## Confidence intervals: the percentile method
+
+(There are other methods, e.g. you could estimate the SE with bootstrap)
+
+(We won't cover those in this class)
+
+## Confidence intervals: practice time
+
+\tiny
+```{r, echo = TRUE}
+dt <- fread("experiment_result_HW.csv") %>%
+    .[group == "treatment" & period == "first period"]
+
+head(dt)
+```
+\normalsize
+
+## Confidence intervals: practice time {.smaller}
+
+```{r, echo = TRUE}
+dt[, .N]
+```
+
+```{r, echo = TRUE}
+click_rate <- dt[, mean(has_viewed_website)]
+click_rate
+```
+
+```{r, echo = TRUE}
+dt[, t.test(has_viewed_website)][["conf.int"]]
+```
+
+## Confidence intervals: practice time
+
+TODO:
+
+  - calculate the mean `click_rate` `(= mean(has_viewed_website))`!
+  - calculate the median for `sales_amount` of people who ordered at least 5 items!
+
+## Confidence intervals: practice time
+
+SOLUTION
+
+```{r, echo = FALSE, eval = FALSE}
+B = 10000
+bs_click_rates <- c()
+
+set.seed(1021)
+for (i in 1:B) {
+  bs_sample <- sample(dt[, has_viewed_website], dt[, .N], replace = TRUE)
+  bs_click_rates <- c(bs_click_rates, mean(bs_sample))
+}
+
+ggplot(data.frame(bs_click_rates), aes(bs_click_rates)) + geom_histogram()
+quantile(bs_click_rates, c(0.025, 0.975))
+```
+
+```{r, echo = FALSE, eval = FALSE}
+bootstrapStatistic <- function(x, B = 10000, seed = 1021, fn = mean, ...) {
+  if (!is.vector(x)) stop("x needs to be a vector")
+
+  bs <- c()
+
+  set.seed(seed)
+  for (i in 1:B) {
+    bs_sample <- sample(x, length(x), replace = TRUE)
+    bs <- c(bs, fn(bs_sample, ...))
+  }
+
+  return(bs)
+}
+
+mean(dt[num_items_ordered > 5, sales_amount])
+bs <- bootstrapStatistic(
+  dt[num_items_ordered > 5, sales_amount], B = 10000, fn = mean
+)
+
+quantile(bs, c(0.025, 0.975))
+```
+
+<!-- ## Bootstrapping with `{purrr}`
+
+\small
+```{r, echo = TRUE}
+B = 10000
+sample_size <- length(height_sample)
+
+set.seed(1021)
+bs_samples <- purrr::map(c(1:B), ~{
+  data.table(
+    sample_id = rep(.x, sample_size),
+    x = sample(height_sample, sample_size, replace = TRUE)
+  )
+}) %>%
+  rbindlist()
+```
+\normalsize
+
+## Bootstrapping with `{purrr}`
+
+\small
+```{r, echo = TRUE}
+bs_samples[c(1, 2 , 3, 501, 502, 503)]
+```
+\normalsize
+
+## Bootstrapping with `{purrr}`
+
+\small
+```{r, echo = TRUE}
+bs_samples %>%
+  .[, .(bs_sample_mean = mean(x)), by = sample_id] %>%
+  .[, .(
+    lower_bound = quantile(bs_sample_mean, 0.025),
+    upper_bound = quantile(bs_sample_mean, 0.975)
+  )]
+```
+\normalsize
+
+## Parallelize with `{furrr}`!
+
+`purrr::map()` -> `furrr::future_map()`
+
+```{r, echo = TRUE, eval = FALSE}
+plan(multisession, workers = 4)
+furrr::future_map(.x, .f, ...)
+```
+-->
+
+## Let's have a break!
+
+**Please be back in 15 minutes.**
+
+## Hypothesis testing
+
+Elements of hypothesis testing:
+
+1. Specify H0
+2. Define test statistic
+3. Calculate distribution of test statistic under H0
+4. Calculate p-value on from:
+  * test statistic on sample
+  * distribution of test statistic assuming H0
+
+## Hypothesis testing
+
+Question: _"are girls the same height as boys on average?"_
+
+H0: "The mean height of girls and boys are the same"
+
+## Hypothesis testing
+
+```{r}
+sample_size <- 500
+mean_height_boys = 178.5
+mean_height_girls = 177.5
+sd_height_boys = 12
+sd_height_girls = 10
+
+set.seed(1111)
+height_sample <- data.table(
+    group = c(rep("boys", sample_size / 2), rep("girls", sample_size / 2)),
+    height = c(
+      rnorm(sample_size / 2, mean = mean_height_boys, sd = sd_height_boys),
+      rnorm(sample_size / 2, mean = mean_height_girls, sd = sd_height_girls)
+    )
+)
+sample_mean_height_boys  <- height_sample[group == "boys",  mean(height)]
+sample_mean_height_girls <- height_sample[group == "girls", mean(height)]
+
+ggplot(height_sample, aes(x = height, fill = group)) +
+    geom_histogram(position = "identity", alpha = 0.5) +
+    geom_vline(aes(xintercept = sample_mean_height_boys), color = "blue") +
+    geom_vline(aes(xintercept = sample_mean_height_girls), color = "red") +
+    labs(
+      x = "Height (in cm)", y = NULL,
+      title = "Distribution of heights in sample"
+    ) +
+    theme_classic() +
+    theme(text = element_text(size = 20))
+```
+
+## Parametric hypothesis test
+
+```{r, echo = TRUE}
+height_sample[c(1, 2, 3, 498, 499, 500)]
+```
+
+## Parametric hypothesis test
+
+```{r, echo = TRUE}
+t.test(
+  height_sample[`group` == "boys", height],
+  height_sample[group == "girls", height]
+)[["p.value"]]
+```
+
+## Permutation hypothesis testing
+
+**Define test statistic:**
+```{r, echo = TRUE}
+sample_height_diff <- abs(sample_mean_height_girls - sample_mean_height_boys)
+sample_height_diff
+```
+
+## Permutation hypothesis testing
+
+**Calculate distribution of test statistic under H0**
+\tiny
+```{r, echo = TRUE}
+  B = 10000
+  perm_sample_diffs <- data.table(perm_id = integer(), perm_diff = numeric())
+
+  set.seed(1021)
+  for (i in 1:B) {
+    perm_sample <- data.table(
+      group = height_sample[, group],
+      height = sample(height_sample[, height], sample_size, replace = FALSE)
+    )
+
+    perm_sample_diffs <- rbind(
+      perm_sample_diffs,
+      data.table(
+        perm_id = i,
+        perm_diff = perm_sample[group == "boys", mean(height)] - perm_sample[group == "girls", mean(height)]
+      )
+    )
+  }
+```
+\normalsize
+
+## Permutation hypothesis testing
+
+```{r}
+ggplot(perm_sample_diffs, aes(x = perm_diff)) +
+    geom_density() +
+    geom_vline(aes(xintercept = sample_height_diff), color = "blue") +
+    geom_vline(aes(xintercept = -1 * sample_height_diff), color = "blue") +
+    geom_vline(aes(xintercept = perm_sample_diffs[, quantile(perm_diff, 0.025)]), color = "red") +
+    geom_vline(aes(xintercept = perm_sample_diffs[, quantile(perm_diff, 0.975)]), color = "red") +
+    labs(
+      x = "Height Diff. (in cm)", y = NULL,
+      title = "Diff. in heights under H0",
+      subtitle = "<span style = 'color: blue;'>Height diff. in sample</span> vs <span style = 'color: red;'>95% CI</span>"
+    ) +
+    theme_classic() +
+    theme(text = element_text(size = 20)) +
+    theme(plot.subtitle = ggtext::element_markdown())
+```
+
+## Permutation hypothesis testing
+
+**Calculate p-value**
+```{r, echo = TRUE}
+p_value <- perm_sample_diffs[,
+  sum(sample_height_diff < abs(perm_diff)) / .N
+]
+
+print(p_value)
+```
+
+## Why use the permutation approach?
+
+* Works better on small samples
+* Relies on no assumptions (compared to parametric approaches)
+* Comparing more special test statistics
+
+## Hypothesis testing - practice time {.smaller}
+
+```{r, echo = TRUE}
+dt <- fread("experiment_result_HW.csv") %>%
+    .[period == "first period", .(group, sales_amount)]
+
+head(dt)
+```
+
+## Hypothesis testing - practice time {.smaller}
+
+TODOs:
+
+  - Plot distribution of mean diff. in `Sales Amount` (using bootstrapping)
+  - Calculate CIs for Treatment vs Control avg. `Sales Amount` (using bootstrapping)
+  - Calculate p-value for H0: Treatment and Control `Sales Amount`-s are the same!
+    Calculate using `t.test()` and with a permutation test as well.
+  - Use `seed = 1021` for randomization!
+  - Use `B = 10000`!
+
+## Hypothesis testing - practice time {.smaller}
+
+SOLUTION
+
+```{r, echo = FALSE, eval = FALSE}
+# set parameters
+
+seed <- 1021
+B <- 10
+
+# Plot distribution of mean diff. in `Sales Amount` (using bootstrapping)
+
+sales_amount_diff <- dt[group == "treatment", mean(sales_amount)] - dt[group == "control", mean(sales_amount)]
+
+avg_sales_amount_diffs <- c()
+
+set.seed(seed)
+for (i in 1:B) {
+  bs_sample_treatment <- sample(dt[group == "treatment", sales_amount], dt[group == "treatment", .N], replace = TRUE)
+  bs_sample_control   <- sample(dt[group == "control",   sales_amount], dt[group == "control",   .N], replace = TRUE)
+  avg_sales_amount_diffs <- c(
+    avg_sales_amount_diffs,
+    mean(bs_sample_treatment) - mean(bs_sample_control)
+  )
+}
+
+data.table(avg_sales_amount_diff = avg_sales_amount_diffs) %>%
+  ggplot(aes(x = avg_sales_amount_diff)) +
+  geom_histogram() +
+  geom_vline(xintercept = sales_amount_diff, color = "red") +
+  labs(
+    x = "Sales Amount Diff. (T-C)", y = NULL,
+    title = "Estimated distribution of Avg. Sales Amount Diff.",
+    subtitle = "Treatment - Control"
+  ) +
+  theme_classic() +
+  theme(text = element_text(size = 20))
+
+# Calculate CIs for Treatment vs Control avg. `Sales Amount` (using bootstrapping)
+
+quantile(avg_sales_amount_diffs, c(0.025, 0.975))
+
+# Calculate p-value for H0: Treatment and Control `Sales Amount`-s are the same!
+# Calculate using `t.test()` and with a permutation test as well.
+
+t.test(dt[group == "treatment", sales_amount], dt[group == "control", sales_amount])
+
+avg_sales_amount_diffs_under_h0 <- data.table(
+  perm_id = integer(),
+  avg_sales_amount_diff_under_h0 = numeric()
+)
+
+set.seed(seed)
+for (i in 1:B) {
+  print(i)
+  perm_sample <- data.table(
+    group = dt[, group],
+    sales_amount = sample(dt[, sales_amount], dt[, .N], replace = FALSE)
+  )
+
+  avg_sales_amount_diffs_under_h0 <- rbind(
+    avg_sales_amount_diffs_under_h0,
+    data.table(
+      perm_id = i,
+      avg_sales_amount_diff_under_h0 = (
+        perm_sample[group == "treatment", mean(sales_amount)] -
+          perm_sample[group == "control", mean(sales_amount)]
+      )
+    )
+  )
+}
+
+p_value <- avg_sales_amount_diffs_under_h0[,
+  sum(sales_amount_diff < abs(avg_sales_amount_diff_under_h0)) / .N
+]
+
+print(p_value)
+```
+
+## Drawbacks of bootstrapping
+
+* The naive bootstrap (discussed here) is built on **large sample theory**, hence needs a sizeable sample to work well
+* Not suitable for estimating extreme values (e.g. 99th percentile)
+* Won't increase the information in your data
+* Depends on your sample being an unbiased representation of the population
+
+# Homework
+
+## Homework
+
+* Task:
+  * Use `experiment_result_HW.csv` or your own project's data
+  * Calculate the point estimates and add uncertainty with bootstrapping to one of your KPIs
+  * Calculate p-value with the permutation method for the difference of Treatment / Control groups
