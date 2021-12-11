@@ -494,3 +494,36 @@ calculateROC(
 + repeat the full model with RF!
 + Also plot variable importance.
 
+```{r, eval = FALSE, echo = FALSE}
+rf_model <- ranger::ranger(
+    is_spam ~ .,
+    data = train[, -c("message_id", "sms_text", "150p")],
+    importance = "impurity"
+)
+
+rf_predictions <- predict(rf_model, data = test, type = "response")[["predictions"]]
+
+rf_auc <- calculateAUC(actual = test[["is_spam"]], predictions = rf_predictions)
+
+calculateROC(
+    actual = test[["is_spam"]],
+    predictions = rf_predictions
+) %>%
+    plotROC(
+        model_name = "Random Forest using all features, non-tuned",
+        auc = rf_auc
+    )
+
+data.table(
+    variable = names(rf_model[["variable.importance"]]),
+    importance = rf_model[["variable.importance"]]
+) %>%
+    ggplot(aes(x = reorder(variable, importance), y = importance)) +
+        geom_col() +
+        coord_flip() +
+        labs(
+            title = "Variable importances (based on impurity) in the Random Forest model",
+            x = "variable"
+        ) +
+        theme_minimal()
+```
